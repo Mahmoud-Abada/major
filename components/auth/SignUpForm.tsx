@@ -61,10 +61,14 @@ const SignupForm = () => {
    
      try {
        await new Promise((resolve, reject) =>
-         setTimeout(() => {
-           Math.random() > 0.5 ? resolve("Success") : reject(new Error("Sign up failed, please try again!"));
-         }, 1500)
-       );
+          setTimeout(() => {
+               if (Math.random() > 0.5) {
+                 resolve("Success");
+               } else {
+                 reject(new Error("Sign up failed, please try again!"));
+               }
+             }, 1500)
+           );
    
        alert("Signup Successful! Redirecting...");
      } catch (error: unknown) {

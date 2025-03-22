@@ -50,7 +50,11 @@ const LoginForm = () => {
       await new Promise((resolve, reject) =>
         setTimeout(() => {
           const isValidUser = data.email === "test@example.com" && data.password === "Test@1234";
-          isValidUser ? resolve("Success") : reject(new Error("Invalid credentials!"));
+          if (isValidUser) {
+            resolve("Success");
+          } else {
+            reject(new Error("Invalid credentials!"));
+          }
         }, 1500)
       );
   
