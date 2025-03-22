@@ -1,7 +1,6 @@
 import Info from "@/components/auth/Info";
 import SignInForm from "@/components/auth/SignInForm";
-import SignUpForm from "@/components/auth/SignUpForm";
-import Login from "@/pages/Login";
+
 
 
 
