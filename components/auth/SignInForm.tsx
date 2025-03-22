@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -12,11 +13,11 @@ const schema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
+    /*.min(8, "Password must be at least 8 characters")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character")*/,
     rememberMe: z.boolean().optional().default(true), 
 });
 
@@ -73,12 +74,14 @@ const LoginForm = () => {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full max-w-md rounded-lg border border-gray-300 bg-white p-6 shadow-md"
+      transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+      className="w-[90%] sm:w-full max-w-md rounded-lg border border-gray-300 bg-white p-6 shadow-md"
     >
       {/* Sign In Title */}
-      <h2 className="mb-6 text-3xl font-semibold text-gray-900">Sign in</h2>
-
+      <div className="flex mb-6 items-center justify-between">
+        <h2 className=" text-3xl font-semibold text-gray-900">Sign in</h2>
+        <Image src={"/major-logo.svg"} alt={"major app"} width={48} height={46} className="block lg:hidden"/>
+      </div>
       {/* API Error Message */}
       {apiError ? (
           <motion.p
@@ -149,7 +152,7 @@ const LoginForm = () => {
 
         {/* Sign In Button */}
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={isSubmitting}
           className={`w-full h-10 rounded-lg text-sm font-semibold text-white transition-all ${
@@ -162,7 +165,7 @@ const LoginForm = () => {
 
       {/* Signup Link */}
       <p className="mt-4 text-center text-sm font-normal text-gray-900">
-      Don&apos;t forget your password!{" "}
+      Don&apos;t have an account!{" "}
         <a href="/signup" className="font-semibold text-gray-900 hover:cursor-pointer underline">
           Sign up
         </a>
@@ -177,7 +180,6 @@ const LoginForm = () => {
 
       {/* Google Sign In */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="mb-2 flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
       >
@@ -187,7 +189,6 @@ const LoginForm = () => {
 
       {/* Facebook Sign In */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
       >

@@ -40,14 +40,14 @@ type InfoProps = {
 const Info: React.FC<InfoProps> = ({ category }) => {
   const features = category === "students" ? studentFeatures : teacherFeatures;
   return (
-    <section className="max-w-[28rem] p-6 h-fit lg:h-[36.49rem]">
+    <section className="max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block">
       {/* Logo + Title */}
       <div className="flex items-center space-x-3">
        <Image src={"/major-logo.svg"} alt={"major app"} width={100} height={94}/>
       </div>
 
       {/* Features List */}
-      <div className="mt-6 space-y-4 hidden lg:block">
+      <div className="mt-6 space-y-10">
           {features.map((feature, index) => (
           <div key={index} className="flex items-start space-x-3 mt-6">
                <div className="w-[1.5rem] h-[1.5rem] text-[#47536B] opacity-100">

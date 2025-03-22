@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -82,13 +83,14 @@ const SignupForm = () => {
      <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full max-w-md rounded-lg border border-gray-300 bg-white p-6 shadow-md"
+      transition={{ duration: 0.5, ease: "easeOut", delay: 0.1}}
+      className="w-[90%] sm:w-full max-w-md rounded-lg border border-gray-300 bg-white p-6 shadow-md"
     >
       {/* Sign Up Title */}
-      <h2 className="mb-6 text-3xl font-semibold leading-tight text-gray-900">
-        Sign up
-      </h2>
+      <div className="flex mb-6 items-center justify-between">
+          <h2 className=" text-3xl font-semibold text-gray-900">Sign up</h2>
+          <Image src={"/major-logo.svg"} alt={"major app"} width={48} height={46} className="block lg:hidden"/>
+     </div>
 
       {/* API Error Message */}
       {apiError ? (
@@ -185,8 +187,8 @@ const SignupForm = () => {
         <motion.button
           type="submit"
           disabled={isSubmitting}
-          whileTap={{ scale: 0.95 }}
-          className={`w-full h-10 rounded-lg text-sm font-semibold text-white transition hover:cursor-pointer ${
+          whileTap={{ scale: 0.98 }}
+          className={`w-full h-10 rounded-lg text-sm font-semibold text-white transition ${
                isSubmitting ? "bg-gray-500 cursor-not-allowed" : "bg-gradient-to-b from-gray-700 to-gray-900 hover:cursor-pointer hover:opacity-90"
            } focus:outline-none`}
         >
@@ -212,7 +214,6 @@ const SignupForm = () => {
            
       {/* Google Sign In */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="mb-2 flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
       >
@@ -222,7 +223,6 @@ const SignupForm = () => {
 
       {/* Facebook Sign In */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className="flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
       >
