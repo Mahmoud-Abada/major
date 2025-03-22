@@ -46,8 +46,16 @@ const SignupForm = () => {
     mode: "onChange", // Real-time validation feedback
   });
 
+  interface FormValues {
+     firstName: string;
+    lastName: string;
+     email: string;
+     password: string;
+     confirmPassword: string;
+   }
+
   // Simulated API request
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FormValues) => {
      console.log("Form data:", data);
      setApiError(null);
    
@@ -59,8 +67,9 @@ const SignupForm = () => {
        );
    
        alert("Signup Successful! Redirecting...");
-     } catch (error: any) {
-       setApiError(error.message);
+     } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+          setApiError(errorMessage);
      }
    };
    
@@ -78,7 +87,7 @@ const SignupForm = () => {
       </h2>
 
       {/* API Error Message */}
-      {apiError && (
+      {apiError ? (
           <motion.p
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +96,7 @@ const SignupForm = () => {
           >
             {apiError}
           </motion.p>
-        )}
+        ) : null}
 
 
       {/* Form */}

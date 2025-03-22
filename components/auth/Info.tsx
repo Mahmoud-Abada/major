@@ -38,8 +38,7 @@ type InfoProps = {
 };
 
 const Info: React.FC<InfoProps> = ({ category }) => {
- // const features = category === "students" ? studentFeatures : teacherFeatures;
-     const features = studentFeatures;
+  const features = category === "students" ? studentFeatures : teacherFeatures;
   return (
     <section className="max-w-[28rem] p-6 h-fit lg:h-[36.49rem]">
       {/* Logo + Title */}

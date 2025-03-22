@@ -35,7 +35,14 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const onSubmit = async (data: any) => {
+  interface FormValues {
+    email: string;
+    password: string;
+    rememberMe: boolean;
+  }
+
+  
+  const onSubmit = async (data: FormValues) => {
     console.log("Form data:", data);
     setApiError(null);
   
@@ -48,8 +55,11 @@ const LoginForm = () => {
       );
   
       alert("Signin Successful! Redirecting...");
-    } catch (error: any) {
-      setApiError(error.message);
+    } catch (error: unknown) {
+
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+ 
+      setApiError(errorMessage);
       setError("email", { message: "Invalid email or password" });
       setError("password", { message: "Invalid email or password" });
     }
@@ -66,7 +76,7 @@ const LoginForm = () => {
       <h2 className="mb-6 text-3xl font-semibold text-gray-900">Sign in</h2>
 
       {/* API Error Message */}
-      {apiError && (
+      {apiError ? (
           <motion.p
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,7 +85,7 @@ const LoginForm = () => {
           >
             {apiError}
           </motion.p>
-        )}
+        ) : null}
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -148,7 +158,7 @@ const LoginForm = () => {
 
       {/* Signup Link */}
       <p className="mt-4 text-center text-sm font-normal text-gray-900">
-      Don't have an account?{" "}
+      Don&apos;t forget your password!{" "}
         <a href="/signup" className="font-semibold text-gray-900 hover:cursor-pointer underline">
           Sign up
         </a>
