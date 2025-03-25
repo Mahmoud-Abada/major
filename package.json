@@ -9,7 +9,6 @@
     "lint": "next lint --fix",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "prepare": "husky install",
     "precommit": "lint-staged"
   },
   "dependencies": {
