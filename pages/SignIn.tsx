@@ -7,7 +7,6 @@ import { RootState } from "@/store/store";
 
 
 export default function SignInPage() {
-  const selectedRole = useSelector((state: RootState) => state.userRole.selectedRole);
 
   return (
      <>
