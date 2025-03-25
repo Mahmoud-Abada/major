@@ -5,8 +5,11 @@ import Image from "next/image";
 import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { useEffect } from "react";
 
 // Define validation schema using Zod
 const schema = z.object({
@@ -21,16 +24,19 @@ const schema = z.object({
     rememberMe: z.boolean().optional().default(true), 
 });
 
-const LoginForm = () => {
+const SigninForm = () => {
+  const selectedRole = useSelector((state: RootState) => state.userRole.selectedRole);
+  const roleData = useSelector((state: RootState) => state.userRole.roleData[selectedRole || ""]);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
   } = useForm({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: {rememberMe: true}
+    defaultValues: {email: "", password: "", rememberMe: true},
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -41,6 +47,12 @@ const LoginForm = () => {
     password: string;
     rememberMe: boolean;
   }
+  useEffect(() => {
+    if (roleData) {
+      setValue("email", roleData.email);
+      setValue("password", roleData.password);
+    }
+  }, [selectedRole, roleData, setValue]);
 
   
   const onSubmit = async (data: FormValues) => {
@@ -199,4 +211,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default SigninForm;

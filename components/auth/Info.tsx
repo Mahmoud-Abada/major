@@ -11,6 +11,8 @@ import {
   BellElectric, 
   MessageSquareHeart 
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 type Feature = {
   title: string;
@@ -33,12 +35,10 @@ const teacherFeatures: Feature[] = [
   { title: "Smart Content Feed", description: "Personalized learning, updates, and educational posts—an engaging alternative to traditional social media.", icon: <MessageSquareHeart className="w-6 h-6 text-gray-600" /> },
 ];
 
-type InfoProps = {
-  category: "students" | "teachers";
-};
 
-const Info: React.FC<InfoProps> = ({ category }) => {
-  const features = category === "students" ? studentFeatures : teacherFeatures;
+const Info = () => {
+  const selectedRole = useSelector((state: RootState) => state.userRole.selectedRole);
+  const features = selectedRole === "student" ? studentFeatures : teacherFeatures;
   return (
     <section className="max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block">
       {/* Logo + Title */}

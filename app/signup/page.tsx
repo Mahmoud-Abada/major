@@ -1,14 +1,8 @@
-import Info from "@/components/auth/Info";
-import SignUpForm from "@/components/auth/SignUpForm";
+import SignUp from '@/pages/SignUp'
+import React from 'react'
 
-
-
-
-export default function Home() {
-  return (
-    <div className="flex min-h-screen flex-col lg:flex-row items-center justify-center lg:justify-evenly bg-gray-100">
-      <Info category={"students"}/>
-      <SignUpForm/>
-    </div>
-  );
+const page = () => {
+  return <SignUp/>
 }
+
+export default page
