@@ -1,8 +1,8 @@
-import SignUp from '@/pages/SignUp'
-import React from 'react'
+import SignUp from "@/pages/SignUp";
+import React from "react";
 
 const page = () => {
-  return <SignUp/>
-}
+  return <SignUp />;
+};
 
-export default page
+export default page;
