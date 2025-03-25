@@ -7,6 +7,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { useEffect } from "react";
 
 // Define validation schema using Zod
 const schema = z
@@ -35,6 +38,9 @@ const schema = z
   });
 
 const SignupForm = () => {
+    const selectedRole = useSelector((state: RootState) => state.userRole.selectedRole);
+    const roleData = useSelector((state: RootState) => state.userRole.roleData[selectedRole || ""]);
+
      const [showPassword, setShowPassword] = useState(false);
      const [showConfirmPassword, setShowConfirmPassword] = useState(false);
      const [apiError, setApiError] = useState<string | null>(null);
@@ -42,9 +48,11 @@ const SignupForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm({
     resolver: zodResolver(schema),
-    mode: "onChange", // Real-time validation feedback
+    mode: "onChange", 
+    defaultValues: { firstName: "", lastName: "", email: "", password: "", confirmPassword: "" }
   });
 
   interface FormValues {
@@ -54,6 +62,16 @@ const SignupForm = () => {
      password: string;
      confirmPassword: string;
    }
+
+   useEffect(() => {
+    if (roleData) {
+      setValue("firstName", roleData.firstName || "");
+      setValue("lastName", roleData.lastName || "");
+      setValue("email", roleData.email);
+      setValue("password", roleData.password);
+      setValue("confirmPassword", roleData.password);
+    }
+  }, [selectedRole, roleData, setValue]);
 
   // Simulated API request
   const onSubmit = async (data: FormValues) => {
