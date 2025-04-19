@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Info from "../components/auth/Info";
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
       <h1 className="text-4xl font-extrabold text-gray-900 md:text-5xl">
         Welcome to <span className="text-yellow-600">Major</span>
       </h1>
+      <Info />
       <p className="mt-3 text-lg text-gray-700 md:text-xl">
         Sign up or log in to explore our features.
       </p>

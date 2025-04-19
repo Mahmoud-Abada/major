@@ -1,6 +1,6 @@
 "use client";
-import RoleSelector from "@/components/auth/RoleSelector";
 import Info from "@/components/auth/Info";
+import RoleSelector from "@/components/auth/RoleSelector";
 import SigninForm from "@/components/auth/SigninForm";
 
 export default function SignInPage() {

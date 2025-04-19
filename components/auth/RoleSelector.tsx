@@ -1,20 +1,22 @@
 "use client";
 
-import { useDispatch, useSelector } from "react-redux";
-import { setSelectedRole } from "@/store/userRoleSlice";
 import { RootState } from "@/store/store";
+import { setSelectedRole } from "@/store/userRoleSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const roles = ["student", "teacher", "talent", "school"];
 
 export default function RoleSelector() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
   const dispatch = useDispatch();
   const selectedRole = useSelector(
     (state: RootState) => state.userRole.selectedRole,
   );
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(setSelectedRole(event.target.value));
-  };
+  if (!isClient) return null; // Prevents rendering on the server
 
   return (
     <div className="mt-4 max-w-80 w-full mx-auto">
@@ -23,7 +25,7 @@ export default function RoleSelector() {
       </label>
       <select
         value={selectedRole || "student"}
-        onChange={handleChange}
+        onChange={(e) => dispatch(setSelectedRole(e.target.value))}
         className="w-full px-4 py-2 border rounded-lg"
       >
         {roles.map((role) => (

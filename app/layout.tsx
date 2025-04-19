@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
-import "./globals.css";
 import ReduxProvider from "@/store/reduxProvider";
+import type { Metadata } from "next";
+import { ToastProvider } from "../components/ui/toast";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Major",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gray-100">
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          <ToastProvider swipeDirection="left">{children}</ToastProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

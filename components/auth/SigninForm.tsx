@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
-import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { z } from "zod";
 
 // Define validation schema using Zod
 const schema = z.object({
@@ -24,6 +23,9 @@ const schema = z.object({
 });
 
 const SigninForm = () => {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
   const selectedRole = useSelector(
     (state: RootState) => state.userRole.selectedRole,
   );
@@ -84,6 +86,8 @@ const SigninForm = () => {
       setError("password", { message: "Invalid email or password" });
     }
   };
+
+  if (!isClient) return null; // Prevents rendering on the server
 
   return (
     <motion.div
@@ -212,31 +216,32 @@ const SigninForm = () => {
           Sign up
         </a>
       </p>
+      <div className="hidden">
+        {/* Divider */}
+        <div className="my-4 flex items-center">
+          <hr className="flex-grow border-gray-300" />
+          <span className="mx-2 text-sm text-gray-900">or</span>
+          <hr className="flex-grow border-gray-300" />
+        </div>
 
-      {/* Divider */}
-      <div className="my-4 flex items-center">
-        <hr className="flex-grow border-gray-300" />
-        <span className="mx-2 text-sm text-gray-900">or</span>
-        <hr className="flex-grow border-gray-300" />
+        {/* Google Sign In */}
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          className="mb-2 flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
+        >
+          <FaGoogle className="mr-2 text-red-500" />
+          Sign in with Google
+        </motion.button>
+
+        {/* Facebook Sign In */}
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          className="flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
+        >
+          <FaFacebook className="mr-2 text-blue-600" />
+          Sign in with Facebook
+        </motion.button>
       </div>
-
-      {/* Google Sign In */}
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        className="mb-2 flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
-      >
-        <FaGoogle className="mr-2 text-red-500" />
-        Sign in with Google
-      </motion.button>
-
-      {/* Facebook Sign In */}
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        className="flex w-full h-[2.5rem] items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-900 hover:cursor-pointer transition-all hover:bg-gray-200 active:shadow-inner focus:outline-none"
-      >
-        <FaFacebook className="mr-2 text-blue-600" />
-        Sign in with Facebook
-      </motion.button>
     </motion.div>
   );
 };
