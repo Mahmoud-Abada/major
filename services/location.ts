@@ -33,13 +33,13 @@ export class LocationService {
       (comune) =>
         comune.name.toLowerCase().includes(normalizedQuery) ||
         comune.ar_name.includes(normalizedQuery) || // Search Arabic name too
-        comune.post_code.includes(query) // Search by postal code
+        comune.post_code.includes(query), // Search by postal code
     );
   }
 
   public async getAddressFromCoordinates(
     lat: number,
-    lng: number
+    lng: number,
   ): Promise<string> {
     if (!window.google || !window.google.maps) {
       throw new Error("Google Maps API not loaded");
@@ -58,7 +58,7 @@ export class LocationService {
   }
 
   public async getCoordinatesFromAddress(
-    address: string
+    address: string,
   ): Promise<{ lat: number; lng: number }> {
     if (!window.google || !window.google.maps) {
       throw new Error("Google Maps API not loaded");

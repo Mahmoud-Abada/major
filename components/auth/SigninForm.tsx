@@ -1,13 +1,11 @@
 "use client";
 
-import { RootState } from "@/store/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaFacebook, FaGoogle } from "react-icons/fa";
-import { useSelector } from "react-redux";
 import { z } from "zod";
 
 // Define validation schema using Zod
@@ -26,18 +24,11 @@ const SigninForm = () => {
   const [isClient, setIsClient] = useState(false);
   useEffect(() => setIsClient(true), []);
 
-  const selectedRole = useSelector(
-    (state: RootState) => state.userRole.selectedRole,
-  );
-  const roleData = useSelector(
-    (state: RootState) => state.userRole.roleData[selectedRole || ""],
-  );
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-    setValue,
   } = useForm({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -52,12 +43,6 @@ const SigninForm = () => {
     password: string;
     rememberMe: boolean;
   }
-  useEffect(() => {
-    if (roleData) {
-      setValue("email", roleData.email);
-      setValue("password", roleData.password);
-    }
-  }, [selectedRole, roleData, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     console.log("Form data:", data);

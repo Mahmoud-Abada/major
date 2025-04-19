@@ -1,3 +1,5 @@
+"use client";
+
 import SignUp from "@/pages/SignUp";
 import React from "react";
 

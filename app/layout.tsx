@@ -1,12 +1,15 @@
+"use client";
+
 import ReduxProvider from "@/store/reduxProvider";
-import type { Metadata } from "next";
+//import type { Metadata } from "next";
 import { ToastProvider } from "../components/ui/toast";
 import "./globals.css";
+import { store } from "../store/store";
 
-export const metadata: Metadata = {
+/*export const metadata: Metadata = {
   title: "Major",
   description: "major-app, a 'SARL DAAB' product",
-};
+};*/
 
 export default function RootLayout({
   children,
@@ -16,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gray-100">
-        <ReduxProvider>
+        <ReduxProvider store={store}>
           <ToastProvider swipeDirection="left">{children}</ToastProvider>
         </ReduxProvider>
       </body>
