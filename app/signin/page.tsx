@@ -1,7 +1,6 @@
 "use client";
 
-import SignIn from "@/pages/SignIn";
-import React from "react";
+import SignIn from "@/pages-components/SignIn";
 
 const page = () => {
   return <SignIn />;
