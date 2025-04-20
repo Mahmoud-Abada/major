@@ -13,7 +13,7 @@ const passwordSchema = z
   .regex(/[0-9]/, "Password must contain at least one number")
   .regex(
     /[^a-zA-Z0-9]/,
-    "Password must contain at least one special character",
+    "Password must contain at least one special character"
   );
 
 const emailSchema = z
@@ -32,7 +32,9 @@ const nameSchema = z
   .max(50, "Name must be at most 50 characters")
   .regex(/^[a-zA-Z\s-']+$/, "Name can only contain letters and hyphens");
 
-const genderSchema = z.enum(["male", "female"]);
+const genderSchema = z.enum(["male", "female"], {
+  errorMap: () => ({ message: "Please select a gender" }),
+});
 
 // Updated location schema to match our new implementation
 const locationSchema = z.object({
@@ -78,16 +80,16 @@ const studentDobSchema = z.date().refine(
     const minDate = new Date(
       today.getFullYear() - 100,
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     const maxDate = new Date(
       today.getFullYear() - 6,
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     return date >= minDate && date <= maxDate;
   },
-  { message: "You must be at least 6 years old" },
+  { message: "You must be at least 6 years old" }
 );
 
 // Date validation for teachers (18+ years old)
@@ -97,16 +99,16 @@ const teacherDobSchema = z.date().refine(
     const minDate = new Date(
       today.getFullYear() - 100,
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     const maxDate = new Date(
       today.getFullYear() - 18,
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     return date >= minDate && date <= maxDate;
   },
-  { message: "You must be at least 18 years old" },
+  { message: "You must be at least 18 years old" }
 );
 
 // ─────────────────────────────
@@ -142,7 +144,7 @@ const personBaseSchema = z
     {
       message: "Invalid date of birth for your role",
       path: ["dob"],
-    },
+    }
   );
 
 // Add password match validation
@@ -151,30 +153,51 @@ export const personSchema = personBaseSchema.refine(
   {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  },
+  }
 );
 
 // ─────────────────────────────
 // School Schema
 // ─────────────────────────────
 
-const schoolBaseSchema = z.object({
-  role: z.literal("school"),
-  schoolName: nameSchema,
-  schoolType: z.string().min(1, "School type is required"),
-  location: locationSchema,
-  email: emailSchema,
-  phone: phoneSchema,
-  representativeName: nameSchema,
-  representativeRole: z.string().min(1, "Representative role is required"),
-  branchesCount: z.number().int().min(1).max(100).default(1),
-  approxTeachers: z.number().int().min(1).max(10000),
-  approxStudents: z.number().int().min(1).max(100000),
-  password: passwordSchema,
-  confirmPassword: z.string(),
-  profilePicture: z.instanceof(File).optional(),
-  socialLinks: socialLinksSchema.optional(),
-});
+
+  const schoolBaseSchema = z.object({
+    location: locationSchema,
+    email: emailSchema,
+    phone: phoneSchema,
+    representativeName: nameSchema,
+    representativeRole: z.string().min(1, "Representative role is required"),
+    customRepresentativeRole: z.string().optional(),
+    branchesCount: z.number().int().min(1).max(100).default(1),
+    approxTeachers: z.number().int().min(1).max(10000),
+    approxStudents: z.number().int().min(1).max(100000),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    profilePicture: z.instanceof(File).optional(),
+    socialLinks: socialLinksSchema.optional(),
+    role: z.literal("school"),
+    schoolName: nameSchema,
+    schoolType: z.string().min(1, "School type is required"),
+    customSchoolType: z.string().optional(),
+  }).superRefine((data, ctx) => {
+    // School type validation
+    if (data.schoolType === "other" && !data.customSchoolType) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please specify school type",
+        path: ["customSchoolType"]
+      });
+    }
+    
+    // Representative role validation
+    if (data.representativeRole === "other" && !data.customRepresentativeRole) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please specify representative role",
+        path: ["customRepresentativeRole"]
+      });
+    }
+  });
 
 // Add password match validation
 export const schoolSchema = schoolBaseSchema
@@ -192,7 +215,7 @@ export const schoolSchema = schoolBaseSchema
     {
       message: "Wilaya is required when selecting from list",
       path: ["location"],
-    },
+    }
   );
 
 // ─────────────────────────────

@@ -121,8 +121,6 @@ const SchoolSignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const [showCustomSchoolType, setShowCustomSchoolType] = useState(false);
-  const [showCustomRole, setShowCustomRole] = useState(false);
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [open, setOpen] = useState(false);
   const toastDuration = 5000;
@@ -173,16 +171,7 @@ const SchoolSignupForm = () => {
     mode: "onChange",
   });
 
-  const schoolType = watch("schoolType");
-  const representativeRole = watch("representativeRole");
 
-  useEffect(() => {
-    setShowCustomSchoolType(schoolType === "other");
-  }, [schoolType]);
-
-  useEffect(() => {
-    setShowCustomRole(representativeRole === "other");
-  }, [representativeRole]);
 
   const nextStep = async () => {
     // Validate current step fields before proceeding
@@ -192,6 +181,7 @@ const SchoolSignupForm = () => {
       isValid = await trigger([
         "schoolName",
         "schoolType",
+        "customSchoolType",
         "location",
         "email",
         "phone",
@@ -202,6 +192,8 @@ const SchoolSignupForm = () => {
       isValid = await trigger([
         "representativeName",
         "representativeRole",
+        "customRepresentativeRole",
+        
         "branchesCount",
         "approxTeachers",
         "approxStudents",
@@ -222,10 +214,18 @@ const SchoolSignupForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     setApiError(null);
-
+    const finalData = {
+      ...data,
+      schoolType: data.schoolType === "other" 
+        ? data.customSchoolType 
+        : data.schoolType,
+      representativeRole: data.representativeRole === "other"
+        ? data.customRepresentativeRole
+        : data.representativeRole
+    };
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Form submitted:", data);
+      console.log("Form submitted:", finalData);
       alert("Signup Successful! Redirecting...");
     } catch (error) {
       setApiError(
@@ -289,17 +289,17 @@ const SchoolSignupForm = () => {
               <option value="formation">Formation Center</option>
               <option value="other">Other</option>
             </select>
-            {showCustomSchoolType && (
+            {watch("schoolType") === "other" && (
               <div className="mt-2">
                 <input
                   type="text"
                   placeholder="Specify school type"
-                  {...register("schoolType")}
+                  {...register("customSchoolType")}
                   className={`w-full p-2 border rounded-md ${errors.schoolType ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.schoolType && (
+                {errors.customSchoolType && (
                   <p className="mt-1 text-red-500 text-xs">
-                    {errors.schoolType.message}
+                    {errors.customSchoolType.message}
                   </p>
                 )}
               </div>
@@ -443,17 +443,17 @@ const SchoolSignupForm = () => {
               <option value="manager">Manager</option>
               <option value="other">Other</option>
             </select>
-            {showCustomRole && (
+            {watch("representativeRole") === "other" && (
               <div className="mt-2">
                 <input
                   type="text"
                   placeholder="Specify representative role"
-                  {...register("representativeRole")}
+                  {...register("customRepresentativeRole")}
                   className={`w-full p-2 border rounded-md ${errors.representativeRole ? "border-red-500" : "border-gray-300"}`}
                 />
-                {errors.representativeRole && (
+                {errors.customRepresentativeRole && (
                   <p className="mt-1 text-red-500 text-xs">
-                    {errors.representativeRole.message}
+                    {errors.customRepresentativeRole.message}
                   </p>
                 )}
               </div>
