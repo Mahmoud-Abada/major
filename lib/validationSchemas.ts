@@ -13,7 +13,7 @@ const passwordSchema = z
   .regex(/[0-9]/, "Password must contain at least one number")
   .regex(
     /[^a-zA-Z0-9]/,
-    "Password must contain at least one special character"
+    "Password must contain at least one special character",
   );
 
 const emailSchema = z
@@ -36,42 +36,26 @@ const genderSchema = z.enum(["male", "female"], {
   errorMap: () => ({ message: "Please select a gender" }),
 });
 
-// Updated location schema to match our new implementation
+// Updated location schema to match backend LocationType
 const locationSchema = z.object({
-  type: z.enum(["manual", "map"]),
-  comune: z
-    .object({
-      id: z.string(),
-      post_code: z.string(),
-      name: z.string(),
-      wilaya_id: z.string(),
-      ar_name: z.string(),
-      longitude: z.string(),
-      latitude: z.string(),
-    })
-    .optional(),
-  address: z.string().optional(),
-  coordinates: z
-    .object({
-      lat: z.number(),
-      lng: z.number(),
-    })
-    .optional(),
-  wilaya_id: z.string().optional(),
-  post_code: z.string().optional(),
+  fullLocation: z.string().optional(),
+  coordinates: z.object({
+    lat: z.number(),
+    long: z.number(),  
+  }),
+  wilaya: z.string().optional(),
+  commune: z.string().optional(),
 });
 
-const socialLinksSchema = z
-  .object({
-    facebook: z.string().url().optional(),
-    twitter: z.string().url().optional(),
-    instagram: z.string().url().optional(),
-    linkedin: z.string().url().optional(),
-    tiktok: z.string().url().optional(),
-    youtube: z.string().url().optional(),
-    website: z.string().url().optional(),
-  })
-  .catchall(z.string().url().optional());
+const socialLinksSchema = z.object({
+  facebook: z.string().url("Invalid URL").optional(),
+  twitter: z.string().url("Invalid URL").optional(),
+  instagram: z.string().url("Invalid URL").optional(),
+  linkedin: z.string().url("Invalid URL").optional(),
+  tiktok: z.string().url("Invalid URL").optional(),
+  youtube: z.string().url("Invalid URL").optional(),
+  website: z.string().url("Invalid URL").optional(),
+}).catchall(z.string().url("Invalid URL").optional());
 
 // Date validation for students (6+ years old)
 const studentDobSchema = z.date().refine(
@@ -80,16 +64,16 @@ const studentDobSchema = z.date().refine(
     const minDate = new Date(
       today.getFullYear() - 100,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const maxDate = new Date(
       today.getFullYear() - 6,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     return date >= minDate && date <= maxDate;
   },
-  { message: "You must be at least 6 years old" }
+  { message: "You must be at least 6 years old" },
 );
 
 // Date validation for teachers (18+ years old)
@@ -99,20 +83,20 @@ const teacherDobSchema = z.date().refine(
     const minDate = new Date(
       today.getFullYear() - 100,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const maxDate = new Date(
       today.getFullYear() - 18,
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     return date >= minDate && date <= maxDate;
   },
-  { message: "You must be at least 18 years old" }
+  { message: "You must be at least 18 years old" },
 );
 
 // ─────────────────────────────
-// Person (Student/Teacher) Schema
+// Person (Student/Teacher) Schema 
 // ─────────────────────────────
 
 const personBaseSchema = z
@@ -144,7 +128,7 @@ const personBaseSchema = z
     {
       message: "Invalid date of birth for your role",
       path: ["dob"],
-    }
+    },
   );
 
 // Add password match validation
@@ -153,16 +137,16 @@ export const personSchema = personBaseSchema.refine(
   {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  }
+  },
 );
 
 // ─────────────────────────────
 // School Schema
 // ─────────────────────────────
 
-
-  const schoolBaseSchema = z.object({
-    location: locationSchema,
+const schoolBaseSchema = z
+  .object({
+    location: locationSchema.optional(),
     email: emailSchema,
     phone: phoneSchema,
     representativeName: nameSchema,
@@ -179,22 +163,23 @@ export const personSchema = personBaseSchema.refine(
     schoolName: nameSchema,
     schoolType: z.string().min(1, "School type is required"),
     customSchoolType: z.string().optional(),
-  }).superRefine((data, ctx) => {
+  })
+  .superRefine((data, ctx) => {
     // School type validation
     if (data.schoolType === "other" && !data.customSchoolType) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please specify school type",
-        path: ["customSchoolType"]
+        path: ["customSchoolType"],
       });
     }
-    
+
     // Representative role validation
     if (data.representativeRole === "other" && !data.customRepresentativeRole) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please specify representative role",
-        path: ["customRepresentativeRole"]
+        path: ["customRepresentativeRole"],
       });
     }
   });
@@ -207,29 +192,29 @@ export const schoolSchema = schoolBaseSchema
   })
   .refine(
     (data) => {
-      if (data.location.type === "manual") {
-        return !!data.location.comune?.wilaya_id;
+      if (data.location && data.location.commune) {
+        return !!data.location.wilaya;
       }
       return true;
     },
     {
       message: "Wilaya is required when selecting from list",
-      path: ["location"],
-    }
+      path: ["location", "wilaya"],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.location && data.location.wilaya) {
+        return !!data.location.commune;
+      }
+      return true;
+    },
+    {
+      message: "Commune is required when selecting from list",
+      path: ["location", "commune"],
+    },
   );
 
-// ─────────────────────────────
-// Main Signup Discriminated Union
-// ─────────────────────────────
-/*
-export const signUpSchema = z.discriminatedUnion("role", [
-  personBaseSchema,
-  schoolBaseSchema,
-]);*/
-
-// ─────────────────────────────
-// Types
-// ─────────────────────────────
 
 //export type SignUpInput = z.infer<typeof signUpSchema>;
 export type PersonSignUpInput = z.infer<typeof personSchema>;

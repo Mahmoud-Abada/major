@@ -1,7 +1,7 @@
 "use client";
 
+import Info from "@/components/auth/Info";
 import Link from "next/link";
-import Info from "../components/auth/Info";
 
 export default function Home() {
   return (
@@ -14,7 +14,6 @@ export default function Home() {
       <p className="mt-3 text-lg text-gray-700 md:text-xl">
         Sign up or log in to explore our features.
       </p>
-
       {/* Buttons */}
       <div className="mt-6 flex space-x-4">
         <Link href="/signin">

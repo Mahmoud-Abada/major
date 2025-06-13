@@ -1,7 +1,7 @@
 "use client";
 
-import { RootState } from "@/store/store";
-import { setSelectedRole } from "@/store/userRoleSlice";
+import { setSelectedRole } from "@/lib/redux/slices/roleSlice";
+import { RootState } from "@/lib/redux/store";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

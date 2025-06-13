@@ -1,5 +1,6 @@
 import comunesData from "@/data/Comunes.json"; // Your predefined JSON data
 import { Comune } from "@/types/location";
+import { Loader } from "@googlemaps/js-api-loader";
 
 export class LocationService {
   private static instance: LocationService;
@@ -16,14 +17,19 @@ export class LocationService {
     return LocationService.instance;
   }
 
-  private loadGoogleMaps(): void {
+  private async loadGoogleMaps(): Promise<void> {
     if (typeof window !== "undefined" && !this.googleMapsLoaded) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-      this.googleMapsLoaded = true;
+      const loader = new Loader({
+        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+        libraries: ["places"], // Add any required libraries here
+      });
+  
+      try {
+        await loader.load();
+        this.googleMapsLoaded = true;
+      } catch (error) {
+        console.error("Failed to load Google Maps API:", error);
+      }
     }
   }
 

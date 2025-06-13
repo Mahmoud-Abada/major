@@ -7,13 +7,10 @@ export interface Comune {
   longitude: string;
   latitude: string;
 }
+export type LocationType = {
+  fullLocation?: string;
+  coordinates: { lat: number; long: number };
+  wilaya?: string;
+  commune?: string;
+};
 
-export interface LocationData {
-  type: "manual" | "map";
-  comune?: Comune;
-  address?: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}

@@ -8,171 +8,45 @@ import {
   StepperItem,
   StepperTrigger,
 } from "@/components/ui/stepper";
+import { RootState } from "@/lib/redux/store";
 import { personSchema } from "@/lib/validationSchemas";
-import { RootState } from "@/store/store";
-import { LocationData } from "@/types/location";
+import { LocationType } from "@/types/location";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CircleCheckIcon,
-  XIcon,
-} from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastTitle,
-  ToastViewport,
-} from "@/components/ui/toast";
-import { redirect } from "next/navigation";
-
-interface UseProgressTimerProps {
-  duration: number;
-  interval?: number;
-  onComplete?: () => void;
-}
-
-function useProgressTimer({
-  duration,
-  interval = 100,
-  onComplete,
-}: UseProgressTimerProps) {
-  const [progress, setProgress] = useState(duration);
-  const timerRef = useRef(0);
-  const timerState = useRef({
-    startTime: 0,
-    remaining: duration,
-    isPaused: false,
-  });
-
-  const cleanup = useCallback(() => {
-    window.clearInterval(timerRef.current);
-  }, []);
-
-  const reset = useCallback(() => {
-    cleanup();
-    setProgress(duration);
-    timerState.current = {
-      startTime: 0,
-      remaining: duration,
-      isPaused: false,
-    };
-  }, [duration, cleanup]);
-
-  const start = useCallback(() => {
-    const state = timerState.current;
-    state.startTime = Date.now();
-    state.isPaused = false;
-
-    timerRef.current = window.setInterval(() => {
-      const elapsedTime = Date.now() - state.startTime;
-      const remaining = Math.max(0, state.remaining - elapsedTime);
-
-      setProgress(remaining);
-
-      if (remaining <= 0) {
-        cleanup();
-        onComplete?.();
-      }
-    }, interval);
-  }, [interval, cleanup, onComplete]);
-
-  const pause = useCallback(() => {
-    const state = timerState.current;
-    if (!state.isPaused) {
-      cleanup();
-      state.remaining = Math.max(
-        0,
-        state.remaining - (Date.now() - state.startTime),
-      );
-      state.isPaused = true;
-    }
-  }, [cleanup]);
-
-  const resume = useCallback(() => {
-    const state = timerState.current;
-    if (state.isPaused && state.remaining > 0) {
-      start();
-    }
-  }, [start]);
-
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
-
-  return {
-    progress,
-    start,
-    pause,
-    resume,
-    reset,
-  };
-}
+import { useTranslation } from "../../config/i18n/client";
+import { useLanguage, useTheme } from "../../lib/redux/hooks";
+import { useRouter } from "next/navigation";
 
 type ApiStatus = "idle" | "pending" | "success" | "error";
 
 const PersonSignupForm = () => {
+  const { theme } = useTheme();
+  const { lang } = useLanguage();
+  const { t } = useTranslation(lang, "auth");
   const [isMounted, setIsMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiStatus, setApiStatus] = useState<ApiStatus>("idle");
   const [apiError, setApiError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const [locationData, setLocationData] = useState<LocationData | null>(null);
+  const [locationData, setLocationData] = useState<LocationType | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
-    null,
+    null
   );
+  const router = useRouter();
 
   const selectedRole = useSelector(
-    (state: RootState) => state.userRole.selectedRole,
+    (state: RootState) => state.userRole.selectedRole
   );
-  const roleData = useSelector(
-    (state: RootState) => state.userRole.roleData[selectedRole || ""],
-  );
-
-  const [open, setOpen] = useState(false);
-  const toastDuration = 5000;
-  const { progress, start, pause, resume } = useProgressTimer({
-    duration: toastDuration,
-    onComplete: () => setOpen(false),
-  });
-
-  const handleOpenChange = useCallback(
-    (isOpen: boolean) => {
-      setTimeout(() => {
-        setOpen(isOpen);
-        if (isOpen) {
-          start();
-        }
-      }, 1000);
-      setTimeout(() => {
-        redirect("/otp");
-      }, 4000);
-    },
-    [start],
-  );
-
-  const handleButtonClick = useCallback(() => {
-    if (open) {
-      setOpen(false);
-      // Wait for the close animation to finish
-      window.setTimeout(() => {
-        handleOpenChange(true);
-      }, 150);
-    } else {
-      handleOpenChange(true);
-    }
-  }, [open, handleOpenChange]);
-
+ 
   const steps = [1, 2];
   type FormValues = z.infer<typeof personSchema>;
   const {
@@ -186,6 +60,9 @@ const PersonSignupForm = () => {
   } = useForm<FormValues>({
     resolver: zodResolver(personSchema),
     mode: "onChange",
+    defaultValues: {
+      role: selectedRole === "student" || selectedRole === "teacher" ? selectedRole : "student",
+    }
   });
 
   const role = watch("role");
@@ -194,19 +71,8 @@ const PersonSignupForm = () => {
     setIsMounted(true);
     reset();
     setCurrentStep(1);
+    setApiError(null);
   }, [selectedRole, reset]);
-
-  useEffect(() => {
-    if (roleData && selectedRole) {
-      const defaultValues = {
-        ...roleData,
-        confirmPassword: roleData.password,
-      };
-      Object.entries(defaultValues).forEach(([key, value]) => {
-        setValue(key as keyof FormValues, value);
-      });
-    }
-  }, [selectedRole, roleData, setValue]);
 
   const nextStep = async () => {
     let isValid = false;
@@ -235,73 +101,76 @@ const PersonSignupForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleProfilePictureChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setProfilePictureFile(file);
-      setValue("profilePicture", file); // Cast to any due to zod File type
+      setValue("profilePicture", file, { shouldValidate: true });
     }
   };
 
   const onSubmit = async (data: FormValues) => {
     setApiStatus("pending");
     setApiError(null);
-
+  
     try {
+      // Validate all fields first
+      const isValid = await trigger();
+      if (!isValid) {
+        throw new Error(t("validation.fixErrors"));
+      }
+  
+      // Prepare FormData
       const formData = new FormData();
-
-      console.log(formData);
+      
       // Append all form data
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "profilePicture" && profilePictureFile) {
-          formData.append(key, profilePictureFile);
-        } else if (value !== undefined && value !== null) {
-          if (value instanceof Date) {
+        if (value !== undefined && value !== null) {
+          if (key === 'dob' && value instanceof Date) {
             formData.append(key, value.toISOString());
-          } else if (Array.isArray(value)) {
-            formData.append(key, JSON.stringify(value));
-          } else if (typeof value === "object") {
-            formData.append(key, JSON.stringify(value));
+          } else if (key === 'profilePicture' && value instanceof File) {
+            formData.append(key, value);
           } else {
             formData.append(key, String(value));
           }
         }
       });
-
-      // Append location data
+  
+      // Append location data if exists
       if (locationData) {
-        formData.append("location", JSON.stringify(locationData));
+        formData.append('location', JSON.stringify(locationData));
       }
-
-      const response = await fetch("/api/auth/register", {
+  
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/register`, {
         method: "POST",
         body: formData,
         headers: {
-          locale: "en", // Replace with actual locale from user preferences
+          "Accept": "application/json",
+          "Locale": lang,
         },
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
-        console.log("error" + errorData.message);
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(errorData.message || t("registration_failed"));
       }
-      handleButtonClick();
-
+  
       setApiStatus("success");
-      // Handle successful registration (redirect, show success message, etc.)
-      alert("Signup Successful! Redirecting...");
+      reset();
+      setProfilePictureFile(null);
+      setLocationData(null);
+      
+      // Redirect to OTP verification
+      router.push("/otp");
     } catch (error: unknown) {
       setApiStatus("error");
       setApiError(
-        error instanceof Error
-          ? error.message
-          : "An error occurred during signup",
+        error instanceof Error ? error.message : t("registration_error")
       );
+      console.error("Registration error:", error);
     }
   };
+
 
   if (!isMounted) {
     return null;
@@ -311,14 +180,28 @@ const PersonSignupForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
       {/* API Status Messages */}
       {apiStatus === "error" && apiError && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-4 rounded bg-red-100 p-2 text-sm text-red-600"
+          className={`mb-4 flex items-center justify-between rounded p-2 text-sm ${
+            theme === "dark"
+              ? "bg-red-900 text-red-400"
+              : "bg-red-100 text-red-600"
+          }`}
         >
-          {apiError}
-        </motion.p>
+          <span>{apiError}</span>
+          <button
+            type="button"
+            onClick={() => setApiError(null)} // Clear the error when clicked
+            className={`ml-2 ${
+              theme === "dark" ? "text-red-400" : "text-red-600"
+            }`}
+            aria-label={t("dismissError")}
+          >
+            <XIcon size={16} />
+          </button>
+        </motion.div>
       )}
 
       {apiStatus === "success" && (
@@ -326,9 +209,13 @@ const PersonSignupForm = () => {
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mb-4 rounded bg-green-100 p-2 text-sm text-green-600"
+          className={`mb-4 rounded p-2 text-sm ${
+            theme === "dark"
+              ? "bg-green-900 text-green-400"
+              : "bg-green-100 text-green-600"
+          }`}
         >
-          Registration successful! Redirecting...
+          {t("registrationSuccessful")}
         </motion.p>
       )}
 
@@ -337,34 +224,66 @@ const PersonSignupForm = () => {
         <>
           <div className="flex space-x-4">
             <div className="flex-1">
-              <label className="block text-sm text-gray-600 mb-1">
-                First Name
+              <label
+                className={`mb-1 block text-sm font-medium ${
+                  theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                }`}
+              >
+                {t("firstName")}
               </label>
               <input
                 type="text"
-                placeholder="John"
+                placeholder={t("firstNamePlaceholder")}
                 {...register("firstName")}
-                className={`w-full p-2 border rounded-md ${errors.firstName ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                  errors.firstName
+                    ? theme === "dark"
+                      ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                      : "border-red-500 bg-red-50 text-neutral-900"
+                    : theme === "dark"
+                      ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                      : "border-neutral-300 bg-neutral-100 text-neutral-900"
+                }`}
               />
               {errors.firstName && (
-                <p className="mt-1 text-red-500 text-xs">
+                <p
+                  className={`mt-1 text-sm ${
+                    theme === "dark" ? "text-red-400" : "text-red-600"
+                  }`}
+                >
                   {errors.firstName.message}
                 </p>
               )}
             </div>
 
             <div className="flex-1">
-              <label className="block text-sm text-gray-600 mb-1">
-                Last Name
+              <label
+                className={`mb-1 block text-sm font-medium ${
+                  theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                }`}
+              >
+                {t("lastName")}
               </label>
               <input
                 type="text"
-                placeholder="Doe"
+                placeholder={t("lastNamePlaceholder")}
                 {...register("lastName")}
-                className={`w-full p-2 border rounded-md ${errors.lastName ? "border-red-500" : "border-gray-300"}`}
+                className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                  errors.lastName
+                    ? theme === "dark"
+                      ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                      : "border-red-500 bg-red-50 text-neutral-900"
+                    : theme === "dark"
+                      ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                      : "border-neutral-300 bg-neutral-100 text-neutral-900"
+                }`}
               />
               {errors.lastName && (
-                <p className="mt-1 text-red-500 text-xs">
+                <p
+                  className={`mt-1 text-sm ${
+                    theme === "dark" ? "text-red-400" : "text-red-600"
+                  }`}
+                >
                   {errors.lastName.message}
                 </p>
               )}
@@ -373,29 +292,55 @@ const PersonSignupForm = () => {
 
           {/* Gender */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Gender</label>
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("gender")}
+            </label>
             <div className="flex space-x-6">
-              <label className="flex items-center text-gray-600">
+              <label
+                className={`flex items-center space-x-1 ${
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-600"
+                }`}
+              >
                 <input
                   type="radio"
                   value="male"
                   {...register("gender")}
-                  className="text-gray-600 focus:ring-gray-500"
+                  className={`mr-2 ${
+                    theme === "dark"
+                      ? "text-neutral-300 focus:ring-neutral-400"
+                      : "text-neutral-600 focus:ring-neutral-500"
+                  }`}
                 />
-                <span className="ml-2 text-sm">Male</span>
+                <span className="text-sm">{t("male")}</span>
               </label>
-              <label className="flex items-center text-gray-600">
+              <label
+                className={`flex items-center space-x-1 ${
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-600"
+                }`}
+              >
                 <input
                   type="radio"
                   value="female"
                   {...register("gender")}
-                  className="text-gray-600 focus:ring-gray-500"
+                  className={`mr-2 ${
+                    theme === "dark"
+                      ? "text-neutral-300 focus:ring-neutral-400"
+                      : "text-neutral-600 focus:ring-neutral-500"
+                  }`}
                 />
-                <span className="ml-2 text-sm">Female</span>
+                <span className="text-sm">{t("female")}</span>
               </label>
             </div>
             {errors.gender && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.gender.message}
               </p>
             )}
@@ -403,34 +348,70 @@ const PersonSignupForm = () => {
 
           {/* Date of Birth */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Date of Birth
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("dateOfBirth")}
             </label>
-            <input
-              type="date"
-              {...register("dob", { valueAsDate: true })}
-              className={`w-full p-2 border rounded-md ${errors.dob ? "border-red-500" : "border-gray-300"}`}
-            />
+            <div className="relative">
+              <input
+                type="date"
+                {...register("dob", { valueAsDate: true })}
+                className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                  errors.dob
+                    ? theme === "dark"
+                      ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                      : "border-red-500 bg-red-50 text-neutral-900"
+                    : theme === "dark"
+                      ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                      : "border-neutral-300 bg-neutral-100 text-neutral-900"
+                }`}
+              />
+            </div>
             {errors.dob && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {role === "student"
-                  ? "You must be at least 18 years old"
-                  : "You must be at least 21 years old"}
+                  ? t("studentAgeRequirement")
+                  : t("teacherAgeRequirement")}
               </p>
             )}
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("email")}
+            </label>
             <input
               type="email"
-              placeholder="your@email.com"
+              placeholder={t("emailPlaceholder")}
               {...register("email")}
-              className={`w-full p-2 border rounded-md ${errors.email ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                errors.email
+                  ? theme === "dark"
+                    ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                    : "border-red-500 bg-red-50 text-neutral-900"
+                  : theme === "dark"
+                    ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                    : "border-neutral-300 bg-neutral-100 text-neutral-900"
+              }`}
             />
             {errors.email && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.email.message}
               </p>
             )}
@@ -438,67 +419,133 @@ const PersonSignupForm = () => {
 
           {/* Phone Number */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Phone Number
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("phoneNumber")}
             </label>
             <input
               type="tel"
-              placeholder="0123456789"
+              placeholder={t("phonePlaceholder")}
               {...register("phone")}
-              className={`w-full p-2 border rounded-md ${errors.phone ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full h-10 ${
+                lang === "ar" ? "text-right" : "text-left"
+              } rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                errors.phone
+                  ? theme === "dark"
+                    ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                    : "border-red-500 bg-red-50 text-neutral-900"
+                  : theme === "dark"
+                    ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                    : "border-neutral-300 bg-neutral-100 text-neutral-900"
+              }`}
             />
             {errors.phone && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.phone.message}
               </p>
             )}
           </div>
 
           {/* Password */}
+
+          <label
+            className={`mb-1 flex justify-between text-sm font-medium ${
+              theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+            }`}
+          >
+            {t("password")}
+          </label>
           <div className="relative">
-            <label className="block text-sm text-gray-600 mb-1">Password</label>
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
               {...register("password")}
-              className={`w-full p-2 border rounded-md ${errors.password ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                errors.password
+                  ? theme === "dark"
+                    ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                    : "border-red-500 bg-red-50 text-neutral-900"
+                  : theme === "dark"
+                    ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                    : "border-neutral-300 bg-neutral-100 text-neutral-900"
+              }`}
             />
             <button
               type="button"
-              aria-label="Toggle password visibility"
-              className="absolute right-3 top-9 text-gray-500"
+              className={`absolute inset-y-0 ${
+                lang === "ar" ? "left-3" : "right-3"
+              } flex items-center ${
+                theme === "dark" ? "text-neutral-300" : "text-neutral-600"
+              }`}
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
             </button>
-            {errors.password && (
-              <p className="mt-1 text-red-500 text-xs">
-                {errors.password.message}
-              </p>
-            )}
           </div>
+          {errors.password && (
+            <p
+              className={`text-sm mt-1 ${
+                theme === "dark" ? "text-red-400" : "text-red-600"
+              }`}
+            >
+              {errors.password.message}
+            </p>
+          )}
 
           {/* Confirm Password */}
           <div className="relative">
-            <label className="block text-sm text-gray-600 mb-1">
-              Confirm Password
-            </label>
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••••"
-              {...register("confirmPassword")}
-              className={`w-full p-2 border rounded-md ${errors.confirmPassword ? "border-red-500" : "border-gray-300"}`}
-            />
-            <button
-              type="button"
-              aria-label="Toggle password visibility"
-              className="absolute right-3 top-9 text-gray-500"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
             >
-              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
+              {t("confirmPassword")}
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder={t("confirmPasswordPlaceholder")}
+                {...register("confirmPassword")}
+                className={`w-full h-10 rounded-lg border px-3 
+               text-sm placeholder-gray-500 focus:outline-none ${
+                 errors.confirmPassword
+                   ? theme === "dark"
+                     ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                     : "border-red-500 bg-red-50 text-neutral-900"
+                   : theme === "dark"
+                     ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                     : "border-neutral-300 bg-neutral-100 text-neutral-900"
+               }`}
+              />
+              <button
+                type="button"
+                className={`absolute inset-y-0 ${
+                  lang === "ar" ? "left-3" : "right-3"
+                } flex items-center ${
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-600"
+                }`}
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <FaEyeSlash size={18} />
+                ) : (
+                  <FaEye size={18} />
+                )}
+              </button>
+            </div>
             {errors.confirmPassword && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.confirmPassword.message}
               </p>
             )}
@@ -511,14 +558,24 @@ const PersonSignupForm = () => {
         <>
           {/* Location */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Location</label>
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("location")}
+            </label>
             <LocationSelector
               value={locationData}
               onChange={setLocationData}
               error={errors.location?.message}
             />
             {errors.location && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.location.message}
               </p>
             )}
@@ -526,22 +583,42 @@ const PersonSignupForm = () => {
 
           {/* Profile Picture Upload */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Profile Picture
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("profilePicture")}
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleProfilePictureChange}
-              className={`w-full p-2 border rounded-md ${errors.profilePicture ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full h-10 rounded-lg border px-3 text-sm focus:outline-none ${
+                errors.profilePicture
+                  ? theme === "dark"
+                    ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                    : "border-red-500 bg-red-50 text-neutral-900"
+                  : theme === "dark"
+                    ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                    : "border-neutral-300 bg-neutral-100 text-neutral-900"
+              }`}
             />
             {profilePictureFile && (
-              <p className="mt-1 text-sm text-gray-500">
-                Selected: {profilePictureFile.name}
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-neutral-400" : "text-neutral-500"
+                }`}
+              >
+                {t("selectedFile")}: {profilePictureFile.name}
               </p>
             )}
             {errors.profilePicture && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.profilePicture.message}
               </p>
             )}
@@ -549,23 +626,36 @@ const PersonSignupForm = () => {
 
           {/* Interests */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">
-              Interests (comma separated)
+            <label
+              className={`mb-1 block text-sm font-medium ${
+                theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+              }`}
+            >
+              {t("interests")}
             </label>
             <input
               type="text"
-              placeholder="Reading, Sports, Music"
+              placeholder={t("interestsPlaceholder")}
               {...register("interests")}
-              className={`w-full p-2 border rounded-md ${errors.interests ? "border-red-500" : "border-gray-300"}`}
+              className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                errors.interests
+                  ? theme === "dark"
+                    ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                    : "border-red-500 bg-red-50 text-neutral-900"
+                  : theme === "dark"
+                    ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                    : "border-neutral-300 bg-neutral-100 text-neutral-900"
+              }`}
               onChange={(e) => {
-                //const interests = e.target.value
-                //.split(",")
-                //.map((item) => item.trim());
                 setValue("interests", e.target.value);
               }}
             />
             {errors.interests && (
-              <p className="mt-1 text-red-500 text-xs">
+              <p
+                className={`mt-1 text-sm ${
+                  theme === "dark" ? "text-red-400" : "text-red-600"
+                }`}
+              >
                 {errors.interests.message}
               </p>
             )}
@@ -575,39 +665,71 @@ const PersonSignupForm = () => {
           {role === "student" && (
             <>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Education Level
+                <label
+                  className={`mb-1 block text-sm font-medium ${
+                    theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                  }`}
+                >
+                  {t("educationLevel")}
                 </label>
                 <select
                   {...register("educationLevel")}
-                  className={`w-full p-2 border rounded-md ${errors.educationLevel ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full h-10 rounded-lg border px-3 text-sm focus:outline-none ${
+                    errors.educationLevel
+                      ? theme === "dark"
+                        ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                        : "border-red-500 bg-red-50 text-neutral-900"
+                      : theme === "dark"
+                        ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                        : "border-neutral-300 bg-neutral-100 text-neutral-900"
+                  }`}
                 >
-                  <option value="">Select education level</option>
-                  <option value="high-school">High School</option>
-                  <option value="bachelor">Bachelor&apos;s Degree</option>
-                  <option value="master">Master&apos;s Degree</option>
-                  <option value="phd">PhD</option>
-                  <option value="other">Other</option>
+                  <option value="">{t("selectEducationLevel")}</option>
+                  <option value="high-school">{t("highSchool")}</option>
+                  <option value="bachelor">{t("bachelorsDegree")}</option>
+                  <option value="master">{t("mastersDegree")}</option>
+                  <option value="phd">{t("phd")}</option>
+                  <option value="other">{t("other")}</option>
                 </select>
                 {errors.educationLevel && (
-                  <p className="mt-1 text-red-500 text-xs">
+                  <p
+                    className={`mt-1 text-sm ${
+                      theme === "dark" ? "text-red-400" : "text-red-600"
+                    }`}
+                  >
                     {errors.educationLevel.message}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Field of Study
+                <label
+                  className={`mb-1 block text-sm font-medium ${
+                    theme === "dark" ? "text-neutral-200" : "text-neutral-800"
+                  }`}
+                >
+                  {t("educationField")}
                 </label>
                 <input
                   type="text"
-                  placeholder="Computer Science, Biology, etc."
+                  placeholder={t("educationFieldPlaceholder")}
                   {...register("educationField")}
-                  className={`w-full p-2 border rounded-md ${errors.educationField ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full h-10 rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
+                    errors.educationField
+                      ? theme === "dark"
+                        ? "border-red-500/60 bg-red-900/10 text-neutral-100"
+                        : "border-red-500 bg-red-50 text-neutral-900"
+                      : theme === "dark"
+                        ? "border-neutral-700 bg-neutral-800 text-neutral-100"
+                        : "border-neutral-300 bg-neutral-100 text-neutral-900"
+                  }`}
                 />
                 {errors.educationField && (
-                  <p className="mt-1 text-red-500 text-xs">
+                  <p
+                    className={`mt-1 text-sm ${
+                      theme === "dark" ? "text-red-400" : "text-red-600"
+                    }`}
+                  >
                     {errors.educationField.message}
                   </p>
                 )}
@@ -626,10 +748,26 @@ const PersonSignupForm = () => {
             size="icon"
             onClick={prevStep}
             disabled={currentStep === 1}
-            aria-label="Prev step"
+            aria-label={t("prevStep")}
             type="button"
           >
-            <ChevronLeftIcon size={16} aria-hidden="true" />
+            {lang === "ar" ? (
+              <ChevronRightIcon
+                size={16}
+                aria-hidden="true"
+                className={
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-700"
+                }
+              />
+            ) : (
+              <ChevronLeftIcon
+                size={16}
+                aria-hidden="true"
+                className={
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-700"
+                }
+              />
+            )}
           </Button>
           <Stepper
             value={currentStep}
@@ -642,9 +780,24 @@ const PersonSignupForm = () => {
                   className="w-full flex-col items-start gap-2"
                   asChild
                 >
-                  <StepperIndicator asChild className="bg-border h-1 w-full">
-                    <span className="sr-only">{step}</span>
-                  </StepperIndicator>
+                  <div>
+                    {" "}
+                    {/* Wrap in a div */}
+                    <StepperIndicator
+                      asChild
+                      className={`h-1 w-full ${
+                        step <= currentStep
+                          ? theme === "dark"
+                            ? "bg-neutral-300"
+                            : "bg-neutral-800"
+                          : theme === "dark"
+                            ? "bg-neutral-700"
+                            : "bg-neutral-300"
+                      }`}
+                    >
+                      <span className="sr-only">{step}</span>
+                    </StepperIndicator>
+                  </div>
                 </StepperTrigger>
               </StepperItem>
             ))}
@@ -655,80 +808,59 @@ const PersonSignupForm = () => {
             size="icon"
             onClick={nextStep}
             disabled={currentStep === steps.length}
-            aria-label="Next step"
+            aria-label={t("nextStep")}
             type="button"
           >
-            <ChevronRightIcon size={16} aria-hidden="true" />
+            {lang === "ar" ? (
+              <ChevronLeftIcon
+                size={16}
+                aria-hidden="true"
+                className={
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-700"
+                }
+              />
+            ) : (
+              <ChevronRightIcon
+                size={16}
+                aria-hidden="true"
+                className={
+                  theme === "dark" ? "text-neutral-300" : "text-neutral-700"
+                }
+              />
+            )}
           </Button>
         </div>
-        <span className="text-sm text-gray-500 font-bold">
-          Step {currentStep} of {steps.length}
+        <span
+          className={`text-sm font-bold ${
+            theme === "dark" ? "text-neutral-300" : "text-neutral-700"
+          }`}
+        >
+          {t("step")} {currentStep} {t("of")} {steps.length}
         </span>
       </div>
 
       {/* Submit/Next Button */}
       <motion.button
-        type={currentStep === steps.length ? "submit" : "button"}
-        onClick={currentStep === steps.length ? handleButtonClick : nextStep}
+        type="button" // Always set type to "button" to prevent form submission
+        onClick={currentStep < steps.length ? nextStep : handleSubmit(onSubmit)} // Call handleSubmit only on the last step
         disabled={apiStatus === "pending"}
         whileTap={{ scale: 0.98 }}
-        className={`w-full h-10 rounded-lg text-sm font-semibold text-white transition ${
+        className={`w-full h-10 rounded-lg text-sm font-semibold transition-all ${
           apiStatus === "pending"
-            ? "bg-gray-500 cursor-not-allowed"
-            : "bg-gradient-to-b from-gray-700 to-gray-900 hover:cursor-pointer hover:opacity-90"
+        ? "cursor-not-allowed"
+        : "hover:cursor-pointer hover:opacity-90"
+        } ${
+          theme === "dark"
+        ? "bg-gradient-to-b from-neutral-400 to-neutral-200 text-neutral-950"
+        : "bg-gradient-to-b from-neutral-600 to-neutral-800 text-neutral-50"
         } focus:outline-none`}
       >
         {apiStatus === "pending"
-          ? "Signing up..."
+          ? t("signingUp")
           : currentStep === steps.length
-            ? "Sign up"
-            : "Continue"}
+        ? t("signUp")
+        : t("continue")}
       </motion.button>
-      <Toast
-        open={open}
-        onOpenChange={handleOpenChange}
-        onPause={pause}
-        onResume={resume}
-      >
-        <div className="flex w-full justify-between gap-3">
-          <CircleCheckIcon
-            className="mt-0.5 shrink-0 text-emerald-500"
-            size={16}
-            aria-hidden="true"
-          />
-          <div className="flex grow flex-col gap-3">
-            <div className="space-y-1">
-              <ToastTitle>Your registration was completed!</ToastTitle>
-              <ToastDescription>
-                You will be redirected shortly.
-              </ToastDescription>
-            </div>
-          </div>
-          <ToastClose asChild>
-            <Button
-              variant="ghost"
-              className="group -my-1.5 -me-2 size-8 shrink-0 p-0 hover:bg-transparent"
-              aria-label="Close notification"
-            >
-              <XIcon
-                size={16}
-                className="opacity-60 transition-opacity group-hover:opacity-100"
-                aria-hidden="true"
-              />
-            </Button>
-          </ToastClose>
-        </div>
-        <div className="contents" aria-hidden="true">
-          <div
-            className="pointer-events-none absolute bottom-0 right-0 h-1 w-full bg-emerald-500"
-            style={{
-              width: `${(progress / toastDuration) * 100}%`,
-              transition: "width 100ms linear",
-            }}
-          />
-        </div>
-      </Toast>
-      <ToastViewport className="right-0" />
     </form>
   );
 };

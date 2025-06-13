@@ -1,27 +1,28 @@
-"use client";
-
-import ReduxProvider from "@/store/reduxProvider";
-//import type { Metadata } from "next";
-import { ToastProvider } from "../components/ui/toast";
+import ReduxProviders from "@/lib/redux/Providers";
+import { ReactNode } from "react";
+import { Inter, Noto_Kufi_Arabic } from "next/font/google";
 import "./globals.css";
-import { store } from "../store/store";
+import ThemeToggle from "../components/common/theme-toggle";
+import LanguageSwitcher from "../components/common/language-switcher";
 
-/*export const metadata: Metadata = {
-  title: "Major",
-  description: "major-app, a 'SARL DAAB' product",
-};*/
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const kufi = Noto_Kufi_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-noto-kufi",
+  display: "swap",
+});
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-100">
-        <ReduxProvider store={store}>
-          <ToastProvider swipeDirection="left">{children}</ToastProvider>
-        </ReduxProvider>
+    <html
+      className={`${inter.variable} ${kufi.variable}`}
+    >
+      <body>
+        <ReduxProviders>
+        <LanguageSwitcher />
+        <ThemeToggle/>
+        {children}
+        </ReduxProviders>
       </body>
     </html>
   );
