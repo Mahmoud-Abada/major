@@ -1,21 +1,23 @@
 "use client";
 
-import { useLanguage, useTheme } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useTranslation } from "../../config/i18n/client";
+import { useAppDispatch } from "../../store/hooks";
+import { sendOTP, verifyOTP } from "../../store/slices/authSlice";
 
 type VerificationMethod = "email" | "phone";
 
 const OTPVerificationForm = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const locale = useLocale(); // 'en' | 'fr' | 'ar'
+  const t = useTranslations("auth");
   const [isClient] = useState(true);
   const [verificationMethod, setVerificationMethod] =
     useState<VerificationMethod>("email");
@@ -39,6 +41,7 @@ const OTPVerificationForm = () => {
       .length(6, { message: t("validation.otpLength") }) // Use translation for error message
       .regex(/^\d+$/, { message: t("validation.otpDigits") }), // Ensure OTP contains only digits
   });
+  const dispatch = useAppDispatch();
 
   const {
     handleSubmit,
@@ -113,78 +116,33 @@ const OTPVerificationForm = () => {
     }
   };
 
-
   const toggleVerificationMethod = () => {
     const newMethod = verificationMethod === "email" ? "phone" : "email";
     setVerificationMethod(newMethod);
     setContactInfo(newMethod === "email" ? "example@email.com" : "0778564321");
   };
 
-  const sendOTP = async (sendWhere: "whatsapp" | "sms" | "email") => {
+  const handleResendOTP = async () => {
+    const sendWhere = verificationMethod === "email" ? "email" : "phone";
+    const userId = sessionStorage.getItem("userId") || "";
     try {
-      setApiError(null);
-
-      const API_BASE_URL =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-      const endpoint = `${API_BASE_URL}/auth/send-otp`;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      // Get userId from your auth state or session
-      const userId = sessionStorage.getItem("userId") || "";
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Locale: lang, // 'en', 'fr', or 'ar'
-        },
-        body: JSON.stringify({
+      await dispatch(
+        sendOTP({
           userId,
           sendWhere,
         }),
-        signal: controller.signal,
-      });
+      ).unwrap();
 
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.message
-          ? t(`apiErrors.${errorData.message}`, errorData.message)
-          : t("apiErrors.default");
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-
-      // Store session token securely
-      if (result.sessionToken) {
-        sessionStorage.setItem("otpSessionToken", result.sessionToken);
-      }
-
-      // Update UI state
       setResendDisabled(true);
       setResendTimer(60);
       setOtpDigits(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-
-      /*showToast({
-        type: 'success',
-        message: t('otp.sentSuccess', { method: t(sendWhere) }),
-        autoClose: 3000,
-      });*/
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : t("apiErrors.unknown");
-
-      setApiError(errorMessage);
-      console.error("OTP Send Error:", error);
+    } catch (error: any) {
+      setApiError(error.message || t("apiErrors.unknown"));
+      console.error("Failed to resend OTP:", error);
     }
   };
-
-  const verifyOTP = async (otpValue: string) => {
+  const handleVerifyOTP = async (otpValue: string) => {
     try {
       setApiError(null);
 
@@ -193,40 +151,12 @@ const OTPVerificationForm = () => {
         throw new Error(t("validation.otpInvalid"));
       }
 
-      const API_BASE_URL =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-      const endpoint = `${API_BASE_URL}/auth/verify-otp`;
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
       // Get userId from your auth state or session
       const userId = sessionStorage.getItem("userId") || "";
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Locale: lang,
-        },
-        body: JSON.stringify({
-          userId,
-          otp: otpValue,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.message
-          ? t(`apiErrors.${errorData.message}`, errorData.message)
-          : t("apiErrors.default");
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
+      const result = await dispatch(
+        verifyOTP({ userId, otp: otpValue }),
+      ).unwrap();
 
       if (!result.verified) {
         throw new Error(t("apiErrors.otpVerificationFailed"));
@@ -262,18 +192,9 @@ const OTPVerificationForm = () => {
     }
   };
 
-  const handleResendOTP = () => {
-    const method = verificationMethod === "email" ? "email" : "sms";
-    sendOTP(method);
-  };
-
   const onSubmit = handleSubmit(() => {
-    verifyOTP(otpDigits.join(""));
+    handleVerifyOTP(otpDigits.join(""));
   });
-
-
-  if (!isClient) return null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -346,7 +267,7 @@ const OTPVerificationForm = () => {
             } ${!resendDisabled ? "underline" : ""}`}
           >
             {resendDisabled
-              ? `${t("resendIn").replace("{time}", resendTimer.toString())}`
+              ? t("resendIn", { time: resendTimer.toString() })
               : t("resendCode")}
           </button>
         </label>
@@ -416,10 +337,9 @@ const OTPVerificationForm = () => {
           onClick={toggleVerificationMethod}
           className={`font-semibold ${theme === "dark" ? "text-neutral-50" : "text-neutral-950"} underline`}
         >
-          {t("useInstead").replace(
-            "{method}",
-            verificationMethod === "email" ? t("phone") : t("email")
-          )}
+          {t("useInstead", {
+            method: verificationMethod === "email" ? t("phone") : t("email"),
+          })}
         </button>
       </p>
 

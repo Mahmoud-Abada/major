@@ -13,4 +13,3 @@ export type LocationType = {
   wilaya?: string;
   commune?: string;
 };
-

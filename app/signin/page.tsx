@@ -1,19 +1,11 @@
 "use client";
 
-import { useLanguage, useTheme } from "@/lib/redux/hooks";
 import Info from "@/components/auth/Info";
 import SigninForm from "../../components/auth/SigninForm";
 
-export default function SignUpPage() {
-  const { theme } = useTheme();
-  const { lang } = useLanguage();
-
+export default function SignInPage() {
   return (
-    <div
-      className={`flex min-h-screen flex-col lg:flex-row items-center justify-center lg:justify-evenly ${
-        theme === "dark" ? "bg-neutral-900" : "bg-neutral-100"
-      } ${lang === "ar" ? "font-kufi" : ""}`}
-    >
+    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
       <Info />
       <SigninForm />
     </div>

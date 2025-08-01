@@ -1,21 +1,20 @@
 "use client";
 
-import { setSelectedRole } from "@/lib/redux/slices/roleSlice";
-import { RootState } from "@/lib/redux/store";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaGoogle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import { RoleType, setSelectedRole } from "../../store/slices/userRoleSlice";
+import { RootState } from "../../store/store";
 import PersonSignupForm from "./PersonSignupForm";
 import SchoolSignupForm from "./SchoolSignupForm";
-import { useLanguage, useTheme } from "@/lib/redux/hooks";
-import { useTranslation } from "../../config/i18n/client";
 
 const SignupForm = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const t = useTranslations("auth");
   const dispatch = useDispatch();
   const selectedRole = useSelector(
     (state: RootState) => state.userRole.selectedRole,
@@ -62,7 +61,7 @@ const SignupForm = () => {
           <button
             key={role}
             type="button"
-            onClick={() => dispatch(setSelectedRole(role))}
+            onClick={() => dispatch(setSelectedRole(role as RoleType))}
             className={`flex-1 py-2 text-sm font-medium transition-colors ${
               selectedRole === role
                 ? theme === "dark"

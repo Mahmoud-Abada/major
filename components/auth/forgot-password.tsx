@@ -1,6 +1,5 @@
 "use client";
 
-import { useLanguage, useTheme } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -9,40 +8,39 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { z } from "zod";
-import { useTranslation } from "../../config/i18n/client";
 import { useRouter } from "next/navigation";
-
-
+import { useTheme } from "next-themes";
+import { useLocale, useTranslations } from "next-intl";
 
 const PasswordResetForm = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const locale = useLocale(); // 'en' | 'fr' | 'ar'
+  const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
-  const schema = z.object({
-    email: z
-      .string()
-      .nonempty(t("validation.required"))
-      .email(t("validation.email")),
-    newPassword: z
-      .string()
-      .nonempty(t("validation.required"))
-      .min(8, t("validation.minLength").replace("{length}", "8"))
-      .regex(/[A-Z]/, t("validation.passwordUppercase"))
-      .regex(/[a-z]/, t("validation.passwordLowercase"))
-      .regex(/[^A-Za-z]/, t("validation.passwordSpecialChar")),
-    confirmPassword: z
-      .string()
-      .nonempty(t("validation.required")),
-  }).refine((data) => data.newPassword === data.confirmPassword, {
-    message: t("validation.passwordMatch"),
-    path: ["confirmPassword"],
-  });
+  const schema = z
+    .object({
+      email: z
+        .string()
+        .nonempty(t("validation.required"))
+        .email(t("validation.email")),
+      newPassword: z
+        .string()
+        .nonempty(t("validation.required"))
+        .min(8, t("validation.minLength").replace("{length}", "8"))
+        .regex(/[A-Z]/, t("validation.passwordUppercase"))
+        .regex(/[a-z]/, t("validation.passwordLowercase"))
+        .regex(/[^A-Za-z]/, t("validation.passwordSpecialChar")),
+      confirmPassword: z.string().nonempty(t("validation.required")),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("validation.passwordMatch"),
+      path: ["confirmPassword"],
+    });
 
   const {
     register,
@@ -59,28 +57,24 @@ const PasswordResetForm = () => {
     },
   });
 
-  const onSubmit = async (data: {
-    email: string;
-    newPassword: string;
-  }) => {
+  const onSubmit = async (data: { email: string; newPassword: string }) => {
     // Clear previous errors
     setApiError(null);
 
     try {
-  
       // API configuration
       const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       const endpoint = `${API_BASE_URL}/auth/forget-password`;
-  
+
       // Add request timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-  
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           Accept: "application/json",
-          Locale: lang, // Pass user's language preference
+          Locale: locale, // Pass user's language preference
         },
         body: JSON.stringify({
           email: data.email.trim().toLowerCase(), // Normalize email
@@ -88,56 +82,53 @@ const PasswordResetForm = () => {
         }),
         signal: controller.signal,
       });
-  
+
       clearTimeout(timeoutId);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage = errorData.message 
+        const errorMessage = errorData.message
           ? t(`apiErrors.${errorData.message}`, errorData.message) // Try to translate
-          : t('apiErrors.default');
+          : t("apiErrors.default");
         throw new Error(errorMessage);
       }
-  
+
       const result = await response.json();
-  
+
       // Validate response structure
       if (!result.success) {
-        throw new Error(t('apiErrors.invalidResponse'));
+        throw new Error(t("apiErrors.invalidResponse"));
       }
-  
+
       // Show success notification
       /*showToast({
         type: 'success',
         message: t('resetPassword.success'),
         autoClose: 5000,
       });*/
-  
-      router.push("/login")
-  
+
+      router.push("/login");
     } catch (error: unknown) {
       // Handle specific error types
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        setApiError(t('apiErrors.timeout'));
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setApiError(t("apiErrors.timeout"));
       } else {
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : t('apiErrors.unknown');
-        
+        const errorMessage =
+          error instanceof Error ? error.message : t("apiErrors.unknown");
+
         setApiError(errorMessage);
-        
+
         // Set field-specific errors when appropriate
-        if (errorMessage.includes('email')) {
+        if (errorMessage.includes("email")) {
           setError("email", { message: errorMessage });
-        } else if (errorMessage.includes('password')) {
+        } else if (errorMessage.includes("password")) {
           setError("newPassword", { message: errorMessage });
         }
       }
-  
+
       // Log error for debugging
-      console.error('Password Reset Error:', error);
-     
-    } 
+      console.error("Password Reset Error:", error);
+    }
   };
 
   if (isSuccess) {
@@ -319,7 +310,7 @@ const PasswordResetForm = () => {
               placeholder={t("newPasswordPlaceholder")}
               {...register("newPassword")}
               className={`w-full h-10 rounded-lg border px-3 ${
-                lang === "ar" ? "text-right" : "text-left"
+                locale === "ar" ? "text-right" : "text-left"
               } text-sm placeholder-gray-500 focus:outline-none ${
                 errors.newPassword
                   ? theme === "dark"
@@ -333,7 +324,7 @@ const PasswordResetForm = () => {
             <button
               type="button"
               className={`absolute inset-y-0 ${
-                lang === "ar" ? "left-3" : "right-3"
+                locale === "ar" ? "left-3" : "right-3"
               } flex items-center ${
                 theme === "dark" ? "text-neutral-300" : "text-neutral-600"
               }`}
@@ -368,7 +359,7 @@ const PasswordResetForm = () => {
               placeholder={t("confirmPasswordPlaceholder")}
               {...register("confirmPassword")}
               className={`w-full h-10 rounded-lg border px-3 ${
-                lang === "ar" ? "text-right" : "text-left"
+                locale === "ar" ? "text-right" : "text-left"
               } text-sm placeholder-gray-500 focus:outline-none ${
                 errors.confirmPassword
                   ? theme === "dark"
@@ -382,7 +373,7 @@ const PasswordResetForm = () => {
             <button
               type="button"
               className={`absolute inset-y-0 ${
-                lang === "ar" ? "left-3" : "right-3"
+                locale === "ar" ? "left-3" : "right-3"
               } flex items-center ${
                 theme === "dark" ? "text-neutral-300" : "text-neutral-600"
               }`}

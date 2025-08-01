@@ -1,9 +1,9 @@
 import { LocationService } from "@/services/location";
 import { Comune, LocationType } from "@/types/location";
 import { CircleX, MapPinned } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "../config/i18n/client";
-import { useLanguage, useTheme } from "../lib/redux/hooks";
 
 declare global {
   interface Window {
@@ -23,8 +23,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   error,
 }) => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const locale = useLocale(); // 'en' | 'fr' | 'ar'
+  const t = useTranslations("auth");
   const [searchQuery, setSearchQuery] = useState("");
   const [comunes, setComunes] = useState<Comune[]>([]);
   const [showMap, setShowMap] = useState(false);
@@ -58,7 +58,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         // Dynamically import the required libraries
         await google.maps.importLibrary("maps");
         const markerLibrary = await google.maps.importLibrary("marker");
-        const { AdvancedMarkerElement } = markerLibrary as typeof google.maps.marker;
+        const { AdvancedMarkerElement } =
+          markerLibrary as typeof google.maps.marker;
 
         // Clear previous instances
         if (marker) {
@@ -94,7 +95,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         if (value?.coordinates) {
           newMarker = new AdvancedMarkerElement({
             map: newMap,
-            position: { lat: value.coordinates.lat, lng: value.coordinates.long },
+            position: {
+              lat: value.coordinates.lat,
+              lng: value.coordinates.long,
+            },
             title: "Selected location",
           });
         }
@@ -130,7 +134,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 setMarker(null);
               }
             }
-          }
+          },
         );
 
         setMap(newMap);
@@ -153,11 +157,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   }, [showMap, value?.coordinates]);
   const getAddressFromCoordinates = async (
     lat: number,
-    lng: number
+    lng: number,
   ): Promise<string> => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
       );
       const data = await response.json();
       return (
@@ -172,11 +176,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   const checkIfInAlgeria = async (
     lat: number,
-    lng: number
+    lng: number,
   ): Promise<boolean> => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
       );
       const data = await response.json();
       return data.results.some(
@@ -186,8 +190,8 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
           result.address_components.some(
             (component: { types: string[]; short_name: string }) =>
               component.types.includes("country") &&
-              component.short_name === "DZ"
-          )
+              component.short_name === "DZ",
+          ),
       );
     } catch (error) {
       console.error("Error checking location:", error);
@@ -215,20 +219,26 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       if (position) {
         const address = await getAddressFromCoordinates(
           typeof position.lat === "function" ? position.lat() : position.lat,
-          typeof position.lng === "function" ? position.lng() : position.lng
+          typeof position.lng === "function" ? position.lng() : position.lng,
         );
-        
+
         // Get wilaya and commune from reverse geocoding
         const details = await getLocationDetails(
           typeof position.lat === "function" ? position.lat() : position.lat,
-          typeof position.lng === "function" ? position.lng() : position.lng
+          typeof position.lng === "function" ? position.lng() : position.lng,
         );
 
         onChange({
           fullLocation: address,
           coordinates: {
-            lat: typeof position.lat === "function" ? position.lat() : position.lat,
-            long: typeof position.lng === "function" ? position.lng() : position.lng, // Changed to long
+            lat:
+              typeof position.lat === "function"
+                ? position.lat()
+                : position.lat,
+            long:
+              typeof position.lng === "function"
+                ? position.lng()
+                : position.lng, // Changed to long
           },
           wilaya: details.wilaya,
           commune: details.commune,
@@ -240,32 +250,35 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   };
 
   // Add this helper function
-  const getLocationDetails = async (lat: number, long: number): Promise<{wilaya: string, commune: string}> => {
+  const getLocationDetails = async (
+    lat: number,
+    long: number,
+  ): Promise<{ wilaya: string; commune: string }> => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`,
       );
       const data = await response.json();
-      
+
       // Extract wilaya and commune from address components
-      let wilaya = '';
-      let commune = '';
-      
+      let wilaya = "";
+      let commune = "";
+
       if (data.results[0]?.address_components) {
         for (const component of data.results[0].address_components) {
-          if (component.types.includes('administrative_area_level_1')) {
+          if (component.types.includes("administrative_area_level_1")) {
             wilaya = component.long_name;
           }
-          if (component.types.includes('locality')) {
+          if (component.types.includes("locality")) {
             commune = component.long_name;
           }
         }
       }
-      
+
       return { wilaya, commune };
     } catch (error) {
-      console.error('Error getting location details:', error);
-      return { wilaya: '', commune: '' };
+      console.error("Error getting location details:", error);
+      return { wilaya: "", commune: "" };
     }
   };
 
@@ -323,7 +336,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         />
         <div
           className={`absolute top-2 ${
-            lang === "ar" ? "left-2" : "right-2 "
+            locale === "ar" ? "left-2" : "right-2 "
           } space-x-1`}
         >
           {value && (
@@ -336,7 +349,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   : "text-neutral-500 hover:text-neutral-800"
               }`}
               aria-label={t("clearSelection")}
-              dir={lang === "ar" ? "rtl" : "ltr"}
+              dir={locale === "ar" ? "rtl" : "ltr"}
             >
               <CircleX size={20} />
             </button>
@@ -351,7 +364,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             }`}
             aria-label={t("selectOnMap")}
             disabled={!!value}
-            dir={lang === "ar" ? "rtl" : "ltr"}
+            dir={locale === "ar" ? "rtl" : "ltr"}
           >
             <MapPinned size={20} />
           </button>

@@ -1,7 +1,6 @@
 "use client";
 
-import { RootState } from "@/lib/redux/store";
-import { useTheme } from "@/lib/redux/hooks";
+import { RootState } from "@/store/store";
 import {
   BellElectric,
   BriefcaseBusiness,
@@ -13,11 +12,11 @@ import {
   Newspaper,
   Rss,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 import React from "react";
 import { useSelector } from "react-redux";
-import { useLanguage } from "@/lib/redux/hooks";
-import { useTranslation } from "../../config/i18n/client";
 
 type Feature = {
   title: string;
@@ -27,8 +26,7 @@ type Feature = {
 
 const Info = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const t = useTranslations("auth");
   const selectedRole = useSelector(
     (state: RootState) => state.userRole.selectedRole,
   );
@@ -89,9 +87,7 @@ const Info = () => {
 
   return (
     <section
-      className={`max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block ${
-        theme === "dark" ? "bg-neutral-900" : "bg-neutral-100"
-      }`}
+      className={`max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block`}
     >
       <div className="flex items-center space-x-3">
         <Image

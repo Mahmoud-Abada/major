@@ -8,7 +8,7 @@ import {
   StepperItem,
   StepperTrigger,
 } from "@/components/ui/stepper";
-import { RootState } from "@/lib/redux/store";
+
 import { personSchema } from "@/lib/validationSchemas";
 import { LocationType } from "@/types/location";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,16 +21,21 @@ import { useSelector } from "react-redux";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "../../config/i18n/client";
-import { useLanguage, useTheme } from "../../lib/redux/hooks";
+
+import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { useAppDispatch } from "../../store/hooks";
+import { registerUser } from "../../store/slices/authSlice";
+import { RootState } from "../../store/store";
+import { RegisterData } from "../../types/authTypes";
 
 type ApiStatus = "idle" | "pending" | "success" | "error";
 
 const PersonSignupForm = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const locale = useLocale();
+  const t = useTranslations("auth");
   const [isMounted, setIsMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -39,14 +44,15 @@ const PersonSignupForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [locationData, setLocationData] = useState<LocationType | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
-    null
+    null,
   );
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const selectedRole = useSelector(
-    (state: RootState) => state.userRole.selectedRole
+    (state: RootState) => state.userRole.selectedRole,
   );
- 
+
   const steps = [1, 2];
   type FormValues = z.infer<typeof personSchema>;
   const {
@@ -61,8 +67,11 @@ const PersonSignupForm = () => {
     resolver: zodResolver(personSchema),
     mode: "onChange",
     defaultValues: {
-      role: selectedRole === "student" || selectedRole === "teacher" ? selectedRole : "student",
-    }
+      role:
+        selectedRole === "student" || selectedRole === "teacher"
+          ? selectedRole
+          : "student",
+    },
   });
 
   const role = watch("role");
@@ -101,7 +110,9 @@ const PersonSignupForm = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setProfilePictureFile(file);
@@ -112,65 +123,63 @@ const PersonSignupForm = () => {
   const onSubmit = async (data: FormValues) => {
     setApiStatus("pending");
     setApiError(null);
-  
+
     try {
-      // Validate all fields first
-      const isValid = await trigger();
-      if (!isValid) {
-        throw new Error(t("validation.fixErrors"));
-      }
-  
-      // Prepare FormData
-      const formData = new FormData();
-      
-      // Append all form data
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (key === 'dob' && value instanceof Date) {
-            formData.append(key, value.toISOString());
-          } else if (key === 'profilePicture' && value instanceof File) {
-            formData.append(key, value);
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
-  
-      // Append location data if exists
-      if (locationData) {
-        formData.append('location', JSON.stringify(locationData));
-      }
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/register`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Accept": "application/json",
-          "Locale": lang,
+      // Prepare the data structure that matches RegisterData
+      const registerData: RegisterData = {
+        userData: {
+          email: data.email,
+          name: data.firstName,
+          last: data.lastName,
+          password: data.password,
+          DOB: data.dob ? new Date(data.dob).getTime() : 0,
+          username: data.email.split("@")[0], // or generate a username
+          phoneNumber: data.phone,
+          location: {
+            fullLocation: locationData?.fullLocation
+              ? locationData.fullLocation
+              : "",
+            coordinates: locationData?.coordinates
+              ? locationData.coordinates
+              : { lat: 0, long: 0 },
+            wilaya: locationData?.wilaya ? locationData.wilaya : "",
+            commune: locationData?.commune ? locationData.commune : "",
+          },
+          profilePicture:
+            (profilePictureFile as unknown as string) ??
+            "https://default-avatar.com/placeholder.png",
+          isVerified: false,
+          verificationType: "email",
+          socialLinks: {
+            website: "",
+            youtube: "",
+          },
+          description: data.interests || "",
+          userType: role as "student" | "teacher",
         },
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || t("registration_failed"));
+      };
+      const resultAction = await dispatch(registerUser(registerData));
+
+      const registeredUser = resultAction.payload;
+      const userId = registeredUser._id;
+      localStorage.setItem("pendingVerificationUserId", userId);
+      if (registerUser.fulfilled.match(resultAction)) {
+        setApiStatus("success");
+        reset();
+        setProfilePictureFile(null);
+        setLocationData(null);
+        router.push("/otp");
+      } else {
+        throw new Error(resultAction.payload as string);
       }
-  
-      setApiStatus("success");
-      reset();
-      setProfilePictureFile(null);
-      setLocationData(null);
-      
-      // Redirect to OTP verification
-      router.push("/otp");
     } catch (error: unknown) {
       setApiStatus("error");
-      setApiError(
-        error instanceof Error ? error.message : t("registration_error")
-      );
       console.error("Registration error:", error);
+      setApiError(
+        error instanceof Error ? error.message : t("registration_error"),
+      );
     }
   };
-
 
   if (!isMounted) {
     return null;
@@ -431,7 +440,7 @@ const PersonSignupForm = () => {
               placeholder={t("phonePlaceholder")}
               {...register("phone")}
               className={`w-full h-10 ${
-                lang === "ar" ? "text-right" : "text-left"
+                locale === "ar" ? "text-right" : "text-left"
               } rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
                 errors.phone
                   ? theme === "dark"
@@ -480,7 +489,7 @@ const PersonSignupForm = () => {
             <button
               type="button"
               className={`absolute inset-y-0 ${
-                lang === "ar" ? "left-3" : "right-3"
+                locale === "ar" ? "left-3" : "right-3"
               } flex items-center ${
                 theme === "dark" ? "text-neutral-300" : "text-neutral-600"
               }`}
@@ -527,7 +536,7 @@ const PersonSignupForm = () => {
               <button
                 type="button"
                 className={`absolute inset-y-0 ${
-                  lang === "ar" ? "left-3" : "right-3"
+                  locale === "ar" ? "left-3" : "right-3"
                 } flex items-center ${
                   theme === "dark" ? "text-neutral-300" : "text-neutral-600"
                 }`}
@@ -751,7 +760,7 @@ const PersonSignupForm = () => {
             aria-label={t("prevStep")}
             type="button"
           >
-            {lang === "ar" ? (
+            {locale === "ar" ? (
               <ChevronRightIcon
                 size={16}
                 aria-hidden="true"
@@ -811,7 +820,7 @@ const PersonSignupForm = () => {
             aria-label={t("nextStep")}
             type="button"
           >
-            {lang === "ar" ? (
+            {locale === "ar" ? (
               <ChevronLeftIcon
                 size={16}
                 aria-hidden="true"
@@ -847,19 +856,19 @@ const PersonSignupForm = () => {
         whileTap={{ scale: 0.98 }}
         className={`w-full h-10 rounded-lg text-sm font-semibold transition-all ${
           apiStatus === "pending"
-        ? "cursor-not-allowed"
-        : "hover:cursor-pointer hover:opacity-90"
+            ? "cursor-not-allowed"
+            : "hover:cursor-pointer hover:opacity-90"
         } ${
           theme === "dark"
-        ? "bg-gradient-to-b from-neutral-400 to-neutral-200 text-neutral-950"
-        : "bg-gradient-to-b from-neutral-600 to-neutral-800 text-neutral-50"
+            ? "bg-gradient-to-b from-neutral-400 to-neutral-200 text-neutral-950"
+            : "bg-gradient-to-b from-neutral-600 to-neutral-800 text-neutral-50"
         } focus:outline-none`}
       >
         {apiStatus === "pending"
           ? t("signingUp")
           : currentStep === steps.length
-        ? t("signUp")
-        : t("continue")}
+            ? t("signUp")
+            : t("continue")}
       </motion.button>
     </form>
   );

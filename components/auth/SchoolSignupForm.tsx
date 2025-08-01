@@ -15,18 +15,22 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { z } from "zod";
-import { useTranslation } from "../../config/i18n/client";
-import { useLanguage, useTheme } from "../../lib/redux/hooks";
+
+import { useLocale, useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "../../store/hooks";
+import { registerUser } from "../../store/slices/authSlice";
+import { RegisterData } from "../../types/authTypes";
 import { LocationType } from "../../types/location";
 import LocationSelector from "../LocationSelector";
-import { useRouter } from "next/navigation";
 
 type ApiStatus = "idle" | "pending" | "success" | "error";
 
 const SchoolSignupForm = () => {
   const { theme } = useTheme();
-  const { lang } = useLanguage();
-  const { t } = useTranslation(lang, "auth");
+  const locale = useLocale(); // 'en' | 'fr' | 'ar'
+  const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -35,9 +39,10 @@ const SchoolSignupForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [locationData, setLocationData] = useState<LocationType | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
-    null
+    null,
   );
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const steps = [1, 2, 3];
   type FormValues = z.infer<typeof schoolSchema>;
@@ -59,7 +64,7 @@ const SchoolSignupForm = () => {
   });
 
   const handleProfilePictureChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -67,6 +72,7 @@ const SchoolSignupForm = () => {
       setValue("profilePicture", file, { shouldValidate: true });
     }
   };
+
   useEffect(() => {
     setIsMounted(true);
     reset();
@@ -113,80 +119,78 @@ const SchoolSignupForm = () => {
   const onSubmit = async (data: FormValues) => {
     setApiStatus("pending");
     setApiError(null);
-  
+
     try {
-      // Validate all fields first
-      const isValid = await trigger();
-      if (!isValid) {
-        throw new Error(t("validation.fixErrors"));
-      }
-  
-      // Prepare FormData
-      const formData = new FormData();
-      
-      // Append all form data
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          // Handle special cases
-          if (key === 'profilePicture' && value instanceof File) {
-            formData.append(key, value);
-          } else if (key === 'socialLinks') {
-            // Stringify social links object
-            formData.append(key, JSON.stringify(value));
-          } else if (typeof value === 'object') {
-            // Stringify any other objects
-            formData.append(key, JSON.stringify(value));
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
-  
-      // Handle school type and representative role transformations
-      if (data.schoolType === "other" && data.customSchoolType) {
-        formData.set('schoolType', data.customSchoolType);
-      }
-      if (data.representativeRole === "other" && data.customRepresentativeRole) {
-        formData.set('representativeRole', data.customRepresentativeRole);
-      }
-  
-      // Append location data if exists
-      if (locationData) {
-        formData.append('location', JSON.stringify({
-          fullLocation: locationData.fullLocation,
-          coordinates: locationData.coordinates,
-          wilaya: locationData.wilaya,
-          commune: locationData.commune
-        }));
-      }
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/register/school`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Accept": "application/json",
-          "Locale": lang,
+      // Prepare the data structure that matches RegisterData
+      const registerData: RegisterData = {
+        userData: {
+          email: data.email,
+          name: data.schoolName,
+          password: data.password,
+          username: data.email.split("@")[0], // or generate a username
+          phoneNumber: data.phone,
+          location: {
+            fullLocation: locationData?.fullLocation
+              ? locationData.fullLocation
+              : "",
+            coordinates: locationData?.coordinates
+              ? locationData.coordinates
+              : { lat: 0, long: 0 },
+            wilaya: locationData?.wilaya ? locationData.wilaya : "",
+            commune: locationData?.commune ? locationData.commune : "",
+          },
+          profilePicture: profilePictureFile
+            ? URL.createObjectURL(profilePictureFile)
+            : "",
+          isVerified: false,
+          verificationType: "email",
+          socialLinks: {
+            website: data.socialLinks?.website || "",
+            youtube: data.socialLinks?.youtube || "",
+          },
+          description: "", // Add if you have this field
+          userType: "school",
+          schoolType:
+            data.schoolType === "other"
+              ? data.customSchoolType
+              : data.schoolType,
         },
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || t("registration_failed"));
+        schoolForm: {
+          representativeName: data.representativeName,
+          role:
+            data.representativeRole === "other"
+              ? data.customRepresentativeRole
+                ? data.customRepresentativeRole
+                : "principal"
+              : data.representativeRole
+                ? data.representativeRole
+                : "principal",
+          approximateTeachers: data.approxTeachers,
+          approximateStudents: data.approxStudents,
+          numberOfBranches: data.branchesCount,
+          attachements: [],
+        },
+      };
+
+      const resultAction = await dispatch(registerUser(registerData));
+      console.log(resultAction);
+      const registeredUser = resultAction.payload.user;
+      const userId = registeredUser._id;
+      localStorage.setItem("pendingVerificationUserId", userId);
+      if (registerUser.fulfilled.match(resultAction)) {
+        setApiStatus("success");
+        reset();
+        setProfilePictureFile(null);
+        setLocationData(null);
+        router.push("/otp");
+      } else {
+        throw new Error(resultAction.payload as string);
       }
-  
-      setApiStatus("success");
-      reset();
-      setProfilePictureFile(null);
-      setLocationData(null);
-      
-      // Redirect to OTP verification or success page
-      router.push("/otp");
     } catch (error: unknown) {
       setApiStatus("error");
       setApiError(
-        error instanceof Error ? error.message : t("registration_error")
+        error instanceof Error ? error.message : t("registration_error"),
       );
-      console.error("School registration error:", error);
     }
   };
 
@@ -396,7 +400,7 @@ const SchoolSignupForm = () => {
               placeholder={t("phonePlaceholder")}
               {...register("phone")}
               className={`w-full h-10 ${
-                lang === "ar" ? "text-right" : "text-left"
+                locale === "ar" ? "text-right" : "text-left"
               } rounded-lg border px-3 text-sm placeholder-gray-500 focus:outline-none ${
                 errors.phone
                   ? theme === "dark"
@@ -445,7 +449,7 @@ const SchoolSignupForm = () => {
             <button
               type="button"
               className={`absolute inset-y-0 ${
-                lang === "ar" ? "left-3" : "right-3"
+                locale === "ar" ? "left-3" : "right-3"
               } flex items-center ${
                 theme === "dark" ? "text-neutral-300" : "text-neutral-600"
               }`}
@@ -491,7 +495,7 @@ const SchoolSignupForm = () => {
               <button
                 type="button"
                 className={`absolute inset-y-0 ${
-                  lang === "ar" ? "left-3" : "right-3"
+                  locale === "ar" ? "left-3" : "right-3"
                 } flex items-center ${
                   theme === "dark" ? "text-neutral-300" : "text-neutral-600"
                 }`}
@@ -827,8 +831,8 @@ const SchoolSignupForm = () => {
                     .filter(
                       (platform) =>
                         !Object.keys(watch("socialLinks") || {}).includes(
-                          platform
-                        )
+                          platform,
+                        ),
                     )
                     .map((platform) => (
                       <option key={platform} value={platform}>
@@ -900,7 +904,7 @@ const SchoolSignupForm = () => {
             aria-label={t("prevStep")}
             type="button"
           >
-            {lang === "ar" ? (
+            {locale === "ar" ? (
               <ChevronRightIcon
                 size={16}
                 aria-hidden="true"
@@ -956,7 +960,7 @@ const SchoolSignupForm = () => {
             aria-label={t("nextStep")}
             type="button"
           >
-            {lang === "ar" ? (
+            {locale === "ar" ? (
               <ChevronLeftIcon
                 size={16}
                 aria-hidden="true"

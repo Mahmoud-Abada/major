@@ -41,21 +41,23 @@ const locationSchema = z.object({
   fullLocation: z.string().optional(),
   coordinates: z.object({
     lat: z.number(),
-    long: z.number(),  
+    long: z.number(),
   }),
   wilaya: z.string().optional(),
   commune: z.string().optional(),
 });
 
-const socialLinksSchema = z.object({
-  facebook: z.string().url("Invalid URL").optional(),
-  twitter: z.string().url("Invalid URL").optional(),
-  instagram: z.string().url("Invalid URL").optional(),
-  linkedin: z.string().url("Invalid URL").optional(),
-  tiktok: z.string().url("Invalid URL").optional(),
-  youtube: z.string().url("Invalid URL").optional(),
-  website: z.string().url("Invalid URL").optional(),
-}).catchall(z.string().url("Invalid URL").optional());
+const socialLinksSchema = z
+  .object({
+    facebook: z.string().url("Invalid URL").optional(),
+    twitter: z.string().url("Invalid URL").optional(),
+    instagram: z.string().url("Invalid URL").optional(),
+    linkedin: z.string().url("Invalid URL").optional(),
+    tiktok: z.string().url("Invalid URL").optional(),
+    youtube: z.string().url("Invalid URL").optional(),
+    website: z.string().url("Invalid URL").optional(),
+  })
+  .catchall(z.string().url("Invalid URL").optional());
 
 // Date validation for students (6+ years old)
 const studentDobSchema = z.date().refine(
@@ -96,7 +98,7 @@ const teacherDobSchema = z.date().refine(
 );
 
 // ─────────────────────────────
-// Person (Student/Teacher) Schema 
+// Person (Student/Teacher) Schema
 // ─────────────────────────────
 
 const personBaseSchema = z
@@ -214,7 +216,6 @@ export const schoolSchema = schoolBaseSchema
       path: ["location", "commune"],
     },
   );
-
 
 //export type SignUpInput = z.infer<typeof signUpSchema>;
 export type PersonSignUpInput = z.infer<typeof personSchema>;

@@ -1,0 +1,340 @@
+/* RTL-specific styles */
+
+/* Base RTL styles */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* RTL-aware animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+[dir="rtl"] .slide-in-from-right {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+[dir="ltr"] .slide-in-from-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+[dir="rtl"] .slide-in-from-left {
+  animation: slideInRight 0.3s ease-out;
+}
+
+[dir="ltr"] .slide-in-from-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* RTL-aware transforms */
+[dir="rtl"] .transform-scale-x {
+  transform: scaleX(-1);
+}
+
+/* RTL-aware positioning for dropdowns and tooltips */
+[dir="rtl"] .dropdown-menu {
+  left: auto;
+  right: 0;
+}
+
+[dir="ltr"] .dropdown-menu {
+  right: auto;
+  left: 0;
+}
+
+/* RTL-aware flex layouts */
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+/* RTL-aware grid layouts */
+[dir="rtl"] .grid-flow-col {
+  grid-auto-flow: column reverse;
+}
+
+/* RTL-aware text truncation */
+[dir="rtl"] .truncate {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="ltr"] .truncate {
+  direction: ltr;
+  text-align: left;
+}
+
+/* RTL-aware form elements */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="search"],
+[dir="rtl"] textarea {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="ltr"] input[type="text"],
+[dir="ltr"] input[type="email"],
+[dir="ltr"] input[type="password"],
+[dir="ltr"] input[type="search"],
+[dir="ltr"] textarea {
+  text-align: left;
+  direction: ltr;
+}
+
+/* RTL-aware placeholder text */
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="ltr"] input::placeholder,
+[dir="ltr"] textarea::placeholder {
+  text-align: left;
+  direction: ltr;
+}
+
+/* RTL-aware icons and arrows */
+[dir="rtl"] .icon-arrow-right {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .icon-arrow-left {
+  transform: rotate(180deg);
+}
+
+/* RTL-aware navigation */
+[dir="rtl"] .breadcrumb-separator::before {
+  content: "\\";
+  transform: scaleX(-1);
+}
+
+[dir="ltr"] .breadcrumb-separator::before {
+  content: "/";
+}
+
+/* RTL-aware table layouts */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+[dir="ltr"] th,
+[dir="ltr"] td {
+  text-align: left;
+}
+
+/* RTL-aware progress bars */
+[dir="rtl"] .progress-bar {
+  direction: rtl;
+}
+
+[dir="rtl"] .progress-fill {
+  right: 0;
+  left: auto;
+}
+
+[dir="ltr"] .progress-fill {
+  left: 0;
+  right: auto;
+}
+
+/* RTL-aware modal and dialog positioning */
+[dir="rtl"] .modal-content {
+  text-align: right;
+}
+
+[dir="ltr"] .modal-content {
+  text-align: left;
+}
+
+/* RTL-aware sidebar layouts */
+[dir="rtl"] .sidebar-left {
+  right: 0;
+  left: auto;
+  border-right: none;
+  border-left: 1px solid var(--color-border-base);
+}
+
+[dir="ltr"] .sidebar-left {
+  left: 0;
+  right: auto;
+  border-left: none;
+  border-right: 1px solid var(--color-border-base);
+}
+
+[dir="rtl"] .sidebar-right {
+  left: 0;
+  right: auto;
+  border-left: none;
+  border-right: 1px solid var(--color-border-base);
+}
+
+[dir="ltr"] .sidebar-right {
+  right: 0;
+  left: auto;
+  border-right: none;
+  border-left: 1px solid var(--color-border-base);
+}
+
+/* RTL-aware card layouts */
+[dir="rtl"] .card-header {
+  text-align: right;
+}
+
+[dir="ltr"] .card-header {
+  text-align: left;
+}
+
+/* RTL-aware list items */
+[dir="rtl"] .list-item {
+  padding-right: 1rem;
+  padding-left: 0.5rem;
+}
+
+[dir="ltr"] .list-item {
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+}
+
+/* RTL-aware notification positioning */
+[dir="rtl"] .notification-top-right {
+  top: 1rem;
+  left: 1rem;
+  right: auto;
+}
+
+[dir="ltr"] .notification-top-right {
+  top: 1rem;
+  right: 1rem;
+  left: auto;
+}
+
+[dir="rtl"] .notification-top-left {
+  top: 1rem;
+  right: 1rem;
+  left: auto;
+}
+
+[dir="ltr"] .notification-top-left {
+  top: 1rem;
+  left: 1rem;
+  right: auto;
+}
+
+/* RTL-aware tooltip positioning */
+[dir="rtl"] .tooltip-right {
+  left: auto;
+  right: 100%;
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+[dir="ltr"] .tooltip-right {
+  right: auto;
+  left: 100%;
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+[dir="rtl"] .tooltip-left {
+  right: auto;
+  left: 100%;
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+[dir="ltr"] .tooltip-left {
+  left: auto;
+  right: 100%;
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+/* RTL-aware number inputs */
+[dir="rtl"] input[type="number"] {
+  text-align: left; /* Numbers should always be LTR */
+  direction: ltr;
+}
+
+/* RTL-aware code blocks */
+[dir="rtl"] code,
+[dir="rtl"] pre {
+  direction: ltr;
+  text-align: left;
+}
+
+/* RTL-aware date pickers */
+[dir="rtl"] .date-picker {
+  direction: rtl;
+}
+
+[dir="rtl"] .date-picker input {
+  text-align: right;
+}
+
+/* RTL-aware search inputs */
+[dir="rtl"] .search-input {
+  padding-right: 2.5rem;
+  padding-left: 1rem;
+}
+
+[dir="ltr"] .search-input {
+  padding-left: 2.5rem;
+  padding-right: 1rem;
+}
+
+[dir="rtl"] .search-icon {
+  right: 0.75rem;
+  left: auto;
+}
+
+[dir="ltr"] .search-icon {
+  left: 0.75rem;
+  right: auto;
+}
+
+/* RTL-aware loading spinners */
+[dir="rtl"] .spinner {
+  animation: spin-rtl 1s linear infinite;
+}
+
+@keyframes spin-rtl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}

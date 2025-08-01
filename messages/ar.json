@@ -1,0 +1,12 @@
+{
+  "LocaleSwitcher": {
+    "label": "Change language",
+    "en": "English",
+    "fr": "French",
+    "ar": "Arabic"
+  },
+  "HomePage": {
+    "title": "Welcome to my blog",
+    "subtitle": "This is a simple blog setup with next-intl."
+  }
+}

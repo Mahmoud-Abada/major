@@ -23,7 +23,7 @@ export class LocationService {
         apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
         libraries: ["places"], // Add any required libraries here
       });
-  
+
       try {
         await loader.load();
         this.googleMapsLoaded = true;

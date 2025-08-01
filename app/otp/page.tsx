@@ -1,18 +1,10 @@
 "use client";
 
-import OTPVerificationForm from "../../components/auth/otp";
-import { useTheme, useLanguage } from "@/lib/redux/hooks";
+import OTPVerificationForm from "@/components/auth/otp";
 
 export default function OtpPage() {
-  const { theme } = useTheme();
-  const { lang } = useLanguage();
-
   return (
-    <div
-      className={`flex min-h-screen flex-col lg:flex-row items-center justify-center lg:justify-evenly 
-        ${theme === "dark" ? "bg-neutral-900" : "bg-neutral-50"}  ${lang === "ar" ? "font-kufi" : ""}`}
-      dir={lang === "ar" ? "rtl" : "ltr"}
-    >
+    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
       <OTPVerificationForm />
     </div>
   );
