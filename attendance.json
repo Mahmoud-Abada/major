@@ -1,0 +1,114 @@
+{
+  "v": 9,
+  "id": "cmd1reccq2lkevw1au3go6z1m",
+  "name": "attendance",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "add-student-attendance",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/attendance/add-student-attendance",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-student-attendance",
+      "method": "POST",
+      "endpoint": "/attendance/update-student-attendance",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-attendance-student",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/attendance/get-attendance-student",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-attendance-event",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/attendance/get-attendance-event",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-attendance-classroom",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/attendance/get-attendance-classroom",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mdy9mc5b_94829139-9751-4b1a-aec3-ba9f898cadba"
+}

@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { UserCard } from "@/components/users/user-card";
-import { mockParents } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { Download, Heart, Plus, Search, Upload, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+// Empty parents array - will be populated from API
+const mockParents: any[] = [];
 
 const containerVariants = {
   hidden: { opacity: 0 },

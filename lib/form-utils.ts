@@ -2,7 +2,15 @@
  * Form utilities for handling form validation and submission
  */
 
-import { FormErrors, ValidationResult } from "@/types/classroom";
+// Define types locally since they're not available from the import
+export interface FormErrors {
+  [key: string]: string | string[];
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: FormErrors;
+}
 import { z } from "zod";
 
 // Generic form validation function
@@ -344,7 +352,7 @@ export const transformFormData = <T, U>(
 };
 
 export const sanitizeFormData = <T extends Record<string, any>>(data: T): T => {
-  const sanitized = { ...data };
+  const sanitized = { ...data } as any;
 
   // Remove empty strings and convert to undefined
   Object.keys(sanitized).forEach((key) => {
@@ -411,28 +419,5 @@ export const clearFormFromStorage = (
   storage.removeItem(`form_${key}`);
 };
 
-// Export all utilities
-export {
-  clearFormFromStorage,
-  createAutoSave,
-  createFieldProps,
-  createInitialFormState,
-  createMultiStepFormState,
-  getFieldError,
-  getFieldErrors,
-  goToNextStep,
-  goToPreviousStep,
-  goToStep,
-  handleFormSubmission,
-  hasFieldError,
-  loadFormFromStorage,
-  markFieldAsDirty,
-  resetForm,
-  sanitizeFormData,
-  saveFormToStorage,
-  transformFormData,
-  validateConditionalField,
-  validateField,
-  validateForm,
-  validateStep,
-};
+
+

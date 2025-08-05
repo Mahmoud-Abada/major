@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/theme-utils";
+import { cn } from "@/lib/utils";
 import { ReactNode, useEffect, useState } from "react";
 
 interface AnimatedWrapperProps {

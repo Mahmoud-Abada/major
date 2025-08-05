@@ -1,8 +1,15 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { User } from "@/data/mock/users";
 import { BookOpen, GraduationCap, Heart, Shield } from "lucide-react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface RoleBadgeProps {
   role: User["role"];

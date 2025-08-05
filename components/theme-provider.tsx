@@ -13,7 +13,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ 
   children, 
-  attribute = "data-theme",
+  attribute = "class",
   defaultTheme = "system",
   enableSystem = true,
   disableTransitionOnChange = false,
@@ -21,7 +21,7 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   return (
     <NextThemesProvider
-      attribute={attribute}
+      attribute="class"
       defaultTheme={defaultTheme}
       enableSystem={enableSystem}
       disableTransitionOnChange={disableTransitionOnChange}

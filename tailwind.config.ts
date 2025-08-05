@@ -1,7 +1,7 @@
 import colors from "tailwindcss/colors";
 
 module.exports = {
-  darkMode: ["class", '[data-theme="dark"]'],
+  darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -74,41 +74,7 @@ module.exports = {
         info: colors.blue,
       },
 
-      textColor: {
-        skin: {
-          base: "var(--color-text-base)",
-          muted: "var(--color-text-muted)",
-          inverted: "var(--color-text-inverted)",
-          primary: "var(--color-primary)",
-          secondary: "var(--color-secondary)",
-          accent: "var(--color-accent)",
-        },
-      },
-      backgroundColor: {
-        skin: {
-          base: "var(--color-bg-base)",
-          muted: "var(--color-bg-muted)",
-          inverted: "var(--color-bg-inverted)",
-          primary: "var(--color-primary)",
-          secondary: "var(--color-secondary)",
-          accent: "var(--color-accent)",
-        },
-      },
-      borderColor: {
-        skin: {
-          base: "var(--color-border-base)",
-          primary: "var(--color-primary)",
-          secondary: "var(--color-secondary)",
-          accent: "var(--color-accent)",
-        },
-      },
-      ringColor: {
-        skin: {
-          primary: "var(--color-primary)",
-          secondary: "var(--color-secondary)",
-          accent: "var(--color-accent)",
-        },
-      },
+
     },
   },
   plugins: [

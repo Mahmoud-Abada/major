@@ -3,12 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserForm } from "@/components/users/user-form";
-import { User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
 
 export default function CreateUserPage() {
   const router = useRouter();
@@ -16,14 +21,14 @@ export default function CreateUserPage() {
 
   const handleSubmit = async (userData: Partial<User>) => {
     setIsLoading(true);
-    
+
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // In a real app, this would be an API call
       console.log("Creating user:", userData);
-      
+
       // Redirect to users list
       router.push("/users");
     } catch (error) {

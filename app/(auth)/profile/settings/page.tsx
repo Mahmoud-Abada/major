@@ -3,48 +3,55 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { User as UserType } from "@/data/mock/users";
 import { authService } from "@/lib/auth";
 import { themeStorage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import {
-    AlertTriangle,
-    ArrowLeft,
-    Bell,
-    Eye,
-    EyeOff,
-    Key,
-    Languages,
-    Monitor,
-    Moon,
-    Palette,
-    Settings,
-    Shield,
-    Sun,
-    Trash2
+  AlertTriangle,
+  ArrowLeft,
+  Bell,
+  Eye,
+  EyeOff,
+  Key,
+  Languages,
+  Monitor,
+  Moon,
+  Palette,
+  Settings,
+  Shield,
+  Sun,
+  Trash2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+// User type - will be replaced with actual API types
+interface UserType {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -135,19 +142,19 @@ export default function SettingsPage() {
       router.push("/signin");
       return;
     }
-    
+
     setUser(currentUser);
-    
+
     // Load saved theme preference
     const savedTheme = themeStorage.getTheme();
     const savedLanguage = themeStorage.getLanguage();
-    
+
     setDisplaySettings(prev => ({
       ...prev,
       theme: savedTheme,
       language: savedLanguage,
     }));
-    
+
     setIsLoading(false);
   }, [router]);
 
@@ -156,7 +163,7 @@ export default function SettingsPage() {
       ...prev,
       [key]: value,
     }));
-    
+
     toast({
       title: "Settings Updated",
       description: "Notification preferences have been saved.",
@@ -168,7 +175,7 @@ export default function SettingsPage() {
       ...prev,
       [key]: value,
     }));
-    
+
     toast({
       title: "Settings Updated",
       description: "Privacy settings have been saved.",
@@ -188,7 +195,7 @@ export default function SettingsPage() {
     if (key === "language") {
       themeStorage.setLanguage(value as string);
     }
-    
+
     toast({
       title: "Settings Updated",
       description: "Display preferences have been saved.",
@@ -248,7 +255,7 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     try {
       const result = await authService.deleteAccount();
-      
+
       if (result.success) {
         toast({
           title: "Account Deleted",
@@ -371,7 +378,7 @@ export default function SettingsPage() {
                     <Switch
                       id="email-notifications"
                       checked={notificationSettings.emailNotifications}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleNotificationChange("emailNotifications", checked)
                       }
                     />
@@ -389,7 +396,7 @@ export default function SettingsPage() {
                     <Switch
                       id="push-notifications"
                       checked={notificationSettings.pushNotifications}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleNotificationChange("pushNotifications", checked)
                       }
                     />
@@ -407,7 +414,7 @@ export default function SettingsPage() {
                     <Switch
                       id="classroom-updates"
                       checked={notificationSettings.classroomUpdates}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleNotificationChange("classroomUpdates", checked)
                       }
                     />
@@ -425,7 +432,7 @@ export default function SettingsPage() {
                     <Switch
                       id="grade-updates"
                       checked={notificationSettings.gradeUpdates}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleNotificationChange("gradeUpdates", checked)
                       }
                     />
@@ -495,8 +502,8 @@ export default function SettingsPage() {
                             <Languages className="h-4 w-4" />
                             <span>
                               {displaySettings.language === "en" ? "English" :
-                               displaySettings.language === "ar" ? "العربية" :
-                               displaySettings.language === "fr" ? "Français" : "English"}
+                                displaySettings.language === "ar" ? "العربية" :
+                                  displaySettings.language === "fr" ? "Français" : "English"}
                             </span>
                           </div>
                         </SelectValue>
@@ -523,7 +530,7 @@ export default function SettingsPage() {
                     <Switch
                       id="sound-enabled"
                       checked={displaySettings.soundEnabled}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleDisplayChange("soundEnabled", checked)
                       }
                     />
@@ -541,7 +548,7 @@ export default function SettingsPage() {
                     <Switch
                       id="animations-enabled"
                       checked={displaySettings.animationsEnabled}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handleDisplayChange("animationsEnabled", checked)
                       }
                     />
@@ -565,7 +572,7 @@ export default function SettingsPage() {
                   <Label htmlFor="profile-visibility">Profile Visibility</Label>
                   <Select
                     value={privacySettings.profileVisibility}
-                    onValueChange={(value) => 
+                    onValueChange={(value) =>
                       handlePrivacyChange("profileVisibility", value)
                     }
                   >
@@ -593,7 +600,7 @@ export default function SettingsPage() {
                     <Switch
                       id="show-email"
                       checked={privacySettings.showEmail}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handlePrivacyChange("showEmail", checked)
                       }
                     />
@@ -611,7 +618,7 @@ export default function SettingsPage() {
                     <Switch
                       id="allow-messages"
                       checked={privacySettings.allowDirectMessages}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         handlePrivacyChange("allowDirectMessages", checked)
                       }
                     />

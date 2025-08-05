@@ -198,7 +198,7 @@ class ClassroomApiService {
         const errorData = await response.json().catch(() => ({}));
         throw new ClassroomApiError(
           errorData.message ||
-            `HTTP ${response.status}: ${response.statusText}`,
+          `HTTP ${response.status}: ${response.statusText}`,
           response.status.toString(),
           errorData,
         );

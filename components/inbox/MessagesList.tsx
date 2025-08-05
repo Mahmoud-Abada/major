@@ -2,55 +2,7 @@ import { motion } from "framer-motion";
 import { MoreHorizontal, Paperclip } from "lucide-react";
 
 const MessagesList = () => {
-  const messageData = [
-    {
-      id: 1,
-      sender: "Prof. Sarah Lee",
-      role: "Teacher",
-      time: "2 hours ago",
-      subject: "Assignment #2 - Data Structures",
-      preview:
-        "Please review the updated requirements for Assignment #2. The deadline has been extended to next Friday...",
-      attachments: 1,
-      tag: "Gestion 1",
-      avatar: "👩‍🏫",
-    },
-    {
-      id: 2,
-      sender: "Dr. Robert Johnson",
-      role: "School",
-      time: "Yesterday",
-      subject: "Course Schedule Update",
-      preview:
-        "The schedule for next week's lectures has been updated. Please check the new timing for Tuesday's session...",
-      attachments: 3,
-      isBroadcast: true,
-      avatar: "👨‍💼",
-    },
-    {
-      id: 3,
-      sender: "Emma Davis",
-      role: "Student",
-      time: "2 days ago",
-      subject: "Project Collaboration Request",
-      preview:
-        "Would you like to collaborate on the final project? I think our skills complement each other well...",
-      replies: 2,
-      tag: "Langues 2",
-      avatar: "👩‍🎓",
-    },
-    {
-      id: 4,
-      sender: "Mike Chen",
-      role: "Teacher",
-      time: "4 hours ago",
-      subject: "Quiz Questions - Chapter 5",
-      preview:
-        "Hi, I have some questions about the quiz format for Chapter 5. Could you clarify the number of questions...",
-      isBroadcast: true,
-      avatar: "👨‍🏫",
-    },
-  ];
+  const messageData: any[] = [];
 
   const getRoleColor = (role: string) => {
     switch (role) {

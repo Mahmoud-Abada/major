@@ -1,4 +1,5 @@
-import { AdminUser, User } from "@/data/mock/users";
+// Import User types from auth service
+import { AdminUser, User } from "@/lib/auth";
 
 // ─────────────────────────────
 // Permission Types and Interfaces
@@ -297,29 +298,29 @@ export const ROLE_PERMISSIONS: RolePermissions = {
   teacher: [
     // User management (limited)
     PERMISSIONS.USER_READ,
-    
+
     // Classroom management
     PERMISSIONS.CLASSROOM_READ,
     PERMISSIONS.CLASSROOM_CREATE,
     PERMISSIONS.CLASSROOM_UPDATE,
     PERMISSIONS.CLASSROOM_MANAGE_STUDENTS,
-    
+
     // Content management
     PERMISSIONS.CONTENT_READ,
     PERMISSIONS.CONTENT_CREATE,
     PERMISSIONS.CONTENT_UPDATE,
     PERMISSIONS.CONTENT_DELETE,
-    
+
     // Assessment
     PERMISSIONS.ASSESSMENT_READ,
     PERMISSIONS.ASSESSMENT_CREATE,
     PERMISSIONS.ASSESSMENT_GRADE,
-    
+
     // Communication
     PERMISSIONS.COMMUNICATION_READ,
     PERMISSIONS.COMMUNICATION_SEND,
     PERMISSIONS.COMMUNICATION_BROADCAST,
-    
+
     // Reporting
     PERMISSIONS.REPORTING_READ,
     PERMISSIONS.REPORTING_CREATE,
@@ -328,40 +329,40 @@ export const ROLE_PERMISSIONS: RolePermissions = {
   student: [
     // Limited user access
     PERMISSIONS.USER_READ,
-    
+
     // Classroom access
     PERMISSIONS.CLASSROOM_READ,
-    
+
     // Content access
     PERMISSIONS.CONTENT_READ,
-    
+
     // Assessment access
     PERMISSIONS.ASSESSMENT_READ,
-    
+
     // Communication
     PERMISSIONS.COMMUNICATION_READ,
     PERMISSIONS.COMMUNICATION_SEND,
-    
+
     // Limited reporting
     PERMISSIONS.REPORTING_READ,
   ],
   parent: [
     // Limited user access
     PERMISSIONS.USER_READ,
-    
+
     // Classroom viewing
     PERMISSIONS.CLASSROOM_READ,
-    
+
     // Content viewing
     PERMISSIONS.CONTENT_READ,
-    
+
     // Assessment viewing (for their children)
     PERMISSIONS.ASSESSMENT_READ,
-    
+
     // Communication
     PERMISSIONS.COMMUNICATION_READ,
     PERMISSIONS.COMMUNICATION_SEND,
-    
+
     // Reporting (for their children)
     PERMISSIONS.REPORTING_READ,
   ],
@@ -375,13 +376,13 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
   // Dashboard
   "/": ["user_read"],
   "/dashboard": ["user_read"],
-  
+
   // User management
   "/users": ["user_read"],
   "/users/create": ["user_create"],
   "/users/[id]": ["user_read"],
   "/users/[id]/edit": ["user_update"],
-  
+
   // Classroom management
   "/classroom": ["classroom_read"],
   "/classroom/classrooms": ["classroom_read"],
@@ -389,39 +390,39 @@ export const ROUTE_PERMISSIONS: Record<string, string[]> = {
   "/classroom/classrooms/[id]": ["classroom_read"],
   "/classroom/classrooms/[id]/edit": ["classroom_update"],
   "/classroom/classrooms/[id]/students": ["classroom_manage_students"],
-  
+
   // Groups
   "/classroom/groups": ["classroom_read"],
   "/classroom/groups/create": ["classroom_create"],
   "/classroom/groups/[id]": ["classroom_read"],
-  
+
   // Posts and content
   "/classroom/posts": ["content_read"],
   "/classroom/posts/create": ["content_create"],
   "/classroom/posts/[id]": ["content_read"],
   "/classroom/posts/[id]/edit": ["content_update"],
-  
+
   // Assessment
   "/classroom/marks": ["assessment_read"],
   "/classroom/marks/entry": ["assessment_grade"],
   "/classroom/attendance": ["assessment_read"],
   "/classroom/attendance/entry": ["assessment_grade"],
-  
+
   // Communication
   "/messages": ["communication_read"],
   "/messages/compose": ["communication_send"],
   "/notifications": ["communication_read"],
-  
+
   // Reports
   "/reports": ["reporting_read"],
   "/reports/create": ["reporting_create"],
-  
+
   // Admin routes
   "/admin": ["system_settings"],
   "/admin/users": ["user_manage_roles"],
   "/admin/settings": ["system_settings"],
   "/admin/logs": ["system_logs"],
-  
+
   // Financial
   "/finance": ["financial_read"],
   "/finance/manage": ["financial_manage"],
@@ -437,18 +438,18 @@ class PermissionCheckerImpl implements PermissionChecker {
 
     // Get user's role permissions
     const rolePermissions = this.getRolePermissions(user.role);
-    
+
     // Check if user has the specific permission
     const hasDirectPermission = rolePermissions.some(p => p.id === permissionId);
-    
+
     // For admin users, check their specific permissions array
     if (user.role === "admin") {
       const adminUser = user as AdminUser;
-      const hasAdminPermission = adminUser.permissions?.includes(permissionId) || 
-                                adminUser.permissions?.includes("*"); // Wildcard permission
+      const hasAdminPermission = adminUser.permissions?.includes(permissionId) ||
+        adminUser.permissions?.includes("*"); // Wildcard permission
       return hasDirectPermission || hasAdminPermission;
     }
-    
+
     return hasDirectPermission;
   }
 
@@ -474,7 +475,7 @@ class PermissionCheckerImpl implements PermissionChecker {
     }
 
     // Check if user has at least one of the required permissions
-    return requiredPermissions.some(permission => 
+    return requiredPermissions.some(permission =>
       this.hasPermission(user, permission)
     );
   }
@@ -551,7 +552,7 @@ export const createPermissionContext = (user: User | null) => {
   return {
     user,
     permissions: user ? permissionChecker.getPermissions(user) : [],
-    hasPermission: (permissionId: string) => 
+    hasPermission: (permissionId: string) =>
       user ? permissionChecker.hasPermission(user, permissionId) : false,
     canAccessRoute: (route: string) =>
       user ? permissionChecker.canAccessRoute(user, route) : false,

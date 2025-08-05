@@ -1,5 +1,6 @@
 "use client";
 
+import StudentForm from "@/components/classroom/forms/StudentForm";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,288 +9,114 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserPlus } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  addStudent,
+  deleteStudent,
+  selectFilteredStudents,
+  selectStudentsLoading,
+  updateStudent
+} from "@/store/slices/classroom/studentsSlice";
+import { Student, StudentFormData } from "@/types/classroom";
+import { Edit, Eye, Trash2, UserPlus } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-// Mock data for students
-const mockStudents = [
-  {
-    id: "student-001",
-    image: "/avatars/alex-wilson.jpg",
-    name: "Alex Wilson",
-    status: "Active",
-    location: "Grade 10A",
-    verified: true,
-    referral: {
-      name: "John Smith",
-      image: "/avatars/john-smith.jpg",
+// Custom columns for students with enhanced actions
+const getStudentColumns = (
+  onEdit: (student: Student) => void,
+  onDelete: (id: string) => void,
+  onView: (id: string) => void
+) => [
+    {
+      id: "select",
+      header: "Select",
     },
-    value: 95,
-    joinDate: "2022-09-01",
-    studentId: "S2024001",
-    email: "alex.wilson@majorschool.edu",
-    phone: "+1-555-123-4567",
-    grade: "10",
-    class: "10A",
-    attendance: "95%",
-    gpa: "3.8",
-  },
-  {
-    id: "student-002",
-    image: "/avatars/olivia-martinez.jpg",
-    name: "Olivia Martinez",
-    status: "Active",
-    location: "Grade 11B",
-    verified: true,
-    referral: {
-      name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
+    {
+      header: "Name",
+      accessorKey: "name",
     },
-    value: 92,
-    joinDate: "2021-09-01",
-    studentId: "S2024002",
-    email: "olivia.martinez@majorschool.edu",
-    phone: "+1-555-234-5678",
-    grade: "11",
-    class: "11B",
-    attendance: "92%",
-    gpa: "3.9",
-  },
-  {
-    id: "student-003",
-    image: "/avatars/ethan-johnson.jpg",
-    name: "Ethan Johnson",
-    status: "Active",
-    location: "Grade 10A",
-    verified: true,
-    referral: {
-      name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
+    {
+      header: "ID",
+      accessorKey: "studentId",
     },
-    value: 88,
-    joinDate: "2022-09-01",
-    studentId: "S2024003",
-    email: "ethan.johnson@majorschool.edu",
-    phone: "+1-555-345-6789",
-    grade: "10",
-    class: "10A",
-    attendance: "88%",
-    gpa: "3.5",
-  },
-  {
-    id: "student-004",
-    image: "/avatars/sophia-brown.jpg",
-    name: "Sophia Brown",
-    status: "Active",
-    location: "Grade 9C",
-    verified: true,
-    referral: {
-      name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
+    {
+      header: "Status",
+      accessorKey: "status",
     },
-    value: 90,
-    joinDate: "2023-09-01",
-    studentId: "S2024004",
-    email: "sophia.brown@majorschool.edu",
-    phone: "+1-555-456-7890",
-    grade: "9",
-    class: "9C",
-    attendance: "90%",
-    gpa: "3.7",
-  },
-  {
-    id: "student-005",
-    image: "/avatars/noah-davis.jpg",
-    name: "Noah Davis",
-    status: "Inactive",
-    location: "Grade 11B",
-    verified: false,
-    referral: {
-      name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
+    {
+      header: "Grade",
+      accessorKey: "grade",
     },
-    value: 75,
-    joinDate: "2021-09-01",
-    studentId: "S2024005",
-    email: "noah.davis@majorschool.edu",
-    phone: "+1-555-567-8901",
-    grade: "11",
-    class: "11B",
-    attendance: "75%",
-    gpa: "3.0",
-  },
-  {
-    id: "student-006",
-    image: "/avatars/emma-wilson.jpg",
-    name: "Emma Wilson",
-    status: "Active",
-    location: "Grade 12A",
-    verified: true,
-    referral: {
-      name: "John Smith",
-      image: "/avatars/john-smith.jpg",
+    {
+      header: "Class",
+      accessorKey: "class",
     },
-    value: 95,
-    joinDate: "2020-09-01",
-    studentId: "S2024006",
-    email: "emma.wilson@majorschool.edu",
-    phone: "+1-555-678-9012",
-    grade: "12",
-    class: "12A",
-    attendance: "95%",
-    gpa: "4.0",
-  },
-  {
-    id: "student-007",
-    image: "/avatars/liam-thompson.jpg",
-    name: "Liam Thompson",
-    status: "Active",
-    location: "Grade 9C",
-    verified: true,
-    referral: {
-      name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
+    {
+      header: "Attendance",
+      accessorKey: "attendance",
     },
-    value: 85,
-    joinDate: "2023-09-01",
-    studentId: "S2024007",
-    email: "liam.thompson@majorschool.edu",
-    phone: "+1-555-789-0123",
-    grade: "9",
-    class: "9C",
-    attendance: "85%",
-    gpa: "3.4",
-  },
-  {
-    id: "student-008",
-    image: "/avatars/ava-garcia.jpg",
-    name: "Ava Garcia",
-    status: "Active",
-    location: "Grade 10A",
-    verified: true,
-    referral: {
-      name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
+    {
+      header: "GPA",
+      accessorKey: "gpa",
     },
-    value: 92,
-    joinDate: "2022-09-01",
-    studentId: "S2024008",
-    email: "ava.garcia@majorschool.edu",
-    phone: "+1-555-890-1234",
-    grade: "10",
-    class: "10A",
-    attendance: "92%",
-    gpa: "3.8",
-  },
-  {
-    id: "student-009",
-    image: "/avatars/william-brown.jpg",
-    name: "William Brown",
-    status: "Inactive",
-    location: "Grade 11B",
-    verified: false,
-    referral: {
-      name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }: { row: { original: Student } }) => (
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(row.original.id);
+            }}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(row.original);
+            }}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(row.original.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
     },
-    value: 70,
-    joinDate: "2021-09-01",
-    studentId: "S2024009",
-    email: "william.brown@majorschool.edu",
-    phone: "+1-555-901-2345",
-    grade: "11",
-    class: "11B",
-    attendance: "70%",
-    gpa: "2.8",
-  },
-  {
-    id: "student-010",
-    image: "/avatars/mia-johnson.jpg",
-    name: "Mia Johnson",
-    status: "Active",
-    location: "Grade 12A",
-    verified: true,
-    referral: {
-      name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
-    },
-    value: 93,
-    joinDate: "2020-09-01",
-    studentId: "S2024010",
-    email: "mia.johnson@majorschool.edu",
-    phone: "+1-555-012-3456",
-    grade: "12",
-    class: "12A",
-    attendance: "93%",
-    gpa: "3.9",
-  },
-];
-
-// Custom columns for students
-const getStudentColumns = () => [
-  {
-    id: "select",
-    header: "Select",
-  },
-  {
-    header: "Name",
-    accessorKey: "name",
-  },
-  {
-    header: "ID",
-    accessorKey: "studentId",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-  },
-  {
-    header: "Grade",
-    accessorKey: "grade",
-  },
-  {
-    header: "Class",
-    accessorKey: "class",
-  },
-  {
-    header: "Attendance",
-    accessorKey: "attendance",
-  },
-  {
-    header: "GPA",
-    accessorKey: "gpa",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-  },
-];
+  ];
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const students = useSelector(selectFilteredStudents);
+  const loading = useSelector(selectStudentsLoading);
 
-  useEffect(() => {
-    // Simulate API call
-    const fetchStudents = async () => {
-      try {
-        // In a real app, you would fetch data from an API
-        // const response = await fetch('/api/students');
-        // const data = await response.json();
-        // setStudents(data);
-
-        // For now, we'll just use the mock data
-        setStudents(mockStudents);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching students data:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchStudents();
-  }, []);
+  const [showForm, setShowForm] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [activeTab, setActiveTab] = useState("all");
 
   // Import the DataView component dynamically to avoid SSR issues with window
   const DataView = dynamic(
@@ -297,51 +124,108 @@ export default function StudentsPage() {
     {
       ssr: false,
       loading: () => <p>Loading table...</p>,
-    },
+    }
   );
+
+  const handleAddStudent = () => {
+    setEditingStudent(null);
+    setShowForm(true);
+  };
+
+  const handleEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    setShowForm(true);
+  };
+
+  const handleDeleteStudent = (id: string) => {
+    if (confirm("هل أنت متأكد من حذف هذا الطالب؟")) {
+      dispatch(deleteStudent(id));
+    }
+  };
+
+  const handleViewStudent = (id: string) => {
+    router.push(`/classroom/students/${id}`);
+  };
+
+  const handleSubmitForm = (data: StudentFormData) => {
+    if (editingStudent) {
+      dispatch(updateStudent({ id: editingStudent.id, data }));
+    } else {
+      dispatch(addStudent(data));
+    }
+    setShowForm(false);
+    setEditingStudent(null);
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingStudent(null);
+  };
+
+  const getFilteredStudents = (filterType: string) => {
+    switch (filterType) {
+      case "active":
+        return students.filter((student) => student.status === "Active");
+      case "inactive":
+        return students.filter((student) => student.status === "Inactive");
+      case "secondary":
+        return students.filter((student) => student.grade === "الثالثة ثانوي");
+      case "university":
+        return students.filter((student) => student.grade === "الجامعي");
+      case "sciences":
+        return students.filter((student) =>
+          student.class?.includes("علوم") || student.class?.includes("ع ت")
+        );
+      case "literature":
+        return students.filter((student) =>
+          student.class?.includes("آداب") || student.class?.includes("آف")
+        );
+      default:
+        return students;
+    }
+  };
+
+  const columns = getStudentColumns(handleEditStudent, handleDeleteStudent, handleViewStudent);
 
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Students</h1>
-        <Button>
+        <h1 className="text-2xl font-bold">إدارة الطلاب</h1>
+        <Button onClick={handleAddStudent}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Add Student
+          إضافة طالب
         </Button>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
-          <TabsTrigger value="all">All Students</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="inactive">Inactive</TabsTrigger>
-          <TabsTrigger value="grade9">Grade 9</TabsTrigger>
-          <TabsTrigger value="grade10">Grade 10</TabsTrigger>
-          <TabsTrigger value="grade11">Grade 11</TabsTrigger>
-          <TabsTrigger value="grade12">Grade 12</TabsTrigger>
+          <TabsTrigger value="all">جميع الطلاب</TabsTrigger>
+          <TabsTrigger value="active">نشط</TabsTrigger>
+          <TabsTrigger value="inactive">غير نشط</TabsTrigger>
+          <TabsTrigger value="secondary">الثالثة ثانوي</TabsTrigger>
+          <TabsTrigger value="university">الجامعي</TabsTrigger>
+          <TabsTrigger value="sciences">علوم تجريبية</TabsTrigger>
+          <TabsTrigger value="literature">آداب وفلسفة</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>All Students</CardTitle>
+              <CardTitle>جميع الطلاب</CardTitle>
               <CardDescription>
-                Manage all students in the system. Click on a student to view
-                their profile.
+                إدارة جميع الطلاب في النظام. انقر على طالب لعرض ملفه الشخصي.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("all")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
@@ -351,25 +235,21 @@ export default function StudentsPage() {
         <TabsContent value="active" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Active Students</CardTitle>
+              <CardTitle>الطلاب النشطون</CardTitle>
               <CardDescription>
-                View and manage currently active students.
+                عرض وإدارة الطلاب النشطين حالياً.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.status === "Active",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("active")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
@@ -379,146 +259,140 @@ export default function StudentsPage() {
         <TabsContent value="inactive" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Inactive Students</CardTitle>
+              <CardTitle>الطلاب غير النشطين</CardTitle>
               <CardDescription>
-                View and manage inactive students.
+                عرض وإدارة الطلاب غير النشطين.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.status === "Inactive",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("inactive")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="grade9" className="mt-4">
+        <TabsContent value="secondary" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Grade 9 Students</CardTitle>
+              <CardTitle>طلاب الثالثة ثانوي</CardTitle>
               <CardDescription>
-                View and manage students in Grade 9.
+                عرض وإدارة طلاب السنة الثالثة ثانوي.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.grade === "9",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("secondary")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="grade10" className="mt-4">
+        <TabsContent value="university" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Grade 10 Students</CardTitle>
+              <CardTitle>الطلاب الجامعيون</CardTitle>
               <CardDescription>
-                View and manage students in Grade 10.
+                عرض وإدارة الطلاب الجامعيين.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.grade === "10",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("university")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="grade11" className="mt-4">
+        <TabsContent value="sciences" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Grade 11 Students</CardTitle>
+              <CardTitle>طلاب العلوم التجريبية</CardTitle>
               <CardDescription>
-                View and manage students in Grade 11.
+                عرض وإدارة طلاب شعبة العلوم التجريبية.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.grade === "11",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("sciences")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="grade12" className="mt-4">
+        <TabsContent value="literature" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Grade 12 Students</CardTitle>
+              <CardTitle>طلاب الآداب والفلسفة</CardTitle>
               <CardDescription>
-                View and manage students in Grade 12.
+                عرض وإدارة طلاب شعبة الآداب والفلسفة.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p>Loading students...</p>
+                  <p>جاري تحميل الطلاب...</p>
                 </div>
               ) : (
                 <DataView
-                  initialData={students.filter(
-                    (student) => student.grade === "12",
-                  )}
-                  columns={getStudentColumns()}
-                  onRowClick={(student) => {
-                    window.location.href = `/classroom/students/${student.id}`;
-                  }}
+                  initialData={getFilteredStudents("literature")}
+                  columns={columns}
+                  onRowClick={(student) => handleViewStudent(student.id)}
                 />
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Student Form Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingStudent ? "تعديل بيانات الطالب" : "إضافة طالب جديد"}
+            </DialogTitle>
+          </DialogHeader>
+          <StudentForm
+            student={editingStudent}
+            onSubmit={handleSubmitForm}
+            onCancel={handleCancelForm}
+            loading={loading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-// Import dynamic at the end to avoid hoisting issues
-import dynamic from "next/dynamic";

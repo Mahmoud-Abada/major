@@ -1,15 +1,15 @@
 "use client";
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,12 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
-    RiAlertLine,
-    RiCheckLine,
-    RiDeleteBinLine,
-    RiErrorWarningLine,
-    RiInformationLine,
-    RiQuestionLine,
+  RiAlertLine,
+  RiCheckLine,
+  RiDeleteBinLine,
+  RiErrorWarningLine,
+  RiInformationLine,
+  RiQuestionLine,
 } from "@remixicon/react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
@@ -281,7 +281,7 @@ export function ConfirmationDialog({
                 <Checkbox
                   id="confirmation-checkbox"
                   checked={checkboxChecked}
-                  onCheckedChange={setCheckboxChecked}
+                  onCheckedChange={(checked) => setCheckboxChecked(checked === true)}
                 />
                 <Label
                   htmlFor="confirmation-checkbox"

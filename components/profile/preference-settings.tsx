@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
@@ -17,19 +17,19 @@ import { useToast } from "@/components/ui/use-toast";
 import { storage, themeStorage } from "@/lib/storage";
 import { motion } from "framer-motion";
 import {
-    Bell,
-    BookOpen,
-    Calendar,
-    Languages,
-    Mail,
-    MessageSquare,
-    Monitor,
-    Moon,
-    Palette,
-    Shield,
-    Smartphone,
-    Sun,
-    TrendingUp
+  Bell,
+  BookOpen,
+  Calendar,
+  Languages,
+  Mail,
+  MessageSquare,
+  Monitor,
+  Moon,
+  Palette,
+  Shield,
+  Smartphone,
+  Sun,
+  TrendingUp
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -128,7 +128,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
     
     setDisplay(prev => ({
       ...prev,
-      theme: savedTheme,
+      theme: savedTheme as "light" | "dark" | "system",
       language: savedLanguage,
     }));
 

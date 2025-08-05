@@ -7,23 +7,47 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { AdminUser, ParentUser, StudentUser, TeacherUser, User } from "@/data/mock/users";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Save, Upload, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+// User types - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
-// Form validation schemas
-const baseUserSchema = z.object({
+interface AdminUser extends User {
+  role: "admin";
+}
+
+interface TeacherUser extends User {
+  role: "teacher";
+}
+
+interface StudentUser extends User {
+  role: "student";
+}
+
+interface ParentUser extends User {
+  role: "parent";
+}
+
+// Form validation schemas - comprehensive schema that includes all possible fields
+const userFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -31,42 +55,29 @@ const baseUserSchema = z.object({
   role: z.enum(["admin", "teacher", "student", "parent"]),
   status: z.enum(["active", "inactive", "pending", "suspended"]),
   password: z.string().min(8, "Password must be at least 8 characters").optional(),
-});
-
-const adminSchema = baseUserSchema.extend({
-  role: z.literal("admin"),
+  // Admin fields
   department: z.string().optional(),
   position: z.string().optional(),
-  permissions: z.array(z.string()).default([]),
-});
-
-const teacherSchema = baseUserSchema.extend({
-  role: z.literal("teacher"),
-  subjects: z.array(z.string()).min(1, "At least one subject is required"),
-  qualifications: z.array(z.string()).default([]),
+  permissions: z.array(z.string()).optional(),
+  // Teacher fields
+  subjects: z.array(z.string()).optional(),
+  qualifications: z.array(z.string()).optional(),
   bio: z.string().optional(),
-  specializations: z.array(z.string()).default([]),
-  yearsOfExperience: z.number().min(0).default(0),
-});
-
-const studentSchema = baseUserSchema.extend({
-  role: z.literal("student"),
-  studentId: z.string().min(1, "Student ID is required"),
-  grade: z.string().min(1, "Grade is required"),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  specializations: z.array(z.string()).optional(),
+  yearsOfExperience: z.number().min(0).optional(),
+  // Student fields
+  studentId: z.string().optional(),
+  grade: z.string().optional(),
+  dateOfBirth: z.string().optional(),
   nationality: z.string().optional(),
   bloodGroup: z.string().optional(),
   address: z.string().optional(),
   parentName: z.string().optional(),
   parentEmail: z.string().email().optional().or(z.literal("")),
   parentPhone: z.string().optional(),
-});
-
-const parentSchema = baseUserSchema.extend({
-  role: z.literal("parent"),
-  relationship: z.enum(["father", "mother", "guardian", "other"]),
+  // Parent fields
+  relationship: z.enum(["father", "mother", "guardian", "other"]).optional(),
   occupation: z.string().optional(),
-  address: z.string().optional(),
 });
 
 interface UserFormProps {
@@ -83,9 +94,11 @@ export function UserForm({
   onSubmit,
   onCancel,
   isLoading = false,
-  submitLabel = "Save User",
+  submitLabel,
   isEditing = false,
 }: UserFormProps) {
+  const t = useTranslations('users');
+  const tCommon = useTranslations('common');
   const [selectedRole, setSelectedRole] = useState<string>(initialData?.role || "student");
   const [showPassword, setShowPassword] = useState(false);
   const [avatar, setAvatar] = useState<string>(initialData?.avatar || "");
@@ -102,30 +115,14 @@ export function UserForm({
     (initialData as AdminUser)?.permissions || []
   );
 
-  // Get the appropriate schema based on role
-  const getSchema = (role: string) => {
-    switch (role) {
-      case "admin":
-        return adminSchema;
-      case "teacher":
-        return teacherSchema;
-      case "student":
-        return studentSchema;
-      case "parent":
-        return parentSchema;
-      default:
-        return baseUserSchema;
-    }
-  };
-
   const form = useForm({
-    resolver: zodResolver(getSchema(selectedRole)),
+    resolver: zodResolver(userFormSchema),
     defaultValues: {
       firstName: initialData?.firstName || "",
       lastName: initialData?.lastName || "",
       email: initialData?.email || "",
       phoneNumber: initialData?.phoneNumber || "",
-      role: selectedRole,
+      role: selectedRole as "admin" | "teacher" | "student" | "parent",
       status: initialData?.status || "active",
       password: "",
       // Role-specific defaults
@@ -145,7 +142,7 @@ export function UserForm({
         studentId: (initialData as StudentUser)?.studentId || "",
         grade: (initialData as StudentUser)?.grade || "",
         dateOfBirth: (initialData as StudentUser)?.dateOfBirth
-          ? new Date(initialData.dateOfBirth).toISOString().split("T")[0]
+          ? new Date((initialData as StudentUser).dateOfBirth).toISOString().split("T")[0]
           : "",
         nationality: (initialData as StudentUser)?.nationality || "",
         bloodGroup: (initialData as StudentUser)?.bloodGroup || "",
@@ -162,11 +159,10 @@ export function UserForm({
     },
   });
 
-  // Update form schema when role changes
+  // Update form when role changes
   useEffect(() => {
-    const newSchema = getSchema(selectedRole);
     form.clearErrors();
-    // Reset form with new schema defaults
+    // Reset form with new role defaults
   }, [selectedRole, form]);
 
   const handleSubmit = (data: any) => {
@@ -240,9 +236,9 @@ export function UserForm({
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="basic">Basic Info</TabsTrigger>
-          <TabsTrigger value="role">Role Details</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="basic">{t('basicInfo')}</TabsTrigger>
+          <TabsTrigger value="role">{t('roleDetails')}</TabsTrigger>
+          <TabsTrigger value="security">{t('security')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-6">
@@ -260,7 +256,7 @@ export function UserForm({
                 <Button type="button" variant="outline" size="sm" asChild>
                   <span>
                     <Upload className="h-4 w-4 mr-2" />
-                    Upload Avatar
+                    {t('uploadAvatar')}
                   </span>
                 </Button>
               </Label>
@@ -272,7 +268,7 @@ export function UserForm({
                 onChange={handleAvatarUpload}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                JPG, PNG or GIF (max 2MB)
+                {t('avatarDescription')}
               </p>
             </div>
           </div>
@@ -280,11 +276,11 @@ export function UserForm({
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName">{t('firstName')} *</Label>
               <Input
                 id="firstName"
                 {...form.register("firstName")}
-                placeholder="Enter first name"
+                placeholder={`${tCommon('enter')} ${t('firstName').toLowerCase()}`}
               />
               {form.formState.errors.firstName && (
                 <p className="text-sm text-destructive mt-1">
@@ -294,11 +290,11 @@ export function UserForm({
             </div>
 
             <div>
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName">{t('lastName')} *</Label>
               <Input
                 id="lastName"
                 {...form.register("lastName")}
-                placeholder="Enter last name"
+                placeholder={`${tCommon('enter')} ${t('lastName').toLowerCase()}`}
               />
               {form.formState.errors.lastName && (
                 <p className="text-sm text-destructive mt-1">
@@ -308,12 +304,12 @@ export function UserForm({
             </div>
 
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">{t('email')} *</Label>
               <Input
                 id="email"
                 type="email"
                 {...form.register("email")}
-                placeholder="Enter email address"
+                placeholder={`${tCommon('enter')} ${t('email').toLowerCase()}`}
               />
               {form.formState.errors.email && (
                 <p className="text-sm text-destructive mt-1">
@@ -323,16 +319,16 @@ export function UserForm({
             </div>
 
             <div>
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">{t('phone')}</Label>
               <Input
                 id="phoneNumber"
                 {...form.register("phoneNumber")}
-                placeholder="Enter phone number"
+                placeholder={`${tCommon('enter')} ${t('phone').toLowerCase()}`}
               />
             </div>
 
             <div>
-              <Label htmlFor="role">Role *</Label>
+              <Label htmlFor="role">{t('role')} *</Label>
               <Select
                 value={selectedRole}
                 onValueChange={(value) => {
@@ -341,31 +337,31 @@ export function UserForm({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder={`${tCommon('select')} ${t('role').toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="parent">Parent</SelectItem>
+                  <SelectItem value="admin">{t('roles.admin')}</SelectItem>
+                  <SelectItem value="teacher">{t('roles.teacher')}</SelectItem>
+                  <SelectItem value="student">{t('roles.student')}</SelectItem>
+                  <SelectItem value="parent">{t('roles.parent')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="status">Status *</Label>
+              <Label htmlFor="status">{tCommon('status')} *</Label>
               <Select
                 value={form.watch("status")}
                 onValueChange={(value) => form.setValue("status", value as any)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={`${tCommon('select')} ${tCommon('status').toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
+                  <SelectItem value="active">{tCommon('active')}</SelectItem>
+                  <SelectItem value="inactive">{tCommon('inactive')}</SelectItem>
+                  <SelectItem value="pending">{tCommon('pending')}</SelectItem>
+                  <SelectItem value="suspended">{tCommon('suspended')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -378,25 +374,25 @@ export function UserForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="department">Department</Label>
+                  <Label htmlFor="department">{t('department')}</Label>
                   <Input
                     id="department"
                     {...form.register("department")}
-                    placeholder="Enter department"
+                    placeholder={`${tCommon('enter')} ${t('department').toLowerCase()}`}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="position">Position</Label>
+                  <Label htmlFor="position">{t('position')}</Label>
                   <Input
                     id="position"
                     {...form.register("position")}
-                    placeholder="Enter position"
+                    placeholder={`${tCommon('enter')} ${t('position').toLowerCase()}`}
                   />
                 </div>
               </div>
 
               <div>
-                <Label>Permissions</Label>
+                <Label>{t('permissions')}</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {availablePermissions.map((permission) => (
                     <div key={permission} className="flex items-center space-x-2">
@@ -425,19 +421,19 @@ export function UserForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="yearsOfExperience">Years of Experience</Label>
+                  <Label htmlFor="yearsOfExperience">{t('yearsOfExperience')}</Label>
                   <Input
                     id="yearsOfExperience"
                     type="number"
                     min="0"
                     {...form.register("yearsOfExperience", { valueAsNumber: true })}
-                    placeholder="Enter years of experience"
+                    placeholder={`${tCommon('enter')} ${t('yearsOfExperience').toLowerCase()}`}
                   />
                 </div>
               </div>
 
               <div>
-                <Label>Subjects *</Label>
+                <Label>{t('subjects')} *</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {subjects.map((subject, index) => (
                     <Badge
@@ -452,7 +448,7 @@ export function UserForm({
                 </div>
                 <Select onValueChange={(value) => addItem(subjects, setSubjects, value)}>
                   <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Add subject" />
+                    <SelectValue placeholder={t('addSubject')} />
                   </SelectTrigger>
                   <SelectContent>
                     {availableSubjects
@@ -467,11 +463,11 @@ export function UserForm({
               </div>
 
               <div>
-                <Label htmlFor="bio">Bio</Label>
+                <Label htmlFor="bio">{t('bio')}</Label>
                 <Textarea
                   id="bio"
                   {...form.register("bio")}
-                  placeholder="Enter bio"
+                  placeholder={`${tCommon('enter')} ${t('bio').toLowerCase()}`}
                   rows={3}
                 />
               </div>
@@ -482,11 +478,11 @@ export function UserForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="studentId">Student ID *</Label>
+                  <Label htmlFor="studentId">{t('studentId')} *</Label>
                   <Input
                     id="studentId"
                     {...form.register("studentId")}
-                    placeholder="Enter student ID"
+                    placeholder={`${tCommon('enter')} ${t('studentId').toLowerCase()}`}
                   />
                   {form.formState.errors.studentId && (
                     <p className="text-sm text-destructive mt-1">
@@ -496,18 +492,18 @@ export function UserForm({
                 </div>
 
                 <div>
-                  <Label htmlFor="grade">Grade *</Label>
+                  <Label htmlFor="grade">{t('grade')} *</Label>
                   <Select
                     value={form.watch("grade")}
                     onValueChange={(value) => form.setValue("grade", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select grade" />
+                      <SelectValue placeholder={t('selectGrade')} />
                     </SelectTrigger>
                     <SelectContent>
                       {grades.map((grade) => (
                         <SelectItem key={grade} value={grade}>
-                          Grade {grade}
+                          {t('grade')} {grade}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -515,7 +511,7 @@ export function UserForm({
                 </div>
 
                 <div>
-                  <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                  <Label htmlFor="dateOfBirth">{t('dateOfBirth')} *</Label>
                   <Input
                     id="dateOfBirth"
                     type="date"
@@ -524,22 +520,22 @@ export function UserForm({
                 </div>
 
                 <div>
-                  <Label htmlFor="nationality">Nationality</Label>
+                  <Label htmlFor="nationality">{t('nationality')}</Label>
                   <Input
                     id="nationality"
                     {...form.register("nationality")}
-                    placeholder="Enter nationality"
+                    placeholder={`${tCommon('enter')} ${t('nationality').toLowerCase()}`}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="bloodGroup">Blood Group</Label>
+                  <Label htmlFor="bloodGroup">{t('bloodGroup')}</Label>
                   <Select
                     value={form.watch("bloodGroup")}
                     onValueChange={(value) => form.setValue("bloodGroup", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select blood group" />
+                      <SelectValue placeholder={t('selectBloodGroup')} />
                     </SelectTrigger>
                     <SelectContent>
                       {bloodGroups.map((group) => (
@@ -553,41 +549,41 @@ export function UserForm({
               </div>
 
               <div>
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{t('address')}</Label>
                 <Textarea
                   id="address"
                   {...form.register("address")}
-                  placeholder="Enter address"
+                  placeholder={`${tCommon('enter')} ${t('address').toLowerCase()}`}
                   rows={2}
                 />
               </div>
 
               <div className="space-y-4">
-                <h4 className="font-medium">Parent/Guardian Information</h4>
+                <h4 className="font-medium">{t('parentGuardianInfo')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="parentName">Parent Name</Label>
+                    <Label htmlFor="parentName">{t('parentName')}</Label>
                     <Input
                       id="parentName"
                       {...form.register("parentName")}
-                      placeholder="Enter parent name"
+                      placeholder={`${tCommon('enter')} ${t('parentName').toLowerCase()}`}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="parentEmail">Parent Email</Label>
+                    <Label htmlFor="parentEmail">{t('parentEmail')}</Label>
                     <Input
                       id="parentEmail"
                       type="email"
                       {...form.register("parentEmail")}
-                      placeholder="Enter parent email"
+                      placeholder={`${tCommon('enter')} ${t('parentEmail').toLowerCase()}`}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="parentPhone">Parent Phone</Label>
+                    <Label htmlFor="parentPhone">{t('parentPhone')}</Label>
                     <Input
                       id="parentPhone"
                       {...form.register("parentPhone")}
-                      placeholder="Enter parent phone"
+                      placeholder={`${tCommon('enter')} ${t('parentPhone').toLowerCase()}`}
                     />
                   </div>
                 </div>
@@ -599,39 +595,39 @@ export function UserForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="relationship">Relationship *</Label>
+                  <Label htmlFor="relationship">{t('relationship')} *</Label>
                   <Select
                     value={form.watch("relationship")}
                     onValueChange={(value) => form.setValue("relationship", value as any)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select relationship" />
+                      <SelectValue placeholder={t('selectRelationship')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="father">Father</SelectItem>
-                      <SelectItem value="mother">Mother</SelectItem>
-                      <SelectItem value="guardian">Guardian</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="father">{t('father')}</SelectItem>
+                      <SelectItem value="mother">{t('mother')}</SelectItem>
+                      <SelectItem value="guardian">{t('guardian')}</SelectItem>
+                      <SelectItem value="other">{tCommon('other')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="occupation">Occupation</Label>
+                  <Label htmlFor="occupation">{t('occupation')}</Label>
                   <Input
                     id="occupation"
                     {...form.register("occupation")}
-                    placeholder="Enter occupation"
+                    placeholder={`${tCommon('enter')} ${t('occupation').toLowerCase()}`}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">{t('address')}</Label>
                 <Textarea
                   id="address"
                   {...form.register("address")}
-                  placeholder="Enter address"
+                  placeholder={`${tCommon('enter')} ${t('address').toLowerCase()}`}
                   rows={2}
                 />
               </div>
@@ -643,14 +639,14 @@ export function UserForm({
           <div className="space-y-4">
             <div>
               <Label htmlFor="password">
-                {isEditing ? "New Password (leave blank to keep current)" : "Password *"}
+                {isEditing ? t('newPassword') : `${t('password')} *`}
               </Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   {...form.register("password")}
-                  placeholder={isEditing ? "Enter new password" : "Enter password"}
+                  placeholder={isEditing ? t('enterNewPassword') : t('enterPassword')}
                 />
                 <Button
                   type="button"
@@ -676,11 +672,11 @@ export function UserForm({
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Checkbox id="emailVerified" defaultChecked={initialData?.isEmailVerified} />
-                <Label htmlFor="emailVerified">Email Verified</Label>
+                <Label htmlFor="emailVerified">{t('emailVerified')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox id="twoFactor" defaultChecked={initialData?.twoFactorEnabled} />
-                <Label htmlFor="twoFactor">Two-Factor Authentication</Label>
+                <Label htmlFor="twoFactor">{t('twoFactorAuth')}</Label>
               </div>
             </div>
           </div>
@@ -691,11 +687,11 @@ export function UserForm({
       <div className="flex justify-end gap-4 pt-6 border-t">
         <Button type="button" variant="outline" onClick={onCancel}>
           <X className="h-4 w-4 mr-2" />
-          Cancel
+          {tCommon('cancel')}
         </Button>
         <Button type="submit" disabled={isLoading}>
           <Save className="h-4 w-4 mr-2" />
-          {isLoading ? "Saving..." : submitLabel}
+          {isLoading ? t('saving') : (submitLabel || t('saveUser'))}
         </Button>
       </div>
     </form>

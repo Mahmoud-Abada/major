@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 
 export default function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const  t  = useTranslations();
 
   const themes = [
@@ -45,7 +45,7 @@ export default function ThemeToggle() {
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 w-9 px-0 theme-focus-ring"
+          className="h-9 w-9 px-0 focus:ring-2 focus:ring-primary focus:ring-offset-2"
           aria-label={t("theme.toggleTheme")}
         >
           <div className="transition-transform duration-200 hover:scale-110">
@@ -55,7 +55,7 @@ export default function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-56 theme-card"
+        className="w-56"
         sideOffset={4}
       >
         {themes.map((themeOption) => {

@@ -129,7 +129,7 @@ export function TeacherPerformance({
               <div className="text-3xl font-bold">
                 {evaluations.length > 0
                   ? (
-                      evaluations.reduce((sum, eval) => sum + eval.score, 0) /
+                      evaluations.reduce((sum, evaluation) => sum + evaluation.score, 0) /
                       evaluations.length
                     ).toFixed(1)
                   : "N/A"}

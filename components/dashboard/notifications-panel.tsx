@@ -4,22 +4,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getNotificationsByRecipient, getUnreadNotifications, markNotificationAsRead } from "@/data/mock/notifications";
-import { User } from "@/data/mock/users";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import {
-    AlertTriangle,
-    Bell,
-    Check,
-    CheckCircle,
-    Clock,
-    Info,
-    MoreHorizontal,
-    Settings,
-    XCircle
+  AlertTriangle,
+  Bell,
+  Check,
+  CheckCircle,
+  Clock,
+  Info,
+  MoreHorizontal,
+  Settings,
+  XCircle
 } from "lucide-react";
 import { useState } from "react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
+
+// Mock notification functions - will be replaced with API calls
+const getNotificationsByRecipient = (userId: string) => [];
+const getUnreadNotifications = (userId: string) => [];
+const markNotificationAsRead = (notificationId: string) => true;
 
 interface NotificationsPanelProps {
   user: User;
@@ -32,7 +43,7 @@ const getNotificationIcon = (type: string) => {
     case "warning": return AlertTriangle;
     case "error": return XCircle;
     case "announcement": return Bell;
-    case "info": 
+    case "info":
     default: return Info;
   }
 };
@@ -43,7 +54,7 @@ const getNotificationColor = (type: string) => {
     case "warning": return "text-yellow-600 bg-yellow-50";
     case "error": return "text-red-600 bg-red-50";
     case "announcement": return "text-purple-600 bg-purple-50";
-    case "info": 
+    case "info":
     default: return "text-blue-600 bg-blue-50";
   }
 };
@@ -101,8 +112,8 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
     if (!notification.isRead) {
       handleMarkAsRead(notification.id);
     }
-    if (notification.actionUrl) {
-      window.open(notification.actionUrl, '_self');
+    if (notification.action?.url) {
+      window.open(notification.action.url, '_self');
     }
   };
 
@@ -122,9 +133,9 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
         </div>
         <div className="flex items-center space-x-2">
           {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleMarkAllAsRead}
               className="text-xs"
             >
@@ -164,11 +175,10 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className={`relative p-4 rounded-lg border transition-all duration-200 cursor-pointer group ${
-                      notification.isRead 
-                        ? "bg-background hover:bg-muted/50 border-border" 
+                    className={`relative p-4 rounded-lg border transition-all duration-200 cursor-pointer group ${notification.isRead
+                        ? "bg-background hover:bg-muted/50 border-border"
                         : "bg-muted/30 hover:bg-muted/50 border-primary/20 shadow-sm"
-                    }`}
+                      }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     {/* Unread indicator */}
@@ -187,9 +197,8 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className={`text-sm font-medium ${
-                                notification.isRead ? "text-muted-foreground" : "text-foreground"
-                              }`}>
+                              <h4 className={`text-sm font-medium ${notification.isRead ? "text-muted-foreground" : "text-foreground"
+                                }`}>
                                 {notification.title}
                               </h4>
                               {priorityBadge && (
@@ -198,9 +207,8 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                                 </Badge>
                               )}
                             </div>
-                            <p className={`text-sm ${
-                              notification.isRead ? "text-muted-foreground/80" : "text-muted-foreground"
-                            }`}>
+                            <p className={`text-sm ${notification.isRead ? "text-muted-foreground/80" : "text-muted-foreground"
+                              }`}>
                               {notification.message}
                             </p>
 
@@ -218,14 +226,14 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
 
                               {/* Action button */}
                               {notification.action && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   className="text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (notification.actionUrl) {
-                                      window.open(notification.actionUrl, '_self');
+                                    if (notification.action?.url) {
+                                      window.open(notification.action.url, '_self');
                                     }
                                   }}
                                 >

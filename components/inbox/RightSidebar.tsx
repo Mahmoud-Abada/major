@@ -98,6 +98,7 @@ const RightSidebar = () => {
   ]);
 
   const [isRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
 
   const [onlineUsers] = useState([
     { name: "Prof. Sarah Lee", avatar: "👩‍🏫", status: "online" },
@@ -114,11 +115,11 @@ const RightSidebar = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    (messagesEndRef.current as HTMLDivElement)?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
-    let interval;
+    let interval: NodeJS.Timeout;
     if (isRecording) {
       interval = setInterval(() => {
         setRecordingTime((prev) => prev + 1);
@@ -127,7 +128,7 @@ const RightSidebar = () => {
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "online":
         return "bg-green-500";
@@ -293,7 +294,3 @@ const RightSidebar = () => {
 };
 
 export default RightSidebar;
-
-function setRecordingTime(arg0: (prev: any) => any) {
-  throw new Error("Function not implemented.");
-}

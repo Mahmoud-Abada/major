@@ -7,27 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
-import { Classroom } from "@/store/types/api";
+import { Classroom } from "@/types/classroom";
 import { motion } from "framer-motion";
 import {
-    Archive,
-    BookOpen,
-    Clock,
-    DollarSign,
-    Edit,
-    Eye,
-    MapPin,
-    MoreHorizontal,
-    Star,
-    Trash2,
-    Users,
+  Archive,
+  BookOpen,
+  Clock,
+  DollarSign,
+  Edit,
+  Eye,
+  MapPin,
+  MoreHorizontal,
+  Star,
+  Trash2,
+  Users,
 } from "lucide-react";
 
 interface ClassroomCardProps {
@@ -88,12 +88,12 @@ export function ClassroomCard({
   // Animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.3, ease: "easeOut" }
     },
-    hover: { 
+    hover: {
       y: -4,
       transition: { duration: 0.2, ease: "easeOut" }
     }
@@ -294,7 +294,7 @@ export function ClassroomCard({
               <BookOpen className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
-          
+
           {/* Overlay badges */}
           <div className="absolute top-2 left-2 flex gap-2">
             {classroom.isArchived && (

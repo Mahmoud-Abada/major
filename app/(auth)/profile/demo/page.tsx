@@ -6,16 +6,26 @@ import { ProfileCard } from "@/components/profile/profile-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockUsers, User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import {
-    ArrowLeft,
-    Camera,
-    CheckCircle,
-    Settings,
-    Users
+  ArrowLeft,
+  Camera,
+  CheckCircle,
+  Settings,
+  Users
 } from "lucide-react";
 import { useState } from "react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
+
+// Empty users array - will be populated from API
+const mockUsers: User[] = [];
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },

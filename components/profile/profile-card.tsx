@@ -4,19 +4,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { User as UserType } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import {
-    Calendar,
-    Edit3,
-    Mail,
-    MapPin,
-    MessageSquare,
-    MoreHorizontal,
-    Phone,
-    User
+  Calendar,
+  Edit3,
+  Mail,
+  MapPin,
+  MessageSquare,
+  MoreHorizontal,
+  Phone,
+  User
 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
+// User type - will be replaced with actual API types
+interface UserType {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface ProfileCardProps {
   user: UserType;
@@ -89,16 +96,16 @@ export function ProfileCard({
                   {getInitials(user.firstName, user.lastName)}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-sm truncate">
                   {user.firstName} {user.lastName}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className={getRoleColor(user.role)} variant="outline" size="sm">
+                  <Badge className={getRoleColor(user.role)} variant="outline">
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                   </Badge>
-                  <StatusBadge status={user.status} size="sm" />
+                  <StatusBadge status={user.status} />
                 </div>
               </div>
 
@@ -192,7 +199,7 @@ export function ProfileCard({
               <Mail className="h-4 w-4" />
               <span>{user.email}</span>
             </div>
-            
+
             {user.phoneNumber && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4" />
@@ -241,12 +248,12 @@ export function ProfileCard({
                     <span className="text-sm text-muted-foreground">Subjects:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {(user as any).subjects.slice(0, 3).map((subject: string, index: number) => (
-                        <Badge key={index} variant="secondary" size="sm">
+                        <Badge key={index} variant="secondary">
                           {subject}
                         </Badge>
                       ))}
                       {(user as any).subjects.length > 3 && (
-                        <Badge variant="outline" size="sm">
+                        <Badge variant="outline">
                           +{(user as any).subjects.length - 3} more
                         </Badge>
                       )}

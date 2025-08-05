@@ -1,14 +1,16 @@
 import clsx from "clsx";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import ReduxProviders from "@/store/Providers";
 import "@/styles/rtl.css";
-import "@/styles/themes.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { Inter, Noto_Kufi_Arabic } from "next/font/google";
 import { ReactNode } from "react";
+import { CalendarProvider } from "../components/calendar/event-calendar/calendar-context";
 import "./globals.css";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,11 +44,12 @@ export default async function RootLayout({ children }: Props) {
         <ReduxProviders>
           <NextIntlClientProvider locale={locale}>
             <ThemeProvider
-              attribute="data-theme"
+              attribute="class"
               defaultTheme="system"
               enableSystem
             >
-              {children}
+              <CalendarProvider>{children}</CalendarProvider>
+              <Toaster />
             </ThemeProvider>
           </NextIntlClientProvider>
         </ReduxProviders>

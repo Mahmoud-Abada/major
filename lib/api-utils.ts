@@ -3,7 +3,18 @@
  * Common utilities for API interactions and error handling
  */
 
-import { ApiError } from "@/services/classroom-api";
+// Define ApiError class locally since it's not available from the import
+class ApiError extends Error {
+  code: string;
+  details?: any;
+
+  constructor(message: string, code: string, details?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.details = details;
+  }
+}
 
 // HTTP status codes
 export const HTTP_STATUS = {
@@ -260,7 +271,7 @@ export const dataUtils = {
     data: T,
     timestampFields: string[] = ["createdAt", "updatedAt", "date", "dueDate"],
   ): T => {
-    const transformed = { ...data };
+    const transformed = { ...data } as any;
 
     timestampFields.forEach((field) => {
       if (transformed[field] && typeof transformed[field] === "number") {
@@ -276,7 +287,7 @@ export const dataUtils = {
     data: T,
     dateFields: string[] = ["createdAt", "updatedAt", "date", "dueDate"],
   ): T => {
-    const transformed = { ...data };
+    const transformed = { ...data } as any;
 
     dateFields.forEach((field) => {
       if (transformed[field] instanceof Date) {
@@ -289,7 +300,7 @@ export const dataUtils = {
 
   // Sanitize data for API submission
   sanitizeData: <T extends Record<string, any>>(data: T): T => {
-    const sanitized = { ...data };
+    const sanitized = { ...data } as any;
 
     // Remove undefined values
     Object.keys(sanitized).forEach((key) => {
@@ -457,18 +468,5 @@ export const formatUtils = {
   },
 };
 
-// Export all utilities
-export {
-  cacheUtils,
-  createApiError,
-  dataUtils,
-  debounce,
-  fetchWithConfig as fetch,
-  formatUtils,
-  requestInterceptor,
-  responseInterceptor,
-  throttle,
-  tokenManager,
-  urlUtils,
-  validationUtils,
-};
+// Export fetchWithConfig as fetch
+export { fetchWithConfig as fetch };

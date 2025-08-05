@@ -3,22 +3,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
-    RiArrowLeftLine,
-    RiDownloadLine,
-    RiMoreLine,
-    RiRefreshLine,
-    RiSettingsLine,
-    RiShareLine,
-    RiUploadLine,
+  RiArrowLeftLine,
+  RiDownloadLine,
+  RiMoreLine,
+  RiRefreshLine,
+  RiSettingsLine,
+  RiShareLine,
+  RiUploadLine,
 } from "@remixicon/react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
@@ -309,7 +309,7 @@ export function ActionBar({
               "hidden sm:flex items-center gap-2",
               rtl && "flex-row-reverse"
             )}>
-              {primaryActions.filter(action => !action.hidden).map(renderAction)}
+              {primaryActions.filter(action => !action.hidden).map((action, index) => renderAction(action, false))}
             </div>
             {primaryActions.length > 0 && secondaryActions.length > 0 && (
               <Separator orientation="vertical" className="h-6 hidden sm:block" />
@@ -323,7 +323,7 @@ export function ActionBar({
             "hidden md:flex items-center gap-2",
             rtl && "flex-row-reverse"
           )}>
-            {secondaryActions.filter(action => !action.hidden).map(renderAction)}
+            {secondaryActions.filter(action => !action.hidden).map((action, index) => renderAction(action, false))}
           </div>
         )}
 
@@ -333,7 +333,7 @@ export function ActionBar({
             "hidden sm:flex items-center gap-2",
             rtl && "flex-row-reverse"
           )}>
-            {visibleActions.slice(0, 3).map(renderAction)}
+            {visibleActions.slice(0, 3).map((action, index) => renderAction(action, false))}
           </div>
         )}
 

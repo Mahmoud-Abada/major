@@ -1,0 +1,308 @@
+{
+  "v": 9,
+  "id": "cmd1ssokt00gtqksnfouiuql5",
+  "name": "mark",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "create-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/create-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-student-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-student-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-group-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-group-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/update-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-student-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mak/update-student-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-group-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/update-group-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-group-exemption",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/update-group-exemption",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "delete-mark",
+      "method": "DELETE",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/delete-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "delete-group-mark",
+      "method": "DELETE",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/delete-group-mark",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-group-marks",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-group-marks",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-student-marks",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-student-marks",
+      "params": [],
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJqOTdia2FzZHR2c3gwdGdicDByZXQxa2cyNTdqcGtiZSIsInVzZXJUeXBlIjoidGVhY2hlciIsImV4cCI6MTc1NTAxMjQ5OC43MiwiaXNzIjoiaHR0cHM6Ly84YmEyLTQxLTEwOS0xNTMtMjE3Lm5ncm9rLWZyZWUuYXBwIiwiandrcyI6Imh0dHBzOi8vOGJhMi00MS0xMDktMTUzLTIxNy5uZ3Jvay1mcmVlLmFwcC9hdXRoL2dldEpXVEsiLCJpYXQiOjE3NTI1OTI0OTguNzIsImF1ZCI6InVzZXJzLXNlcnZpY2UiLCJzdWIiOiJ1c2VycyJ9.vLy8sB8E90Tl6dpHehnLH3gF9jHYdDPhq7-vgMb9HJwWLwjgbef880kExhlQsct_M1rKSXezxlvM5TJ5cec-VQ",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": ""
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-marks",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-marks",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-mark",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/get-mark",
+      "params": [],
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJqOTcwcHQzeGRrMjcyMW1uNGNuMmJkMGg2OTdrcjAzNCIsInVzZXJUeXBlIjoic2Nob29sIiwiZXhwIjoxNzU1MDEyNjQxLjIzMywiaXNzIjoiaHR0cHM6Ly84YmEyLTQxLTEwOS0xNTMtMjE3Lm5ncm9rLWZyZWUuYXBwIiwiandrcyI6Imh0dHBzOi8vOGJhMi00MS0xMDktMTUzLTIxNy5uZ3Jvay1mcmVlLmFwcC9hdXRoL2dldEpXVEsiLCJpYXQiOjE3NTI1OTI2NDEuMjMzLCJhdWQiOiJ1c2Vycy1zZXJ2aWNlIiwic3ViIjoidXNlcnMifQ.UjbETX4U93-1o7D7InUGhxeC1K7lPZo1bDMFaYPMptdNxPzhzHSGSBDkzmUYbRBatltLxUw9TGhXX2na6yPRPw",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-mark-event",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/mark/update-mark-event",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mdy924rq_6a22f594-e57c-4bb2-aa15-1a4577271c6b"
+}

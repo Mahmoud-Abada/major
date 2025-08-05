@@ -2,257 +2,257 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building } from "lucide-react";
 import { useEffect, useState } from "react";
 
-// Mock data for schools
+// Algerian schools data
 const mockSchools = [
   {
     id: "school-001",
-    image: "/images/major-academy-logo.png",
-    name: "Major Academy",
+    image: "/images/lycee-alger-logo.png",
+    name: "ثانوية الأمير عبد القادر - الجزائر",
     status: "Active",
-    location: "Springfield, IL",
+    location: "الجزائر العاصمة، الجزائر",
     verified: true,
     referral: {
-      name: "John Smith",
-      image: "/avatars/john-smith.jpg",
+      name: "د. عبد الكريم مدير المعهد",
+      image: "/avatars/director.jpg",
     },
-    value: 95,
-    joinDate: "1995-08-15",
-    schoolId: "SCH2024001",
-    email: "info@majoracademy.edu",
-    phone: "+1-555-789-0123",
-    website: "https://www.majoracademy.edu",
-    address: "789 Education Blvd, Springfield, IL 62704",
-    establishedYear: 1995,
-    studentCount: 1250,
-    teacherCount: 85,
-    classCount: 45,
-    type: "Private",
+    value: 18.5,
+    joinDate: "1962-07-05",
+    schoolId: "SCH2025001",
+    email: "info@lycee-alger.edu.dz",
+    phone: "+213-21-234-567",
+    website: "https://www.lycee-alger.edu.dz",
+    address: "حي بن عكنون، شارع ديدوش مراد، الجزائر العاصمة",
+    establishedYear: 1962,
+    studentCount: 1850,
+    teacherCount: 125,
+    classCount: 65,
+    type: "عمومي",
   },
   {
     id: "school-002",
-    image: "/images/springfield-high-logo.png",
-    name: "Springfield High School",
+    image: "/images/lycee-batna-logo.png",
+    name: "ثانوية الشهيد مصطفى بن بولعيد - باتنة",
     status: "Active",
-    location: "Springfield, IL",
+    location: "باتنة، الجزائر",
     verified: true,
     referral: {
-      name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
+      name: "د. فاطمة الزهراء بوعلام",
+      image: "/avatars/teacher-physics.jpg",
     },
-    value: 92,
-    joinDate: "1980-08-20",
-    schoolId: "SCH2024002",
-    email: "info@springfieldhigh.edu",
-    phone: "+1-555-234-5678",
-    website: "https://www.springfieldhigh.edu",
-    address: "123 School St, Springfield, IL 62701",
-    establishedYear: 1980,
-    studentCount: 950,
-    teacherCount: 65,
-    classCount: 35,
-    type: "Public",
+    value: 17.8,
+    joinDate: "1970-09-15",
+    schoolId: "SCH2025002",
+    email: "info@lycee-batna.edu.dz",
+    phone: "+213-33-345-678",
+    website: "https://www.lycee-batna.edu.dz",
+    address: "حي النصر، شارع الاستقلال، باتنة",
+    establishedYear: 1970,
+    studentCount: 1650,
+    teacherCount: 110,
+    classCount: 58,
+    type: "عمومي",
   },
   {
     id: "school-003",
-    image: "/images/lincoln-elementary-logo.png",
-    name: "Lincoln Elementary School",
+    image: "/images/lycee-constantine-logo.png",
+    name: "ثانوية ابن خلدون - قسنطينة",
     status: "Active",
-    location: "Springfield, IL",
+    location: "قسنطينة، الجزائر",
     verified: true,
     referral: {
-      name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
+      name: "أ. عبد الكريم مرزوق",
+      image: "/avatars/teacher-arabic.jpg",
     },
-    value: 90,
-    joinDate: "1990-08-15",
-    schoolId: "SCH2024003",
-    email: "info@lincolnelementary.edu",
-    phone: "+1-555-345-6789",
-    website: "https://www.lincolnelementary.edu",
-    address: "456 Lincoln Ave, Springfield, IL 62702",
-    establishedYear: 1990,
-    studentCount: 450,
-    teacherCount: 30,
-    classCount: 18,
-    type: "Public",
+    value: 18.2,
+    joinDate: "1965-10-01",
+    schoolId: "SCH2025003",
+    email: "info@lycee-constantine.edu.dz",
+    phone: "+213-31-456-789",
+    website: "https://www.lycee-constantine.edu.dz",
+    address: "حي بودراع صالح، شارع العربي بن مهيدي، قسنطينة",
+    establishedYear: 1965,
+    studentCount: 1750,
+    teacherCount: 118,
+    classCount: 62,
+    type: "عمومي",
   },
   {
     id: "school-004",
-    image: "/images/washington-middle-logo.png",
-    name: "Washington Middle School",
+    image: "/images/univ-oran-logo.png",
+    name: "معهد التكنولوجيا العالي - وهران",
     status: "Active",
-    location: "Springfield, IL",
+    location: "وهران، الجزائر",
     verified: true,
     referral: {
-      name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
+      name: "م. ياسين بن صالح التلمساني",
+      image: "/avatars/teacher-cs.jpg",
     },
-    value: 88,
-    joinDate: "1985-08-20",
-    schoolId: "SCH2024004",
-    email: "info@washingtonmiddle.edu",
-    phone: "+1-555-456-7890",
-    website: "https://www.washingtonmiddle.edu",
-    address: "789 Washington St, Springfield, IL 62703",
-    establishedYear: 1985,
-    studentCount: 600,
-    teacherCount: 40,
-    classCount: 24,
-    type: "Public",
+    value: 17.5,
+    joinDate: "1975-11-20",
+    schoolId: "SCH2025004",
+    email: "info@univ-oran.edu.dz",
+    phone: "+213-41-567-890",
+    website: "https://www.univ-oran.edu.dz",
+    address: "حي السانيا، طريق السانيا، وهران",
+    establishedYear: 1975,
+    studentCount: 2500,
+    teacherCount: 180,
+    classCount: 85,
+    type: "جامعي",
   },
   {
     id: "school-005",
-    image: "/images/montessori-academy-logo.png",
-    name: "Montessori Academy",
-    status: "Inactive",
-    location: "Springfield, IL",
-    verified: false,
+    image: "/images/institut-ghardaia-logo.png",
+    name: "معهد العلوم الإسلامية - غرداية",
+    status: "Active",
+    location: "غرداية، الجزائر",
+    verified: true,
     referral: {
-      name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
+      name: "الشيخ أحمد بن محمد الغرداوي",
+      image: "/avatars/teacher-islamic.jpg",
     },
-    value: 75,
-    joinDate: "2000-08-15",
-    schoolId: "SCH2024005",
-    email: "info@montessoriacademy.edu",
-    phone: "+1-555-567-8901",
-    website: "https://www.montessoriacademy.edu",
-    address: "101 Montessori Way, Springfield, IL 62704",
-    establishedYear: 2000,
-    studentCount: 200,
-    teacherCount: 15,
-    classCount: 10,
-    type: "Private",
+    value: 19.0,
+    joinDate: "1980-03-12",
+    schoolId: "SCH2025005",
+    email: "info@institut-ghardaia.edu.dz",
+    phone: "+213-29-678-901",
+    website: "https://www.institut-ghardaia.edu.dz",
+    address: "حي بني يزقن، شارع الأمير عبد القادر، غرداية",
+    establishedYear: 1980,
+    studentCount: 850,
+    teacherCount: 65,
+    classCount: 35,
+    type: "ديني",
   },
   {
     id: "school-006",
-    image: "/images/st-marys-logo.png",
-    name: "St. Mary's Catholic School",
+    image: "/images/lycee-chlef-logo.png",
+    name: "ثانوية الشهيدة حسيبة بن بوعلي - الشلف",
     status: "Active",
-    location: "Springfield, IL",
+    location: "الشلف، الجزائر",
     verified: true,
     referral: {
-      name: "John Smith",
-      image: "/avatars/john-smith.jpg",
+      name: "د. سعاد بن عيسى",
+      image: "/avatars/teacher-biology.jpg",
     },
-    value: 92,
-    joinDate: "1975-08-15",
-    schoolId: "SCH2024006",
-    email: "info@stmarys.edu",
-    phone: "+1-555-678-9012",
-    website: "https://www.stmarys.edu",
-    address: "202 Church St, Springfield, IL 62705",
-    establishedYear: 1975,
-    studentCount: 350,
-    teacherCount: 25,
-    classCount: 15,
-    type: "Religious",
+    value: 17.2,
+    joinDate: "1968-05-08",
+    schoolId: "SCH2025006",
+    email: "info@lycee-chlef.edu.dz",
+    phone: "+213-27-789-012",
+    website: "https://www.lycee-chlef.edu.dz",
+    address: "حي النصر، شارع الشهداء، الشلف",
+    establishedYear: 1968,
+    studentCount: 1450,
+    teacherCount: 95,
+    classCount: 52,
+    type: "عمومي",
   },
   {
     id: "school-007",
-    image: "/images/tech-prep-logo.png",
-    name: "Tech Prep Academy",
+    image: "/images/lycee-setif-logo.png",
+    name: "ثانوية الأمير عبد القادر - سطيف",
     status: "Active",
-    location: "Springfield, IL",
+    location: "سطيف، الجزائر",
     verified: true,
     referral: {
-      name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
+      name: "أ. نور الدين بلعباس",
+      image: "/avatars/teacher-history.jpg",
     },
-    value: 85,
-    joinDate: "2010-08-20",
-    schoolId: "SCH2024007",
-    email: "info@techprep.edu",
-    phone: "+1-555-789-0123",
-    website: "https://www.techprep.edu",
-    address: "303 Technology Blvd, Springfield, IL 62706",
-    establishedYear: 2010,
-    studentCount: 300,
-    teacherCount: 20,
-    classCount: 12,
-    type: "Charter",
+    value: 16.8,
+    joinDate: "1972-09-20",
+    schoolId: "SCH2025007",
+    email: "info@lycee-setif.edu.dz",
+    phone: "+213-36-890-123",
+    website: "https://www.lycee-setif.edu.dz",
+    address: "حي الحيات، شارع 8 ماي 1945، سطيف",
+    establishedYear: 1972,
+    studentCount: 1600,
+    teacherCount: 105,
+    classCount: 56,
+    type: "عمومي",
   },
   {
     id: "school-008",
-    image: "/images/arts-academy-logo.png",
-    name: "Springfield Arts Academy",
+    image: "/images/lycee-annaba-logo.png",
+    name: "ثانوية الشهيد العربي بن مهيدي - عنابة",
     status: "Active",
-    location: "Springfield, IL",
+    location: "عنابة، الجزائر",
     verified: true,
     referral: {
-      name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
+      name: "أ. خديجة بن عمر",
+      image: "/avatars/teacher-french.jpg",
     },
-    value: 90,
-    joinDate: "2005-08-15",
-    schoolId: "SCH2024008",
-    email: "info@artsacademy.edu",
-    phone: "+1-555-890-1234",
-    website: "https://www.artsacademy.edu",
-    address: "404 Arts Way, Springfield, IL 62707",
-    establishedYear: 2005,
-    studentCount: 250,
-    teacherCount: 18,
-    classCount: 10,
-    type: "Charter",
+    value: 16.5,
+    joinDate: "1969-04-15",
+    schoolId: "SCH2025008",
+    email: "info@lycee-annaba.edu.dz",
+    phone: "+213-38-901-234",
+    website: "https://www.lycee-annaba.edu.dz",
+    address: "حي سيدي عمار، شارع الثورة، عنابة",
+    establishedYear: 1969,
+    studentCount: 1550,
+    teacherCount: 100,
+    classCount: 54,
+    type: "عمومي",
   },
   {
     id: "school-009",
-    image: "/images/international-school-logo.png",
-    name: "Springfield International School",
-    status: "Inactive",
-    location: "Springfield, IL",
-    verified: false,
+    image: "/images/univ-tlemcen-logo.png",
+    name: "جامعة أبو بكر بلقايد - تلمسان",
+    status: "Active",
+    location: "تلمسان، الجزائر",
+    verified: true,
     referral: {
-      name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
+      name: "د. عمر بن الطاهر",
+      image: "/avatars/teacher-engineering.jpg",
     },
-    value: 70,
-    joinDate: "2015-08-20",
-    schoolId: "SCH2024009",
-    email: "info@internationalschool.edu",
-    phone: "+1-555-901-2345",
-    website: "https://www.internationalschool.edu",
-    address: "505 Global Ave, Springfield, IL 62708",
-    establishedYear: 2015,
-    studentCount: 180,
-    teacherCount: 14,
-    classCount: 9,
-    type: "Private",
+    value: 17.8,
+    joinDate: "1974-12-03",
+    schoolId: "SCH2025009",
+    email: "info@univ-tlemcen.edu.dz",
+    phone: "+213-43-012-345",
+    website: "https://www.univ-tlemcen.edu.dz",
+    address: "حي الإمام، الحرم الجامعي، تلمسان",
+    establishedYear: 1974,
+    studentCount: 3200,
+    teacherCount: 220,
+    classCount: 95,
+    type: "جامعي",
   },
   {
     id: "school-010",
-    image: "/images/stem-academy-logo.png",
-    name: "STEM Academy",
-    status: "Active",
-    location: "Springfield, IL",
-    verified: true,
+    image: "/images/lycee-blida-logo.png",
+    name: "ثانوية الشهيدة جميلة بوحيرد - البليدة",
+    status: "Inactive",
+    location: "البليدة، الجزائر",
+    verified: false,
     referral: {
-      name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
+      name: "أ. زينب بوشامة",
+      image: "/avatars/teacher-english.jpg",
     },
-    value: 93,
-    joinDate: "2012-08-15",
-    schoolId: "SCH2024010",
-    email: "info@stemacademy.edu",
-    phone: "+1-555-012-3456",
-    website: "https://www.stemacademy.edu",
-    address: "606 Science Dr, Springfield, IL 62709",
-    establishedYear: 2012,
-    studentCount: 320,
-    teacherCount: 22,
-    classCount: 14,
-    type: "Charter",
+    value: 15.5,
+    joinDate: "1978-06-25",
+    schoolId: "SCH2025010",
+    email: "info@lycee-blida.edu.dz",
+    phone: "+213-25-123-456",
+    website: "https://www.lycee-blida.edu.dz",
+    address: "حي الكرامة، شارع الاستقلال، البليدة",
+    establishedYear: 1978,
+    studentCount: 950,
+    teacherCount: 68,
+    classCount: 42,
+    type: "عمومي",
   },
 ];
 
@@ -301,7 +301,7 @@ const getSchoolColumns = () => [
 ];
 
 export default function SchoolsPage() {
-  const [schools, setSchools] = useState([]);
+  const [schools, setSchools] = useState<typeof mockSchools>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -346,13 +346,12 @@ export default function SchoolsPage() {
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
-          <TabsTrigger value="all">All Schools</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="inactive">Inactive</TabsTrigger>
-          <TabsTrigger value="public">Public</TabsTrigger>
-          <TabsTrigger value="private">Private</TabsTrigger>
-          <TabsTrigger value="charter">Charter</TabsTrigger>
-          <TabsTrigger value="religious">Religious</TabsTrigger>
+          <TabsTrigger value="all">جميع المؤسسات</TabsTrigger>
+          <TabsTrigger value="active">نشط</TabsTrigger>
+          <TabsTrigger value="inactive">غير نشط</TabsTrigger>
+          <TabsTrigger value="public">عمومي</TabsTrigger>
+          <TabsTrigger value="university">جامعي</TabsTrigger>
+          <TabsTrigger value="religious">ديني</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
@@ -441,8 +440,8 @@ export default function SchoolsPage() {
         <TabsContent value="public" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Public Schools</CardTitle>
-              <CardDescription>View and manage public schools.</CardDescription>
+              <CardTitle>المؤسسات العمومية</CardTitle>
+              <CardDescription>عرض وإدارة المؤسسات التعليمية العمومية.</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -452,7 +451,7 @@ export default function SchoolsPage() {
               ) : (
                 <DataView
                   initialData={schools.filter(
-                    (school) => school.type === "Public",
+                    (school) => school.type === "عمومي",
                   )}
                   columns={getSchoolColumns()}
                   onRowClick={(school) => {
@@ -464,12 +463,12 @@ export default function SchoolsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="private" className="mt-4">
+        <TabsContent value="university" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Private Schools</CardTitle>
+              <CardTitle>المؤسسات الجامعية</CardTitle>
               <CardDescription>
-                View and manage private schools.
+                عرض وإدارة الجامعات والمعاهد العليا.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -480,35 +479,7 @@ export default function SchoolsPage() {
               ) : (
                 <DataView
                   initialData={schools.filter(
-                    (school) => school.type === "Private",
-                  )}
-                  columns={getSchoolColumns()}
-                  onRowClick={(school) => {
-                    window.location.href = `/classroom/schools/${school.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="charter" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Charter Schools</CardTitle>
-              <CardDescription>
-                View and manage charter schools.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading schools...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={schools.filter(
-                    (school) => school.type === "Charter",
+                    (school) => school.type === "جامعي",
                   )}
                   columns={getSchoolColumns()}
                   onRowClick={(school) => {
@@ -523,9 +494,9 @@ export default function SchoolsPage() {
         <TabsContent value="religious" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Religious Schools</CardTitle>
+              <CardTitle>المؤسسات الدينية</CardTitle>
               <CardDescription>
-                View and manage religious schools.
+                عرض وإدارة معاهد العلوم الإسلامية والمؤسسات الدينية.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -536,7 +507,7 @@ export default function SchoolsPage() {
               ) : (
                 <DataView
                   initialData={schools.filter(
-                    (school) => school.type === "Religious",
+                    (school) => school.type === "ديني",
                   )}
                   columns={getSchoolColumns()}
                   onRowClick={(school) => {

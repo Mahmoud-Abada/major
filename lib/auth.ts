@@ -1,23 +1,48 @@
-import { AdminUser, mockUsers, ParentUser, StudentUser, TeacherUser, User } from "@/data/mock/users";
+// User types - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+interface AdminUser extends User {
+  role: "admin";
+}
+
+interface TeacherUser extends User {
+  role: "teacher";
+}
+
+interface StudentUser extends User {
+  role: "student";
+}
+
+interface ParentUser extends User {
+  role: "parent";
+}
+
+// Mock users array - will be replaced with API calls
+const mockUsers: User[] = [];
 import { authStorage } from "@/lib/storage";
 import {
-    AuthError,
-    AuthResponse,
-    ChangePasswordInput,
-    changePasswordSchema,
-    ForgotPasswordInput,
-    forgotPasswordSchema,
-    OtpVerificationInput,
-    otpVerificationSchema,
-    ResetPasswordInput,
-    resetPasswordSchema,
-    SessionData,
-    SignInInput,
-    signInSchema,
-    SignUpInput,
-    signUpSchema,
-    UpdateProfileInput,
-    updateProfileSchema,
+  AuthError,
+  AuthResponse,
+  ChangePasswordInput,
+  changePasswordSchema,
+  ForgotPasswordInput,
+  forgotPasswordSchema,
+  OtpVerificationInput,
+  otpVerificationSchema,
+  ResetPasswordInput,
+  resetPasswordSchema,
+  SessionData,
+  SignInInput,
+  signInSchema,
+  SignUpInput,
+  signUpSchema,
+  UpdateProfileInput,
+  updateProfileSchema,
 } from "@/lib/validations/auth";
 
 // ─────────────────────────────
@@ -88,7 +113,7 @@ const incrementFailedAttempts = (userId: string): void => {
   if (userIndex !== -1) {
     users[userIndex].failedLoginAttempts += 1;
     users[userIndex].updatedAt = new Date();
-    
+
     // Lock account after 5 failed attempts for 30 minutes
     if (users[userIndex].failedLoginAttempts >= 5) {
       users[userIndex].lockedUntil = new Date(Date.now() + 30 * 60 * 1000);
@@ -118,7 +143,7 @@ const createSession = (user: User, rememberMe: boolean = false): SessionData => 
     ipAddress: "127.0.0.1", // Mock IP
     userAgent: "Mock User Agent",
   };
-  
+
   sessions.push(session);
   return session;
 };
@@ -147,10 +172,10 @@ export const authService: AuthService = {
     try {
       // Validate input
       const validatedData = signInSchema.parse(credentials);
-      
+
       // Find user by email
       const user = users.find(u => u.email === validatedData.email);
-      
+
       if (!user) {
         return {
           success: false,
@@ -334,7 +359,7 @@ export const authService: AuthService = {
       if (token) {
         removeSession(token);
       }
-      
+
       authStorage.clearAuth();
     } catch (error) {
       console.error("Sign out error:", error);
@@ -412,7 +437,7 @@ export const authService: AuthService = {
 
     try {
       const validatedData = forgotPasswordSchema.parse(data);
-      
+
       const user = users.find(u => u.email === validatedData.email);
       if (!user) {
         // Don't reveal if email exists for security
@@ -450,7 +475,7 @@ export const authService: AuthService = {
 
     try {
       const validatedData = resetPasswordSchema.parse(data);
-      
+
       const resetData = resetTokens.get(validatedData.token);
       if (!resetData || resetData.expiresAt < new Date()) {
         return {
@@ -495,7 +520,7 @@ export const authService: AuthService = {
 
     try {
       const validatedData = otpVerificationSchema.parse(data);
-      
+
       const otpData = otpCodes.get(validatedData.email);
       if (!otpData) {
         return {
@@ -575,7 +600,7 @@ export const authService: AuthService = {
     try {
       const validatedData = changePasswordSchema.parse(data);
       const currentUser = this.getCurrentUser();
-      
+
       if (!currentUser) {
         return {
           success: false,
@@ -624,7 +649,7 @@ export const authService: AuthService = {
     try {
       const validatedData = updateProfileSchema.parse(data);
       const currentUser = this.getCurrentUser();
-      
+
       if (!currentUser) {
         throw new Error("You must be signed in to update your profile");
       }
@@ -659,7 +684,7 @@ export const authService: AuthService = {
 
     try {
       const currentUser = this.getCurrentUser();
-      
+
       if (!currentUser) {
         return {
           success: false,
@@ -704,7 +729,7 @@ export const authService: AuthService = {
 
     try {
       const currentUser = this.getCurrentUser();
-      
+
       if (!currentUser) {
         return {
           success: false,
@@ -777,3 +802,4 @@ export const authService: AuthService = {
 
 export { generateOTP, generateToken, sanitizeUser };
 export type { AdminUser, ParentUser, StudentUser, TeacherUser, User };
+

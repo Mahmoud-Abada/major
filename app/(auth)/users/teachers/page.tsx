@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { UserCard } from "@/components/users/user-card";
-import { mockTeachers } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { BookOpen, Download, Plus, Search, Upload, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+// Empty teachers array - will be populated from API
+const mockTeachers: any[] = [];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -102,7 +103,7 @@ export default function TeachersPage() {
       active: mockTeachers.filter((t) => t.status === "active").length,
       avgExperience: Math.round(
         mockTeachers.reduce((sum, t) => sum + t.yearsOfExperience, 0) /
-          mockTeachers.length
+        mockTeachers.length
       ),
       totalSubjects: Object.keys(subjectCounts).length,
       subjectCounts,

@@ -4,7 +4,7 @@
  */
 "use client";
 
-import LoadingSpinner from "./LoadingSpinner";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface LoadingOverlayProps {
   isVisible: boolean;

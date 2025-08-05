@@ -6,12 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RoleBadge } from "@/components/users/role-badge";
-import { AdminUser, mockUsers, ParentUser, StudentUser, TeacherUser } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Edit, Mail, Phone, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+// User types - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
+
+interface AdminUser extends User {
+  role: "admin";
+}
+
+interface TeacherUser extends User {
+  role: "teacher";
+}
+
+interface StudentUser extends User {
+  role: "student";
+}
+
+interface ParentUser extends User {
+  role: "parent";
+}
+
+// Empty users array - will be populated from API
+const mockUsers: User[] = [];
 
 interface UserProfilePageProps {
   params: {
@@ -139,7 +163,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Qualifications & Specializations</CardTitle>
@@ -320,7 +344,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <h1 className="text-3xl font-bold">
@@ -333,7 +357,7 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Mail className="h-4 w-4" />
@@ -447,19 +471,19 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                     </p>
                   </div>
                 </div>
-                
+
                 {user.lastPasswordChange && (
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Last Password Change</label>
                     <p className="text-sm">{user.lastPasswordChange.toLocaleDateString()}</p>
                   </div>
                 )}
-                
+
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Failed Login Attempts</label>
                   <p className="text-sm">{user.failedLoginAttempts}</p>
                 </div>
-                
+
                 {user.lockedUntil && (
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Account Locked Until</label>

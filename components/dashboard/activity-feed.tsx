@@ -5,22 +5,29 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User } from "@/data/mock/users";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import {
-    Bell,
-    BookOpen,
-    Calendar,
-    CheckCircle,
-    Clock,
-    FileText,
-    GraduationCap,
-    MessageSquare,
-    MoreHorizontal,
-    Settings,
-    UserPlus
+  Bell,
+  BookOpen,
+  Calendar,
+  CheckCircle,
+  Clock,
+  FileText,
+  GraduationCap,
+  MessageSquare,
+  MoreHorizontal,
+  Settings,
+  UserPlus
 } from "lucide-react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface Activity {
   id: string;
@@ -49,7 +56,7 @@ interface ActivityFeedProps {
 
 const getActivitiesForRole = (user: User): Activity[] => {
   const now = new Date();
-  
+
   switch (user.role) {
     case "admin":
       return [
@@ -400,7 +407,7 @@ export function ActivityFeed({ user, className = "" }: ActivityFeedProps) {
                         <p className="text-sm text-muted-foreground mt-1">
                           {activity.description}
                         </p>
-                        
+
                         {/* User info */}
                         {activity.user && (
                           <div className="flex items-center space-x-2 mt-2">

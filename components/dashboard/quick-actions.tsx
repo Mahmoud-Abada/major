@@ -3,24 +3,32 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import {
-    ArrowRight,
-    BarChart3,
-    Bell,
-    BookOpen,
-    Calendar,
-    Download,
-    FileText,
-    GraduationCap,
-    MessageSquare,
-    Plus,
-    Settings,
-    Upload,
-    Users
+  ArrowRight,
+  BarChart3,
+  Bell,
+  BookOpen,
+  Calendar,
+  Download,
+  FileText,
+  GraduationCap,
+  MessageSquare,
+  Plus,
+  Settings,
+  Upload,
+  Users
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface QuickAction {
   id: string;
@@ -42,7 +50,7 @@ interface QuickActionsProps {
   className?: string;
 }
 
-const getActionsForRole = (user: User): QuickAction[] => {
+const getActionsForRole = (user: User, t: any): QuickAction[] => {
   switch (user.role) {
     case "admin":
       return [
@@ -313,14 +321,15 @@ const cardVariants = {
 
 const iconVariants = {
   initial: { rotate: 0 },
-  hover: { 
+  hover: {
     rotate: 5,
     transition: { duration: 0.2 }
   }
 };
 
 export function QuickActions({ user, className = "" }: QuickActionsProps) {
-  const actions = getActionsForRole(user);
+  const t = useTranslations('dashboard');
+  const actions = getActionsForRole(user, t);
   const primaryActions = actions.filter(action => action.category === "primary");
   const secondaryActions = actions.filter(action => action.category === "secondary");
 
@@ -330,9 +339,9 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center">
-            Quick Actions
+            {t('quickActions')}
             <Badge variant="outline" className="ml-2 text-xs">
-              {primaryActions.length} available
+              {primaryActions.length} {t('available')}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -398,9 +407,9 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center">
-              More Actions
+              {t('moreActions')}
               <Badge variant="secondary" className="ml-2 text-xs">
-                {secondaryActions.length} available
+                {secondaryActions.length} {t('available')}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -422,8 +431,8 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
                       className="h-auto p-3 flex flex-col items-center space-y-2 w-full hover:bg-muted/50 relative"
                     >
                       {action.badge && (
-                        <Badge 
-                          variant={action.badge.variant} 
+                        <Badge
+                          variant={action.badge.variant}
                           className="absolute -top-1 -right-1 text-xs px-1 py-0 h-5"
                         >
                           {action.badge.text}

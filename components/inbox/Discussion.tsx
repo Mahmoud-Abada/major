@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
 import {
-  Download,
-  Edit2,
-  FileText,
-  Image,
-  Mic,
-  MicOff,
-  MoreHorizontal,
-  Paperclip,
-  Send,
-  Smile,
-  Trash2,
+    Download,
+    Edit2,
+    FileText,
+    Mic,
+    MoreHorizontal,
+    Paperclip,
+    Send,
+    Trash2
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
@@ -19,88 +16,161 @@ const Discussion = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      sender: "Prof. Sarah Lee",
+      sender: "أ. محمد بن عبد الرحمن الجزائري",
       role: "Teacher",
-      avatar: "👩‍🏫",
+      avatar: "👨‍🏫",
       content:
-        "Welcome to the Data Structures discussion! Today we'll be covering binary trees and their applications. Please feel free to ask questions as we go along.",
-      timestamp: "2024-01-15T10:00:00Z",
-      reactions: { thumbsUp: 12, heart: 3, star: 5 },
+        "أهلاً وسهلاً بكم في مناقشة درس الرياضيات! اليوم سنتناول موضوع الجبر المتقدم والمعادلات التربيعية. أرجو منكم طرح أسئلتكم بحرية أثناء الشرح.",
+      timestamp: "2024-12-15T14:00:00Z",
+      reactions: { thumbsUp: 18, heart: 5, star: 8 },
       replies: [],
       attachments: [
-        { name: "binary-trees-slides.pdf", size: "2.4 MB", type: "pdf" },
+        { name: "الجبر-المتقدم-شرائح.pdf", size: "3.2 MB", type: "pdf" },
+        { name: "تمارين-محلولة.pdf", size: "1.8 MB", type: "pdf" },
       ],
       isPinned: true,
       isEdited: false,
-      readBy: ["student1", "student2", "student3"],
+      readBy: ["student1", "student2", "student3", "student4", "student5"],
       mentions: [],
       priority: "high",
     },
     {
       id: 2,
-      sender: "Emma Davis",
+      sender: "أحمد بن علي الوهراني",
       role: "Student",
-      avatar: "👩‍🎓",
+      avatar: "👨‍🎓",
       content:
-        "Thank you for the introduction! I have a question about the time complexity of tree traversal algorithms. Could you explain the difference between DFS and BFS in terms of space complexity?",
-      timestamp: "2024-01-15T10:05:00Z",
-      reactions: { thumbsUp: 8, heart: 2 },
+        "شكراً أستاذ على الشرح الواضح! لدي سؤال حول حل المعادلات التربيعية بالطريقة التحليلية. هل يمكن توضيح الفرق بين استخدام القانون العام والتحليل إلى عوامل؟",
+      timestamp: "2024-12-15T14:05:00Z",
+      reactions: { thumbsUp: 12, heart: 3 },
       replies: [
         {
           id: 21,
-          sender: "Prof. Sarah Lee",
+          sender: "أ. محمد بن عبد الرحمن الجزائري",
           role: "Teacher",
-          avatar: "👩‍🏫",
+          avatar: "👨‍🏫",
           content:
-            "Great question, Emma! DFS typically uses O(h) space where h is the height of the tree due to the recursion stack, while BFS uses O(w) space where w is the maximum width of the tree for the queue.",
-          timestamp: "2024-01-15T10:07:00Z",
-          reactions: { thumbsUp: 15, star: 4 },
-          mentions: ["Emma Davis"],
+            "سؤال ممتاز يا أحمد! التحليل إلى عوامل أسرع عندما تكون المعادلة قابلة للتحليل بسهولة، أما القانون العام فيستخدم في جميع الحالات حتى لو كانت الجذور غير نسبية. سأرسل لكم أمثلة إضافية.",
+          timestamp: "2024-12-15T14:07:00Z",
+          reactions: { thumbsUp: 20, star: 6 },
+          mentions: ["أحمد بن علي الوهراني"],
         },
       ],
       attachments: [],
       isPinned: false,
       isEdited: false,
-      readBy: ["prof1", "student2"],
+      readBy: ["teacher1", "student2", "student3"],
       mentions: [],
       priority: "normal",
     },
     {
       id: 3,
-      sender: "Mike Chen",
+      sender: "فاطمة الزهراء بن صالح",
       role: "Student",
-      avatar: "👨‍🎓",
+      avatar: "👩‍🎓",
       content:
-        "I'm still confused about the implementation. Could someone share a code example? @Prof. Sarah Lee",
-      timestamp: "2024-01-15T10:10:00Z",
-      reactions: { thumbsUp: 5 },
-      replies: [],
+        "أستاذ، أواجه صعوبة في فهم الأعداد المركبة. هل يمكن أن تشرح لنا كيفية تمثيلها هندسياً؟ @أ. محمد بن عبد الرحمن الجزائري",
+      timestamp: "2024-12-15T14:12:00Z",
+      reactions: { thumbsUp: 8, heart: 2 },
+      replies: [
+        {
+          id: 31,
+          sender: "أ. محمد بن عبد الرحمن الجزائري",
+          role: "Teacher",
+          avatar: "👨‍🏫",
+          content:
+            "بالطبع يا فاطمة! الأعداد المركبة تُمثل في المستوى المركب حيث المحور الأفقي للجزء الحقيقي والمحور العمودي للجزء التخيلي. سأحضر رسوماً توضيحية في الحصة القادمة.",
+          timestamp: "2024-12-15T14:15:00Z",
+          reactions: { thumbsUp: 16, star: 4 },
+          mentions: ["فاطمة الزهراء بن صالح"],
+        },
+      ],
       attachments: [],
       isPinned: false,
-      isEdited: true,
-      readBy: ["prof1"],
-      mentions: ["Prof. Sarah Lee"],
+      isEdited: false,
+      readBy: ["teacher1", "student1"],
+      mentions: ["أ. محمد بن عبد الرحمن الجزائري"],
       priority: "normal",
     },
     {
       id: 4,
-      sender: "Dr. Robert Johnson",
+      sender: "د. عبد الكريم مدير المعهد",
       role: "Manager",
       avatar: "👨‍💼",
       content:
-        "I've uploaded the supplementary materials for this week's assignment. Please review them before our next session.",
-      timestamp: "2024-01-15T10:15:00Z",
-      reactions: { thumbsUp: 20, star: 8 },
+        "تم رفع المواد التكميلية لامتحان البكالوريا التجريبي. يرجى مراجعتها قبل الامتحان المقرر يوم الخميس القادم. بالتوفيق للجميع!",
+      timestamp: "2024-12-15T14:20:00Z",
+      reactions: { thumbsUp: 25, star: 12, heart: 8 },
       replies: [],
       attachments: [
-        { name: "assignment-materials.zip", size: "5.2 MB", type: "zip" },
-        { name: "reference-guide.pdf", size: "1.8 MB", type: "pdf" },
+        { name: "امتحان-تجريبي-رياضيات.pdf", size: "4.1 MB", type: "pdf" },
+        { name: "دليل-المراجعة.pdf", size: "2.3 MB", type: "pdf" },
+        { name: "نماذج-محلولة.zip", size: "6.8 MB", type: "zip" },
       ],
       isPinned: false,
       isEdited: false,
-      readBy: ["student1", "student2", "student3", "student4"],
+      readBy: ["student1", "student2", "student3", "student4", "student5", "teacher1"],
       mentions: [],
       priority: "high",
+    },
+    {
+      id: 5,
+      sender: "يوسف بن محمد القسنطيني",
+      role: "Student",
+      avatar: "👨‍🎓",
+      content:
+        "أستاذ، هل يمكن تنظيم حصة مراجعة إضافية قبل الامتحان؟ أعتقد أن الكثير منا يحتاج لمزيد من التوضيح في موضوع الهندسة التحليلية.",
+      timestamp: "2024-12-15T14:25:00Z",
+      reactions: { thumbsUp: 15, heart: 4 },
+      replies: [
+        {
+          id: 51,
+          sender: "أ. محمد بن عبد الرحمن الجزائري",
+          role: "Teacher",
+          avatar: "👨‍🏫",
+          content:
+            "فكرة ممتازة يا يوسف! سأنظم حصة مراجعة يوم الثلاثاء من الساعة 4 إلى 6 مساءً. سنركز على الهندسة التحليلية والمعادلات البارامترية.",
+          timestamp: "2024-12-15T14:27:00Z",
+          reactions: { thumbsUp: 22, star: 7 },
+          mentions: ["يوسف بن محمد القسنطيني"],
+        },
+        {
+          id: 52,
+          sender: "أمينة بنت عبد الله",
+          role: "Student",
+          avatar: "👩‍🎓",
+          content:
+            "شكراً أستاذ! هذا سيساعدنا كثيراً. هل يمكن أيضاً مراجعة موضوع المتتاليات؟",
+          timestamp: "2024-12-15T14:30:00Z",
+          reactions: { thumbsUp: 10, heart: 2 },
+          mentions: [],
+        },
+      ],
+      attachments: [],
+      isPinned: false,
+      isEdited: false,
+      readBy: ["teacher1", "student2", "student3"],
+      mentions: [],
+      priority: "normal",
+    },
+    {
+      id: 6,
+      sender: "خالد بن عيسى الباتني",
+      role: "Student",
+      avatar: "👨‍🎓",
+      content:
+        "أستاذ، أرفقت حلول التمارين المطلوبة. أرجو مراجعتها وإعطائي ملاحظاتك.",
+      timestamp: "2024-12-15T14:35:00Z",
+      reactions: { thumbsUp: 6, star: 2 },
+      replies: [],
+      attachments: [
+        { name: "حلول-التمارين-خالد.pdf", size: "1.5 MB", type: "pdf" },
+      ],
+      isPinned: false,
+      isEdited: false,
+      readBy: ["teacher1"],
+      mentions: [],
+      priority: "normal",
     },
   ]);
   const [newMessage, setNewMessage] = useState("");
@@ -157,7 +227,7 @@ const Discussion = () => {
       avatar: "👤",
       content: newMessage,
       timestamp: new Date().toISOString(),
-      reactions: {},
+      reactions: { thumbsUp: 0, heart: 0, star: 0 },
       replies: [],
       attachments: [],
       isPinned: false,
@@ -195,9 +265,9 @@ const Discussion = () => {
       {/* Header */}
       <div className="h-16 border-b border-neutral-800 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">Data Structures Discussion</h1>
+          <h1 className="text-lg font-semibold">مناقشة درس الرياضيات - الجبر المتقدم</h1>
           <span className="px-2 py-1 bg-green-500 text-xs rounded-full">
-            online
+            متصل
           </span>
         </div>
         <MoreHorizontal

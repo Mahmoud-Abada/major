@@ -1,0 +1,220 @@
+{
+  "v": 9,
+  "id": "cmdy7v0yj1jy5k0cufk3zr84s",
+  "name": "classroom basics",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "create-classroom - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/create-classroom",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "[\n  {\n    \"teacher\": \"user_001\",\n    \"school\": \"school_123\",\n    \"title\": \"Mathematics - Algebra Basics\",\n    \"location\": {\n      \"fullLocation\": \"123 Rue des Écoles, El Madania, Alger\",\n      \"coordinates\": { \"lat\": 36.75, \"long\": 3.06 },\n      \"wilaya\": \"Alger\",\n      \"commune\": \"El Madania\"\n    },\n    \"frontPicture\": \"https://example.com/front1.jpg\",\n    \"backPicture\": \"https://example.com/back1.jpg\",\n    \"isArchived\": false,\n    \"description\": \"Beginner-level algebra course for high school students.\",\n    \"field\": \"Mathematics\",\n    \"level\": \"High School\",\n    \"color\": \"#3498db\",\n    \"maxStudents\": 30,\n    \"price\": 4000,\n    \"schedule\": [\n      { \"day\": \"Monday\", \"startTime\": \"14:00\", \"endTime\": \"16:00\" },\n      { \"day\": \"Wednesday\", \"startTime\": \"10:00\", \"endTime\": \"12:00\" }\n    ],\n    \"mode\": \"monthly\",\n    \"perDuration\": 30,\n    \"perSessions\": null,\n    \"perSemester\": null\n  },\n  {\n    \"teacher\": \"user_002\",\n    \"school\": null,\n    \"title\": \"Physics Crash Course\",\n    \"location\": {\n      \"coordinates\": { \"lat\": 36.72, \"long\": 3.12 },\n      \"wilaya\": \"Blida\",\n      \"commune\": \"Ouled Yaich\"\n    },\n    \"frontPicture\": \"https://example.com/front2.jpg\",\n    \"backPicture\": \"https://example.com/back2.jpg\",\n    \"field\": \"Physics\",\n    \"level\": \"University\",\n    \"color\": \"#2ecc71\",\n    \"price\": 5000,\n    \"schedule\": [\n      { \"day\": \"Saturday\", \"startTime\": \"08:00\", \"endTime\": \"12:00\" }\n    ],\n    \"mode\": \"sessional\",\n    \"perSessions\": 10,\n    \"perDuration\": null,\n    \"perSemester\": null\n  },\n  {\n    \"teacher\": \"user_003\",\n    \"school\": \"school_789\",\n    \"title\": \"History: Modern Times\",\n    \"location\": {\n      \"fullLocation\": \"Centre Culturel, Oran\",\n      \"coordinates\": { \"lat\": 35.69, \"long\": -0.63 },\n      \"wilaya\": \"Oran\",\n      \"commune\": \"Oran\"\n    },\n    \"frontPicture\": \"https://example.com/front3.jpg\",\n    \"backPicture\": \"https://example.com/back3.jpg\",\n    \"isArchived\": true,\n    \"field\": \"History\",\n    \"level\": \"Middle School\",\n    \"color\": \"#f39c12\",\n    \"maxStudents\": null,\n    \"price\": 6000,\n    \"schedule\": [\n      { \"day\": \"Sunday\", \"startTime\": \"09:00\", \"endTime\": \"11:00\" },\n      { \"day\": \"Tuesday\", \"startTime\": \"15:00\", \"endTime\": \"17:00\" }\n    ],\n    \"mode\": \"semestrial\",\n    \"perSemester\": [\n      {\n        \"semester\": \"Semester 1\",\n        \"price\": 3000,\n        \"startDate\": 1720000000000,\n        \"endDate\": 1725000000000\n      },\n      {\n        \"semester\": \"Semester 2\",\n        \"price\": 3000,\n        \"startDate\": 1728000000000,\n        \"endDate\": 1732000000000\n      }\n    ],\n    \"perSessions\": null,\n    \"perDuration\": null\n  },\n  {\n    \"teacher\": \"user_004\",\n    \"school\": null,\n    \"title\": \"Intro to Computer Science\",\n    \"location\": {\n      \"coordinates\": { \"lat\": 36.74, \"long\": 3.07 },\n      \"wilaya\": \"Algiers\",\n      \"commune\": \"Bab Ezzouar\"\n    },\n    \"frontPicture\": \"https://example.com/front4.jpg\",\n    \"backPicture\": \"https://example.com/back4.jpg\",\n    \"field\": \"Computer Science\",\n    \"level\": \"University\",\n    \"color\": \"#8e44ad\",\n    \"price\": 8000,\n    \"schedule\": [\n      { \"day\": \"Thursday\", \"startTime\": \"13:00\", \"endTime\": \"16:00\" }\n    ],\n    \"mode\": \"monthly\",\n    \"perDuration\": 60,\n    \"perSessions\": null,\n    \"perSemester\": null\n  },\n  {\n    \"teacher\": \"user_005\",\n    \"school\": \"school_456\",\n    \"title\": \"Chemistry Lab Training\",\n    \"location\": {\n      \"fullLocation\": \"Lycée Technique, Constantine\",\n      \"coordinates\": { \"lat\": 36.36, \"long\": 6.61 },\n      \"wilaya\": \"Constantine\",\n      \"commune\": \"Constantine\"\n    },\n    \"frontPicture\": \"https://example.com/front5.jpg\",\n    \"backPicture\": \"https://example.com/back5.jpg\",\n    \"isArchived\": false,\n    \"description\": \"Hands-on chemistry sessions including experiments.\",\n    \"field\": \"Chemistry\",\n    \"level\": \"High School\",\n    \"color\": \"#e74c3c\",\n    \"maxStudents\": 20,\n    \"price\": 4500,\n    \"schedule\": [\n      { \"day\": \"Friday\", \"startTime\": \"09:00\", \"endTime\": \"13:00\" }\n    ],\n    \"mode\": \"sessional\",\n    \"perSessions\": 12,\n    \"perDuration\": null,\n    \"perSemester\": null\n  },\n  {\n    \"teacher\": \"user_006\",\n    \"school\": null,\n    \"title\": \"French Language Advanced\",\n    \"location\": {\n      \"fullLocation\": \"Centre Linguistique, Tizi Ouzou\",\n      \"coordinates\": { \"lat\": 36.71, \"long\": 4.05 },\n      \"wilaya\": \"Tizi Ouzou\",\n      \"commune\": \"Tizi Ouzou\"\n    },\n    \"frontPicture\": \"https://example.com/front6.jpg\",\n    \"backPicture\": \"https://example.com/back6.jpg\",\n    \"description\": \"Advanced level for fluent speakers.\",\n    \"field\": \"Languages\",\n    \"level\": \"University\",\n    \"color\": \"#1abc9c\",\n    \"maxStudents\": 15,\n    \"price\": 7000,\n    \"schedule\": [\n      { \"day\": \"Monday\", \"startTime\": \"16:00\", \"endTime\": \"18:00\" },\n      { \"day\": \"Wednesday\", \"startTime\": \"16:00\", \"endTime\": \"18:00\" }\n    ],\n    \"mode\": \"semestrial\",\n    \"perSemester\": [\n      {\n        \"semester\": \"Winter\",\n        \"price\": 7000,\n        \"startDate\": 1730000000000,\n        \"endDate\": 1738000000000\n      }\n    ],\n    \"perSessions\": null,\n    \"perDuration\": null\n  }\n]\n\n "
+      },
+      "requestVariables": [
+        {
+          "key": "Local-Host",
+          "value": "http://127.0.0.1:5000",
+          "active": true
+        }
+      ],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "create-group - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/create-group",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "[\n  {\n    \"school\": \"j97bkasdtvsx0tgbp0ret1kg257jpkbe\",\n    \"title\": \"Advanced Math Group\",\n    \"frontPicture\": \"https://example.com/group1-front.jpg\",\n    \"backPicture\": \"https://example.com/group1-back.jpg\",\n    \"isArchived\": false,\n    \"description\": \"Group for advanced students in math.\",\n    \"field\": \"Mathematics\",\n    \"level\": \"High School\",\n    \"color\": \"#3498db\",\n    \"isSemestral\": true,\n    \"startDate\": 1720000000000,\n    \"endDate\": 1725000000000\n  },\n  {\n    \"school\": \"j97bkasdtvsx0tgbp0ret1kg257jpkce\",\n    \"title\": \"Beginner Physics Group\",\n    \"frontPicture\": \"https://example.com/group2-front.jpg\",\n    \"backPicture\": \"https://example.com/group2-back.jpg\",\n    \"field\": \"Physics\",\n    \"level\": \"Middle School\",\n    \"color\": \"#e67e22\",\n    \"isSemestral\": false,\n    \"startDate\": null,\n    \"endDate\": null\n  },\n  {\n    \"school\": \"j97bkbsdtvsx0tgbp0ret1kg257jpkbe\",\n    \"title\": \"University Literature Club\",\n    \"frontPicture\": \"https://example.com/group3-front.jpg\",\n    \"backPicture\": \"https://example.com/group3-back.jpg\",\n    \"description\": \"Discuss literary works every week.\",\n    \"field\": \"Literature\",\n    \"level\": \"University\",\n    \"color\": \"#9b59b6\",\n    \"isArchived\": true,\n    \"isSemestral\": null\n  },\n  {\n    \"school\": \"j97bkasdtvsx0tgbp4ret1kg257jpkbe\",\n    \"title\": \"Chemistry Study Team\",\n    \"frontPicture\": \"https://example.com/group4-front.jpg\",\n    \"backPicture\": \"https://example.com/group4-back.jpg\",\n    \"field\": \"Chemistry\",\n    \"level\": \"High School\",\n    \"color\": \"#2ecc71\",\n    \"isSemestral\": true,\n    \"startDate\": 1730000000000,\n    \"endDate\": 1738000000000\n  },\n  {\n    \"school\": \"j97bkasdtvsx0tgbp0ret1kg257jpkbf\",\n    \"title\": \"Coding Bootcamp Group\",\n    \"frontPicture\": \"https://example.com/group5-front.jpg\",\n    \"backPicture\": \"https://example.com/group5-back.jpg\",\n    \"field\": \"Computer Science\",\n    \"level\": \"University\",\n    \"color\": \"#1abc9c\"\n  }\n]\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-group - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/update-group",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\"groupId\" : \"jn73zdy540kr50b1sy55bs14en7jqvqw\", \"groupData\" : {\n  \"school\": \"user_school_001\",\n  \"title\": \"Advanced 11 Math Group\",\n  \"frontPicture\": \"https://example.com/group1-front.jpg\",\n  \"backPicture\": \"https://example.com/group1-back.jpg\",\n  \"isArchived\": false,\n  \"description\": \"Group for advanced students in math.\",\n  \"field\": \"Mathematics\",\n  \"level\": \"High School\",\n  \"color\": \"#3498db\",\n  \"isSemestral\": true,\n  \"startDate\": 1720000000000,\n  \"endDate\": 1725000000000\n}\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "update-classroom - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/update-classroom",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\"classroomId\": \"j976csbg2fcq71ggv0q8ycnvd57jpx83\",\"classroomData\":{\n  \"teacher\": \"user_001\",\n  \"school\": \"school_123\",\n  \"title\": \"Mathematics - Algebra Basics\",\n  \"location\": {\n    \"fullLocation\": \"123 Rue des Écoles, El Madania, Alger\",\n    \"coordinates\": {\n      \"lat\": 36.75,\n      \"long\": 3.06\n    },\n    \"wilaya\": \"Alger\",\n    \"commune\": \"El Madania\"\n  },\n  \"frontPicture\": \"https://example.com/front1.jpg\",\n  \"backPicture\": \"https://example.com/back1.jpg\",\n  \"isArchived\": false,\n  \"description\": \"Beginner-level algebra course for high school students.\",\n  \"field\": \"Mathematics\",\n  \"level\": \"High School\",\n  \"color\": \"#3498db\",\n  \"maxStudents\": 30,\n  \"price\": 4000,\n  \"schedule\": [\n    {\n      \"day\": \"Monday\",\n      \"startTime\": \"14:00\",\n      \"endTime\": \"16:00\"\n    },\n    {\n      \"day\": \"Wednesday\",\n      \"startTime\": \"10:00\",\n      \"endTime\": \"12:00\"\n    }\n  ],\n  \"mode\": \"monthly\",\n  \"perDuration\": 30,\n  \"perSessions\": null,\n  \"perSemester\": null\n}\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "delete-classroom - Duplicate",
+      "method": "DELETE",
+      "endpoint": "http://127.0.0.1:3001/classroom/delete-classroom",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\"classroomId\" : \"j976csbg2fcq71ggv0q8ycnvd57jpx83\"}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "get-classrooms - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:5000/classroom/get-classrooms",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"status\": \"archived\",\n  \"pagination\": {\n    \"numItems\": 10,\n    \"cursor\": null\n  },\n  \"classroomId\": \"classroom_001\",\n  \"fectchBy\": {\n    \"userType\": \"school\",\n    \"userId\": \"school_user_001\"\n  }\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "add-classroom-student - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/add-classroom-student",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "[\n  {\n    \"classroom\": \"j978nm0e9ayc62m7hmpdwa1nd97jpymf\",\n    \"student\": \"jn73zdy540kr50b1sy55bs14en7jqvqw\"\n  },\n  {\n    \"classroom\": \"j978xc10g6nf5b1bcw2ft9zdsd7jqwvb\",\n    \"student\": \"jn79nbghevhxhzt2vb4642cpzn7jqj3k\"\n  },\n  {\n    \"classroom\": \"j976pgnmj7ajrp0f8fmrrzbn797jq647\",\n    \"student\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"classroom\": \"j973w5tjz75spp7w375dg20cah7jqny0\",\n    \"student\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"classroom\": \"j975nj4m8ffgcym3xr18334e0h7jqh5b\",\n    \"student\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  }\n]\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "delete-group - Duplicate",
+      "method": "DELETE",
+      "endpoint": "http://127.0.0.1:3001/classroom/delete-group",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\"groupId\" : \"jn77g44mc2b8me8wwagy7frrqs7jpj93\"}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "add-group-student - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/add-group-student",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "[\n  {\n    \"student\": \"j978nm0e9ayc62m7hmpdwa1nd97jpymf\",\n    \"group\": \"jn73zdy540kr50b1sy55bs14en7jqvqw\"\n  },\n  {\n    \"student\": \"j978xc10g6nf5b1bcw2ft9zdsd7jqwvb\",\n    \"group\": \"jn79nbghevhxhzt2vb4642cpzn7jqj3k\"\n  },\n  {\n    \"student\": \"j976pgnmj7ajrp0f8fmrrzbn797jq647\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"student\": \"j973w5tjz75spp7w375dg20cah7jqny0\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"student\": \"j975nj4m8ffgcym3xr18334e0h7jqh5b\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  }\n]\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "add-group-classroom - Duplicate",
+      "method": "POST",
+      "endpoint": "http://127.0.0.1:3001/classroom/add-group-classroom",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "[\n  {\n    \"classroom\": \"j978nm0e9ayc62m7hmpdwa1nd97jpymf\",\n    \"group\": \"jn73zdy540kr50b1sy55bs14en7jqvqw\"\n  },\n  {\n    \"classroom\": \"j978xc10g6nf5b1bcw2ft9zdsd7jqwvb\",\n    \"group\": \"jn79nbghevhxhzt2vb4642cpzn7jqj3k\"\n  },\n  {\n    \"classroom\": \"j976pgnmj7ajrp0f8fmrrzbn797jq647\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"classroom\": \"j973w5tjz75spp7w375dg20cah7jqny0\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  },\n  {\n    \"classroom\": \"j975nj4m8ffgcym3xr18334e0h7jqh5b\",\n    \"group\": \"jn7017xc9e172gtw5955eacxh97jq805\"\n  }\n]\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_mdy7yci1_ef61abe2-ce80-41b8-8e59-8b229b5fdc49"
+}

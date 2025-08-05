@@ -3,12 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserForm } from "@/components/users/user-form";
-import { mockUsers, User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
+
+// Empty users array - will be populated from API
+const mockUsers: User[] = [];
 
 interface EditUserPageProps {
   params: {
@@ -42,14 +50,14 @@ export default function EditUserPage({ params }: EditUserPageProps) {
 
   const handleSubmit = async (userData: Partial<User>) => {
     setIsLoading(true);
-    
+
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       // In a real app, this would be an API call
       console.log("Updating user:", { id: user.id, ...userData });
-      
+
       // Redirect to user profile
       router.push(`/users/${user.id}`);
     } catch (error) {

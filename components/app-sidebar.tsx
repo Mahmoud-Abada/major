@@ -1,14 +1,10 @@
 "use client";
-import * as React from "react";
 import { SearchForm } from "@/components/search-form";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -16,148 +12,36 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import {
-  RiBuildingLine,
-  RiBookLine,
-  RiGroupLine,
-  RiUserLine,
-  RiTeamLine,
-  RiNotificationLine,
-  RiCalendarLine,
-  RiMoneyDollarCircleLine,
-  RiTestTubeLine,
-  RiUserFollowLine,
-  RiPencilLine,
-  RiTimeLine,
-  RiMailLine,
-  RiBookOpenLine,
-  RiDashboardLine,
-  RiSettings3Line,
-  RiLogoutBoxLine,
   RiArrowDownSLine,
   RiArrowRightSLine,
+  RiBookLine,
+  RiBookOpenLine,
+  RiBuildingLine,
+  RiCalendarEventLine,
+  RiCalendarLine,
+  RiDashboardLine,
+  RiGroupLine,
+  RiLogoutBoxLine,
+  RiMailLine,
+  RiMoneyDollarCircleLine,
+  RiNotificationLine,
+  RiParentLine,
+  RiPencilLine,
+  RiSchoolLine,
+  RiSettings3Line,
+  RiTeamLine,
+  RiTestTubeLine,
+  RiTimeLine,
+  RiUserFollowLine,
+  RiUserLine
 } from "@remixicon/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
-
-const data = {
-  teams: [
-    {
-      name: "Springfield High",
-      logo: "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/logo-01_kp2j8x.png",
-    },
-  ],
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: RiDashboardLine,
-    },
-    {
-      title: "Classroom",
-      icon: RiBuildingLine,
-      subcategories: [
-        {
-          title: "Overview",
-          url: "/classroom/overview",
-          icon: RiDashboardLine,
-        },
-        {
-          title: "Classes",
-          url: "/classroom/classes",
-          icon: RiBookLine,
-        },
-        {
-          title: "Students",
-          url: "/classroom/students",
-          icon: RiUserLine,
-        },
-        {
-          title: "Groups",
-          url: "/classroom/groups",
-          icon: RiGroupLine,
-        },
-        {
-          title: "Teachers",
-          url: "/classroom/teachers",
-          icon: RiTeamLine,
-        },
-        {
-          title: "Posts",
-          url: "/classroom/posts",
-          icon: RiNotificationLine,
-        },
-        {
-          title: "Events",
-          url: "/classroom/events",
-          icon: RiCalendarLine,
-        },
-      ],
-    },
-    {
-      title: "Management",
-      icon: RiBookLine,
-      subcategories: [
-        {
-          title: "Payments",
-          url: "/management/payments",
-          icon: RiMoneyDollarCircleLine,
-        },
-        {
-          title: "Marks",
-          url: "/management/marks",
-          icon: RiTestTubeLine,
-        },
-        {
-          title: "Attendance",
-          url: "/management/attendance",
-          icon: RiUserFollowLine,
-        },
-        {
-          title: "Homeworks",
-          url: "/management/homeworks",
-          icon: RiPencilLine,
-        },
-        {
-          title: "Schedule",
-          url: "/management/schedule",
-          icon: RiTimeLine,
-        },
-      ],
-    },
-    {
-      title: "Inbox",
-      url: "/inbox",
-      icon: RiMailLine,
-    },
-    {
-      title: "Learning",
-      icon: RiBookOpenLine,
-      subcategories: [
-        {
-          title: "Courses",
-          url: "/learning/courses",
-          icon: RiBookLine,
-        },
-        {
-          title: "Resources",
-          url: "/learning/resources",
-          icon: RiBookLine,
-        },
-        {
-          title: "Assignments",
-          url: "/learning/assignments",
-          icon: RiPencilLine,
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: RiSettings3Line,
-    },
-  ],
-};
+import { usePathname } from "next/navigation";
+import * as React from "react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const t = useTranslations('sidebar');
   const [expandedGroups, setExpandedGroups] = React.useState<
     Record<string, boolean>
   >({
@@ -166,7 +50,141 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     Learning: false,
   });
 
-  const [currentPath, setCurrentPath] = React.useState("/dashboard");
+  const data = {
+    teams: [
+      {
+        name: "Springfield High",
+        logo: "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/logo-01_kp2j8x.png",
+      },
+    ],
+    navMain: [
+      {
+        title: t('dashboard'),
+        url: "/dashboard",
+        icon: RiDashboardLine,
+      },
+      {
+        title: t('classroom'),
+        icon: RiBuildingLine,
+        subcategories: [
+          {
+            title: t('statistics'),
+            url: "/classroom/statistics",
+            icon: RiDashboardLine,
+          },
+          {
+            title: t('classes'),
+            url: "/classroom/classes",
+            icon: RiBookLine,
+          },
+          {
+            title: t('groups'),
+            url: "/classroom/groups",
+            icon: RiGroupLine,
+          },
+          {
+            title: t('students'),
+            url: "/classroom/students",
+            icon: RiUserLine,
+          },
+          {
+            title: t('teachers'),
+            url: "/classroom/teachers",
+            icon: RiTeamLine,
+          },
+          {
+            title: t('posts'),
+            url: "/classroom/posts",
+            icon: RiNotificationLine,
+          },
+          {
+            title: t('events'),
+            url: "/classroom/events",
+            icon: RiCalendarEventLine,
+          },
+          {
+            title: t('calendar'),
+            url: "/classroom/calendar",
+            icon: RiCalendarLine,
+          },
+          {
+            title: t('schools'),
+            url: "/classroom/schools",
+            icon: RiSchoolLine,
+          },
+          {
+            title: t('parents'),
+            url: "/classroom/parents",
+            icon: RiParentLine,
+          },
+          {
+            title: t('payments'),
+            url: "/classroom/payments",
+            icon: RiMoneyDollarCircleLine,
+          },
+        ],
+      },
+      {
+        title: t('management'),
+        icon: RiBookLine,
+        subcategories: [
+          {
+            title: t('marks'),
+            url: "/classroom/marks",
+            icon: RiTestTubeLine,
+          },
+          {
+            title: t('attendance'),
+            url: "/classroom/attendance",
+            icon: RiUserFollowLine,
+          },
+          {
+            title: t('homeworks'),
+            url: "/classroom/homeworks",
+            icon: RiPencilLine,
+          },
+          {
+            title: t('schedule'),
+            url: "/classroom/schedule",
+            icon: RiTimeLine,
+          },
+        ],
+      },
+      {
+        title: t('inbox'),
+        url: "/inbox",
+        icon: RiMailLine,
+      },
+      {
+        title: t('learning'),
+        icon: RiBookOpenLine,
+        subcategories: [
+          {
+            title: t('courses'),
+            url: "/learning/courses",
+            icon: RiBookLine,
+          },
+          {
+            title: t('resources'),
+            url: "/learning/resources",
+            icon: RiBookLine,
+          },
+          {
+            title: t('assignments'),
+            url: "/learning/assignments",
+            icon: RiPencilLine,
+          },
+        ],
+      },
+      {
+        title: t('settings'),
+        url: "/settings",
+        icon: RiSettings3Line,
+      },
+    ],
+  };
+
+  const currentPath = usePathname();
 
   const toggleGroup = (title: string) => {
     setExpandedGroups((prev) => ({
@@ -175,16 +193,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }));
   };
 
-  const isActive = (url: string) => currentPath === url;
+  const isActive = (url?: string) => url && currentPath === url;
 
   return (
-    <Sidebar {...props}>
-      <SidebarHeader>
+    <Sidebar {...props} className="border-r border-border/40">
+      <SidebarHeader className="border-b border-border/40 pb-4">
         <TeamSwitcher teams={data.teams} />
         <hr className="border-t border-border mx-2 -mt-px" />
         <SearchForm className="mt-3" />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarMenu className="space-y-1">
           {data.navMain.map((item) => (
             <React.Fragment key={item.title}>
@@ -193,26 +211,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={() => toggleGroup(item.title)}
-                      className={`group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-md transition-colors
-                        ${isActive(item?.url) ? "bg-primary/10 text-primary" : "hover:bg-accent/50"}`}
+                      className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 hover:bg-accent/50 ${isActive(item.url) ? "bg-primary/10 text-primary" : ""
+                        }`}
                     >
                       {item.icon && (
                         <item.icon
-                          className={`shrink-0 ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"}`}
+                          className={`shrink-0 transition-colors ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"
+                            }`}
                           size={20}
                         />
                       )}
-                      <span className="flex-1 text-left text-sm font-medium">
+                      <span className="flex-1 text-left text-sm font-medium truncate">
                         {item.title}
                       </span>
                       {expandedGroups[item.title] ? (
                         <RiArrowDownSLine
-                          className="text-muted-foreground/60"
+                          className="text-muted-foreground/60 transition-transform"
                           size={16}
                         />
                       ) : (
                         <RiArrowRightSLine
-                          className="text-muted-foreground/60"
+                          className="text-muted-foreground/60 transition-transform"
                           size={16}
                         />
                       )}
@@ -220,30 +239,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuItem>
 
                   {expandedGroups[item.title] && (
-                    <div className="ml-8 space-y-1">
+                    <div className="ml-6 space-y-1 border-l border-border/30 pl-4">
                       {item.subcategories.map((subItem) => (
                         <SidebarMenuItem key={subItem.title}>
                           <SidebarMenuButton
                             asChild
-                            className={`group/menu-button w-full flex items-center gap-3 h-8 px-3 rounded-md text-sm transition-colors
-                              ${isActive(subItem.url) ? "bg-primary/10 text-primary font-medium" : "hover:bg-accent/30 text-muted-foreground"}`}
+                            className={`group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-all duration-200 ${isActive(subItem.url)
+                                ? "bg-primary/10 text-primary font-medium shadow-sm"
+                                : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
+                              }`}
                           >
-                            <a
-                              href={subItem.url}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentPath(subItem.url);
-                                // In a real app, you would navigate here
-                              }}
-                            >
+                            <Link href={subItem.url}>
                               {subItem.icon && (
                                 <subItem.icon
-                                  className={`shrink-0 ${isActive(subItem.url) ? "text-primary" : "text-muted-foreground/60"}`}
+                                  className={`shrink-0 transition-colors ${isActive(subItem.url) ? "text-primary" : "text-muted-foreground/60"
+                                    }`}
                                   size={18}
                                 />
                               )}
-                              <span>{subItem.title}</span>
-                            </a>
+                              <span className="truncate">{subItem.title}</span>
+                            </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
@@ -254,24 +269,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className={`group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-md transition-colors
-                      ${isActive(item.url) ? "bg-primary/10 text-primary" : "hover:bg-accent/50"}`}
+                    className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 ${isActive(item.url)
+                        ? "bg-primary/10 text-primary shadow-sm"
+                        : "hover:bg-accent/50 hover:text-foreground"
+                      }`}
                   >
-                    <Link
-                      href={item.url}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPath(item.url);
-                        // In a real app, you would navigate here
-                      }}
-                    >
+                    <Link href={item.url || "#"}>
                       {item.icon && (
                         <item.icon
-                          className={`shrink-0 ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"}`}
+                          className={`shrink-0 transition-colors ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"
+                            }`}
                           size={20}
                         />
                       )}
-                      <span className="text-sm font-medium">{item.title}</span>
+                      <span className="text-sm font-medium truncate">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -280,21 +291,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter>
-        <hr className="border-t border-border mx-2 -mt-px" />
+      <SidebarFooter className="border-t border-border/40 pt-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-md hover:bg-accent/50"
+              className="group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg hover:bg-accent/50 transition-all duration-200"
             >
-              <a href="/logout">
+              <Link href="/logout">
                 <RiLogoutBoxLine
-                  className="text-muted-foreground/70"
+                  className="text-muted-foreground/70 transition-colors group-hover/menu-button:text-foreground"
                   size={20}
                 />
-                <span className="text-sm font-medium">Sign Out</span>
-              </a>
+                <span className="text-sm font-medium">{t('signOut')}</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

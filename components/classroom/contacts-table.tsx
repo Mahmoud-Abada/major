@@ -80,12 +80,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  useEffect,
   useId,
   useMemo,
   useRef,
   useState,
-  useTransition,
+  useTransition
 } from "react";
 
 type Item = {
@@ -278,7 +277,13 @@ const getColumns = ({ data, setData }: GetColumnsProps): ColumnDef<Item>[] => [
   },
 ];
 
-export default function DataView() {
+interface DataViewProps {
+  initialData: Item[];
+  columns: ColumnDef<Item>[];
+  onRowClick?: (item: Item) => void;
+}
+
+export default function DataView({ initialData, columns, onRowClick }: DataViewProps) {
   const id = useId();
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -297,26 +302,10 @@ export default function DataView() {
   ]);
 
   const [data, setData] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Changed to false since we're using local data
 
-  const columns = useMemo(() => getColumns({ data, setData }), [data]);
 
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const res = await fetch(
-          "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/users-02_mohkpe.json",
-        );
-        const data = await res.json();
-        setData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchPosts();
-  }, []);
+
 
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;
@@ -648,7 +637,7 @@ function TableView({
                     <div
                       className={cn(
                         header.column.getCanSort() &&
-                          "flex h-full cursor-pointer select-none items-center gap-2",
+                        "flex h-full cursor-pointer select-none items-center gap-2",
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                       onKeyDown={(e) => {

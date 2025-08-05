@@ -23,19 +23,18 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../store/hooks";
-import { registerUser } from "../../store/slices/authSlice";
+import registerUser from "../../store/slices/authSlice";
 import { RootState } from "../../store/store";
 import { RegisterData } from "../../types/authTypes";
 
 type ApiStatus = "idle" | "pending" | "success" | "error";
 
 const PersonSignupForm = () => {
-  const { theme } = useTheme();
   const locale = useLocale();
   const t = useTranslations("auth");
+  const { theme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -193,19 +192,13 @@ const PersonSignupForm = () => {
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`mb-4 flex items-center justify-between rounded p-2 text-sm ${
-            theme === "dark"
-              ? "bg-red-900 text-red-400"
-              : "bg-red-100 text-red-600"
-          }`}
+          className="mb-4 flex items-center justify-between rounded p-2 text-sm bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400"
         >
           <span>{apiError}</span>
           <button
             type="button"
             onClick={() => setApiError(null)} // Clear the error when clicked
-            className={`ml-2 ${
-              theme === "dark" ? "text-red-400" : "text-red-600"
-            }`}
+            className="ml-2 text-red-600 dark:text-red-400"
             aria-label={t("dismissError")}
           >
             <XIcon size={16} />
@@ -218,11 +211,7 @@ const PersonSignupForm = () => {
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`mb-4 rounded p-2 text-sm ${
-            theme === "dark"
-              ? "bg-green-900 text-green-400"
-              : "bg-green-100 text-green-600"
-          }`}
+          className="mb-4 rounded p-2 text-sm bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
         >
           {t("registrationSuccessful")}
         </motion.p>

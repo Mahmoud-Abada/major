@@ -8,24 +8,31 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User as UserType } from "@/data/mock/users";
 import { authService } from "@/lib/auth";
 import { motion } from "framer-motion";
 import {
-    Bell,
-    Camera,
-    Clock,
-    Edit3,
-    Globe,
-    Key,
-    Mail,
-    Palette,
-    Settings,
-    Shield,
-    User
+  Bell,
+  Camera,
+  Clock,
+  Edit3,
+  Globe,
+  Key,
+  Mail,
+  Palette,
+  Settings,
+  Shield,
+  User
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+// User type - will be replaced with actual API types
+interface UserType {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },

@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,26 +12,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { RiSettingsLine, RiTeamLine, RiLogoutBoxLine } from "@remixicon/react";
+import { RiLogoutBoxLine, RiSettingsLine, RiTeamLine } from "@remixicon/react";
+import { useTranslations } from "next-intl";
 
 export default function UserDropdown() {
+  const t = useTranslations('navigation');
+  const tCommon = useTranslations('common');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
-          <Avatar className="size-8">
+        <Button
+          variant="ghost"
+          className="h-auto p-1 md:p-0 hover:bg-transparent focus:ring-2 focus:ring-primary/20 rounded-full"
+          aria-label={t('profile')}
+        >
+          <Avatar className="size-7 md:size-8">
             <AvatarImage
               src="https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/user_sam4wh.png"
               width={32}
               height={32}
-              alt="Profile image"
+              alt={t('profileImage') || 'Profile image'}
             />
-            <AvatarFallback>KK</AvatarFallback>
+            <AvatarFallback className="text-xs md:text-sm">KK</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-w-64" align="end">
-        <DropdownMenuLabel className="flex min-w-0 flex-col">
+      <DropdownMenuContent
+        className="w-56 md:max-w-64"
+        align="end"
+        sideOffset={8}
+      >
+        <DropdownMenuLabel className="flex min-w-0 flex-col p-3 md:p-4">
           <span className="truncate text-sm font-medium text-foreground">
             Keith Kennedy
           </span>
@@ -39,27 +53,31 @@ export default function UserDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="p-2 md:p-3 cursor-pointer">
             <RiSettingsLine
               size={16}
-              className="opacity-60"
+              className="opacity-60 shrink-0"
               aria-hidden="true"
             />
-            <span>Account settings</span>
+            <span className="text-sm">{t('accountSettings') || 'Account settings'}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <RiTeamLine size={16} className="opacity-60" aria-hidden="true" />
-            <span>Affiliate area</span>
+          <DropdownMenuItem className="p-2 md:p-3 cursor-pointer">
+            <RiTeamLine
+              size={16}
+              className="opacity-60 shrink-0"
+              aria-hidden="true"
+            />
+            <span className="text-sm">{t('affiliateArea') || 'Affiliate area'}</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem className="p-2 md:p-3 cursor-pointer text-red-600 focus:text-red-600">
           <RiLogoutBoxLine
             size={16}
-            className="opacity-60"
+            className="opacity-60 shrink-0"
             aria-hidden="true"
           />
-          <span>Sign out</span>
+          <span className="text-sm">{t('logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

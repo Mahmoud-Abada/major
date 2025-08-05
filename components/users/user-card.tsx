@@ -5,10 +5,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AdminUser, ParentUser, StudentUser, TeacherUser, User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { BookOpen, Calendar, Edit, Eye, GraduationCap, Heart, Mail, Phone, Shield, Trash2 } from "lucide-react";
 import { RoleBadge } from "./role-badge";
+// User types - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface AdminUser extends User {
+  role: "admin";
+}
+
+interface TeacherUser extends User {
+  role: "teacher";
+}
+
+interface StudentUser extends User {
+  role: "student";
+}
+
+interface ParentUser extends User {
+  role: "parent";
+}
 
 interface UserCardProps {
   user: User;
@@ -195,15 +218,15 @@ export function UserCard({
                 {user.firstName.charAt(0)}{user.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm truncate">
                 {user.firstName} {user.lastName}
               </h3>
               <div className="flex items-center gap-2 mt-1">
                 <RoleBadge role={user.role} size="sm" />
-                <Badge 
-                  className={`${getStatusColor(user.status)} text-xs`} 
+                <Badge
+                  className={`${getStatusColor(user.status)} text-xs`}
                   variant="outline"
                 >
                   {user.status}

@@ -5,33 +5,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { User as UserType } from "@/data/mock/users";
 import { authService } from "@/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import {
-    ArrowLeft,
-    Camera,
-    Mail,
-    Save,
-    User
+  ArrowLeft,
+  Camera,
+  Mail,
+  Save,
+  User
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+// User type - will be replaced with actual API types
+interface UserType {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -96,9 +103,9 @@ export default function EditProfilePage() {
       router.push("/signin");
       return;
     }
-    
+
     setUser(currentUser);
-    
+
     // Populate form with current user data
     form.reset({
       firstName: currentUser.firstName,
@@ -114,7 +121,7 @@ export default function EditProfilePage() {
       bloodGroup: (currentUser as any).bloodGroup || "",
       occupation: (currentUser as any).occupation || "",
     });
-    
+
     setAvatarPreview(currentUser.avatar || null);
     setIsLoading(false);
   }, [router, form]);
@@ -243,9 +250,9 @@ export default function EditProfilePage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12">
                 <div className="relative">
                   <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                    <AvatarImage 
-                      src={avatarPreview || user.avatar} 
-                      alt={`${user.firstName} ${user.lastName}`} 
+                    <AvatarImage
+                      src={avatarPreview || user.avatar}
+                      alt={`${user.firstName} ${user.lastName}`}
                     />
                     <AvatarFallback className="text-xl font-semibold">
                       {getInitials(user.firstName, user.lastName)}
@@ -331,7 +338,7 @@ export default function EditProfilePage() {
                       <Mail className="h-5 w-5" />
                       Contact Information
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <Label htmlFor="email">Email Address</Label>
@@ -369,7 +376,7 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Address</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Enter your address"
                               className="resize-none"
                               rows={3}
@@ -388,7 +395,7 @@ export default function EditProfilePage() {
                       <Separator />
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Professional Information</h3>
-                        
+
                         <FormField
                           control={form.control}
                           name="bio"
@@ -396,7 +403,7 @@ export default function EditProfilePage() {
                             <FormItem>
                               <FormLabel>Bio</FormLabel>
                               <FormControl>
-                                <Textarea 
+                                <Textarea
                                   placeholder="Tell us about yourself"
                                   className="resize-none"
                                   rows={4}
@@ -416,7 +423,7 @@ export default function EditProfilePage() {
                       <Separator />
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Student Information</h3>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <FormField
                             control={form.control}
@@ -455,7 +462,7 @@ export default function EditProfilePage() {
                       <Separator />
                       <div className="space-y-4">
                         <h3 className="text-lg font-semibold">Parent Information</h3>
-                        
+
                         <FormField
                           control={form.control}
                           name="occupation"

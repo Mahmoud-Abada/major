@@ -174,7 +174,7 @@ export function ParentPayments({
                   onMakePayment && (
                     <Button
                       size="sm"
-                      variant="primary"
+                      variant="default"
                       onClick={() => onMakePayment(row.id)}
                     >
                       <CreditCard className="h-4 w-4 mr-1" />
@@ -213,7 +213,7 @@ export function ParentPayments({
                 {onMakePayment && (
                   <Button
                     size="sm"
-                    variant="primary"
+                    variant="default"
                     onClick={() => onMakePayment(row.id)}
                   >
                     <CreditCard className="h-4 w-4 mr-1" />
@@ -285,7 +285,7 @@ export function ParentPayments({
                 {onMakePayment && (
                   <Button
                     size="sm"
-                    variant="primary"
+                    variant="default"
                     onClick={() => onMakePayment(row.id)}
                   >
                     <CreditCard className="h-4 w-4 mr-1" />

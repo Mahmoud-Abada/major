@@ -1,6 +1,12 @@
-import { User } from "@/data/mock/users";
 import { authStorage } from "@/lib/storage";
 import { SessionData } from "@/lib/validations/auth";
+
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
 
 // ─────────────────────────────
 // Session Management Types
@@ -87,8 +93,8 @@ class SessionManagerImpl implements SessionManager {
 
   createSession(user: User, rememberMe: boolean = false): SessionData {
     const now = new Date();
-    const duration = rememberMe 
-      ? SESSION_CONFIG.REMEMBER_ME_DURATION 
+    const duration = rememberMe
+      ? SESSION_CONFIG.REMEMBER_ME_DURATION
       : SESSION_CONFIG.DEFAULT_DURATION;
 
     const session: SessionData = {
@@ -277,7 +283,7 @@ class SessionManagerImpl implements SessionManager {
 
     // Track user activity
     const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
+
     const updateActivity = () => {
       const session = this.getSession();
       if (session) {

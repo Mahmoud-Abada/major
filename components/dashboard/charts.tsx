@@ -2,15 +2,22 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import {
-    Activity,
-    BarChart3,
-    PieChart as PieChartIcon,
-    TrendingDown,
-    TrendingUp
+  Activity,
+  BarChart3,
+  PieChart as PieChartIcon,
+  TrendingDown,
+  TrendingUp
 } from "lucide-react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface ChartData {
   id: string;
@@ -153,7 +160,7 @@ const getChartsForRole = (user: User): ChartData[] => {
 // Simple Bar Chart Component
 const BarChart = ({ data, color }: { data: any[], color: string }) => {
   const maxValue = Math.max(...data.map(item => item.average || item.score || 0));
-  
+
   return (
     <div className="space-y-3">
       {data.map((item, index) => (
@@ -197,7 +204,7 @@ const LineChart = ({ data, color }: { data: any[], color: string }) => {
           const value = item.users || item.rate || item.current || 0;
           const maxValue = Math.max(...data.map(d => d.users || d.rate || d.current || 0));
           const height = (value / maxValue) * 100;
-          
+
           return (
             <motion.div
               key={index}
@@ -229,7 +236,7 @@ const LineChart = ({ data, color }: { data: any[], color: string }) => {
 // Simple Pie Chart Component (using progress rings)
 const PieChart = ({ data, color }: { data: any[], color: string }) => {
   const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
-  
+
   return (
     <div className="space-y-3">
       {data.map((item, index) => (
@@ -293,8 +300,8 @@ const ProgressChart = ({ data, color }: { data: any[], color: string }) => {
             </div>
             <span className="text-sm font-medium">{item.score}%</span>
           </div>
-          <Progress 
-            value={item.score} 
+          <Progress
+            value={item.score}
             className="h-2"
           />
         </motion.div>

@@ -1,41 +1,48 @@
 "use client";
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { User } from "@/data/mock/users";
 import {
-    Copy,
-    Download,
-    Edit,
-    Eye,
-    Mail,
-    MessageSquare,
-    MoreHorizontal,
-    Phone,
-    Shield,
-    Trash2,
-    UserCheck,
-    UserX,
+  Copy,
+  Download,
+  Edit,
+  Eye,
+  Mail,
+  MessageSquare,
+  MoreHorizontal,
+  Phone,
+  Shield,
+  Trash2,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import { useState } from "react";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface UserActionsProps {
   user: User;
@@ -67,11 +74,11 @@ export function UserActions({
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       if (callback) {
         callback();
       }
-      
+
       toast({
         title: "Success",
         description: `Action "${action}" completed successfully.`,
@@ -147,29 +154,29 @@ export function UserActions({
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {/* Communication Actions */}
             <DropdownMenuItem onClick={() => window.open(`mailto:${user.email}`)}>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>
-            
+
             {user.phoneNumber && (
               <DropdownMenuItem onClick={() => window.open(`tel:${user.phoneNumber}`)}>
                 <Phone className="h-4 w-4 mr-2" />
                 Call
               </DropdownMenuItem>
             )}
-            
+
             {onSendMessage && (
               <DropdownMenuItem onClick={() => onSendMessage(user.id)}>
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Send Message
               </DropdownMenuItem>
             )}
-            
+
             <DropdownMenuSeparator />
-            
+
             {/* Status Actions */}
             {user.status !== "active" && (
               <DropdownMenuItem onClick={() => handleStatusChange("active")}>
@@ -177,36 +184,36 @@ export function UserActions({
                 Activate
               </DropdownMenuItem>
             )}
-            
+
             {user.status === "active" && (
               <DropdownMenuItem onClick={() => handleStatusChange("inactive")}>
                 <UserX className="h-4 w-4 mr-2" />
                 Deactivate
               </DropdownMenuItem>
             )}
-            
+
             {user.status !== "suspended" && (
               <DropdownMenuItem onClick={() => handleStatusChange("suspended")}>
                 <Shield className="h-4 w-4 mr-2" />
                 Suspend
               </DropdownMenuItem>
             )}
-            
+
             <DropdownMenuSeparator />
-            
+
             {/* Utility Actions */}
             <DropdownMenuItem onClick={handleCopyInfo}>
               <Copy className="h-4 w-4 mr-2" />
               Copy Info
             </DropdownMenuItem>
-            
+
             <DropdownMenuItem onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Export Data
             </DropdownMenuItem>
-            
+
             <DropdownMenuSeparator />
-            
+
             {/* Destructive Actions */}
             <DropdownMenuItem
               onClick={() => setShowDeleteDialog(true)}
@@ -224,7 +231,7 @@ export function UserActions({
             <AlertDialogHeader>
               <AlertDialogTitle>Delete User</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete {user.firstName} {user.lastName}? 
+                Are you sure you want to delete {user.firstName} {user.lastName}?
                 This action cannot be undone and will permanently remove all user data.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -253,7 +260,7 @@ export function UserActions({
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>User Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         {/* Primary Actions */}
         {onView && (
           <DropdownMenuItem onClick={() => onView(user.id)}>
@@ -261,38 +268,38 @@ export function UserActions({
             View Profile
           </DropdownMenuItem>
         )}
-        
+
         {onEdit && (
           <DropdownMenuItem onClick={() => onEdit(user.id)}>
             <Edit className="h-4 w-4 mr-2" />
             Edit User
           </DropdownMenuItem>
         )}
-        
+
         <DropdownMenuSeparator />
-        
+
         {/* Communication Actions */}
         <DropdownMenuItem onClick={() => window.open(`mailto:${user.email}`)}>
           <Mail className="h-4 w-4 mr-2" />
           Send Email
         </DropdownMenuItem>
-        
+
         {user.phoneNumber && (
           <DropdownMenuItem onClick={() => window.open(`tel:${user.phoneNumber}`)}>
             <Phone className="h-4 w-4 mr-2" />
             Call
           </DropdownMenuItem>
         )}
-        
+
         {onSendMessage && (
           <DropdownMenuItem onClick={() => onSendMessage(user.id)}>
             <MessageSquare className="h-4 w-4 mr-2" />
             Send Message
           </DropdownMenuItem>
         )}
-        
+
         <DropdownMenuSeparator />
-        
+
         {/* Status Actions */}
         {user.status !== "active" && (
           <DropdownMenuItem onClick={() => handleStatusChange("active")}>
@@ -300,36 +307,36 @@ export function UserActions({
             Activate User
           </DropdownMenuItem>
         )}
-        
+
         {user.status === "active" && (
           <DropdownMenuItem onClick={() => handleStatusChange("inactive")}>
             <UserX className="h-4 w-4 mr-2" />
             Deactivate User
           </DropdownMenuItem>
         )}
-        
+
         {user.status !== "suspended" && (
           <DropdownMenuItem onClick={() => handleStatusChange("suspended")}>
             <Shield className="h-4 w-4 mr-2" />
             Suspend User
           </DropdownMenuItem>
         )}
-        
+
         <DropdownMenuSeparator />
-        
+
         {/* Utility Actions */}
         <DropdownMenuItem onClick={handleCopyInfo}>
           <Copy className="h-4 w-4 mr-2" />
           Copy Information
         </DropdownMenuItem>
-        
+
         <DropdownMenuItem onClick={handleExport}>
           <Download className="h-4 w-4 mr-2" />
           Export User Data
         </DropdownMenuItem>
-        
+
         <DropdownMenuSeparator />
-        
+
         {/* Destructive Actions */}
         <DropdownMenuItem
           onClick={() => setShowDeleteDialog(true)}
@@ -346,7 +353,7 @@ export function UserActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete User</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {user.firstName} {user.lastName}? 
+              Are you sure you want to delete {user.firstName} {user.lastName}?
               This action cannot be undone and will permanently remove all user data.
             </AlertDialogDescription>
           </AlertDialogHeader>

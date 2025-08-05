@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { UserCard } from "@/components/users/user-card";
-import { mockAdmins } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import { Download, Plus, Search, Shield, Upload, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+// Empty admins array - will be populated from API
+const mockAdmins: any[] = [];
 
 const containerVariants = {
   hidden: { opacity: 0 },

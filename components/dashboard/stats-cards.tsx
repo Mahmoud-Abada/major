@@ -2,19 +2,27 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "@/data/mock/users";
 import { motion } from "framer-motion";
 import {
-    Activity,
-    AlertCircle,
-    BookOpen,
-    Calendar,
-    Clock,
-    GraduationCap,
-    TrendingDown,
-    TrendingUp,
-    Users
+  Activity,
+  AlertCircle,
+  BookOpen,
+  Calendar,
+  Clock,
+  GraduationCap,
+  TrendingDown,
+  TrendingUp,
+  Users
 } from "lucide-react";
+import { useTranslations } from "next-intl";
+// User type - will be replaced with actual API types
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName: string;
+  lastName: string;
+}
 
 interface StatCard {
   id: string;
@@ -44,7 +52,7 @@ interface StatsCardsProps {
   className?: string;
 }
 
-const getStatsForRole = (user: User): StatCard[] => {
+const getStatsForRole = (user: User, t: any, tCommon: any): StatCard[] => {
   const baseStats: StatCard[] = [];
 
   switch (user.role) {
@@ -52,41 +60,41 @@ const getStatsForRole = (user: User): StatCard[] => {
       return [
         {
           id: "total-users",
-          title: "Total Users",
+          title: t('stats.totalUsers'),
           value: 1247,
-          change: { value: 12, type: "increase", period: "this month" },
+          change: { value: 12, type: "increase", period: t('stats.thisMonth') },
           icon: Users,
           color: "text-blue-600",
-          description: "Active platform users",
-          badge: { text: "Active", variant: "default" }
+          description: t('stats.activePlatformUsers'),
+          badge: { text: t('stats.active'), variant: "default" }
         },
         {
           id: "active-classrooms",
-          title: "Active Classrooms",
+          title: t('stats.activeClassrooms'),
           value: 45,
-          change: { value: 3, type: "increase", period: "this week" },
+          change: { value: 3, type: "increase", period: t('stats.thisWeek') },
           icon: BookOpen,
           color: "text-green-600",
-          description: "Currently running classes"
+          description: t('stats.currentlyRunningClasses')
         },
         {
           id: "total-revenue",
-          title: "Monthly Revenue",
+          title: t('stats.monthlyRevenue'),
           value: "245,000 DA",
-          change: { value: 8.5, type: "increase", period: "vs last month" },
+          change: { value: 8.5, type: "increase", period: t('stats.vsLastMonth') },
           icon: TrendingUp,
           color: "text-purple-600",
-          description: "Total earnings this month"
+          description: t('stats.totalEarningsThisMonth')
         },
         {
           id: "system-health",
-          title: "System Health",
+          title: t('stats.systemHealth'),
           value: "99.8%",
-          progress: { value: 99.8, max: 100, label: "Uptime" },
+          progress: { value: 99.8, max: 100, label: t('stats.uptime') },
           icon: Activity,
           color: "text-emerald-600",
-          description: "Platform availability",
-          badge: { text: "Excellent", variant: "default" }
+          description: t('stats.platformAvailability'),
+          badge: { text: t('stats.excellent'), variant: "default" }
         }
       ];
 
@@ -94,39 +102,39 @@ const getStatsForRole = (user: User): StatCard[] => {
       return [
         {
           id: "my-classrooms",
-          title: "My Classrooms",
+          title: t('stats.myClassrooms'),
           value: 6,
           icon: BookOpen,
           color: "text-blue-600",
-          description: "Active teaching assignments"
+          description: t('stats.activeTeachingAssignments')
         },
         {
           id: "total-students",
-          title: "Total Students",
+          title: t('stats.totalStudents'),
           value: 142,
-          change: { value: 5, type: "increase", period: "this month" },
+          change: { value: 5, type: "increase", period: t('stats.thisMonth') },
           icon: Users,
           color: "text-green-600",
-          description: "Students across all classes"
+          description: t('stats.studentsAcrossAllClasses')
         },
         {
           id: "avg-attendance",
-          title: "Avg. Attendance",
+          title: t('stats.avgAttendance'),
           value: "87.5%",
-          progress: { value: 87.5, max: 100, label: "This month" },
+          progress: { value: 87.5, max: 100, label: t('stats.thisMonth') },
           icon: Calendar,
           color: "text-purple-600",
-          description: "Average class attendance",
-          badge: { text: "Good", variant: "default" }
+          description: t('stats.averageClassAttendance'),
+          badge: { text: t('stats.good'), variant: "default" }
         },
         {
           id: "pending-grades",
-          title: "Pending Grades",
+          title: t('stats.pendingGrades'),
           value: 23,
           icon: GraduationCap,
           color: "text-orange-600",
-          description: "Assignments to grade",
-          badge: { text: "Action Needed", variant: "destructive" }
+          description: t('stats.assignmentsToGrade'),
+          badge: { text: t('stats.actionNeeded'), variant: "destructive" }
         }
       ];
 
@@ -134,41 +142,41 @@ const getStatsForRole = (user: User): StatCard[] => {
       return [
         {
           id: "enrolled-classes",
-          title: "Enrolled Classes",
+          title: t('stats.enrolledClasses'),
           value: 8,
           icon: BookOpen,
           color: "text-blue-600",
-          description: "Current semester courses"
+          description: t('stats.currentSemesterCourses')
         },
         {
           id: "overall-grade",
-          title: "Overall Grade",
+          title: t('stats.overallGrade'),
           value: "85.2%",
-          progress: { value: 85.2, max: 100, label: "GPA: 3.4/4.0" },
-          change: { value: 2.3, type: "increase", period: "this semester" },
+          progress: { value: 85.2, max: 100, label: t('stats.gpa') },
+          change: { value: 2.3, type: "increase", period: t('stats.thisSemester') },
           icon: GraduationCap,
           color: "text-green-600",
-          description: "Academic performance",
-          badge: { text: "Excellent", variant: "default" }
+          description: t('stats.academicPerformance'),
+          badge: { text: t('stats.excellent'), variant: "default" }
         },
         {
           id: "attendance-rate",
-          title: "Attendance Rate",
+          title: t('stats.attendanceRate'),
           value: "92.1%",
-          progress: { value: 92.1, max: 100, label: "This month" },
+          progress: { value: 92.1, max: 100, label: t('stats.thisMonth') },
           icon: Calendar,
           color: "text-purple-600",
-          description: "Class attendance record",
-          badge: { text: "Great", variant: "default" }
+          description: t('stats.classAttendanceRecord'),
+          badge: { text: t('stats.great'), variant: "default" }
         },
         {
           id: "pending-assignments",
-          title: "Pending Tasks",
+          title: t('stats.pendingTasks'),
           value: 4,
           icon: Clock,
           color: "text-orange-600",
-          description: "Assignments due soon",
-          badge: { text: "Due Soon", variant: "outline" }
+          description: t('stats.assignmentsDueSoon'),
+          badge: { text: t('stats.dueSoon'), variant: "outline" }
         }
       ];
 
@@ -176,41 +184,41 @@ const getStatsForRole = (user: User): StatCard[] => {
       return [
         {
           id: "children-count",
-          title: "My Children",
+          title: t('stats.myChildren'),
           value: 2,
           icon: Users,
           color: "text-blue-600",
-          description: "Enrolled students"
+          description: t('stats.enrolledStudents')
         },
         {
           id: "avg-performance",
-          title: "Avg. Performance",
+          title: t('stats.avgPerformance'),
           value: "88.7%",
-          progress: { value: 88.7, max: 100, label: "All children" },
-          change: { value: 3.2, type: "increase", period: "this month" },
+          progress: { value: 88.7, max: 100, label: t('stats.allChildren') },
+          change: { value: 3.2, type: "increase", period: t('stats.thisMonth') },
           icon: TrendingUp,
           color: "text-green-600",
-          description: "Academic performance",
-          badge: { text: "Excellent", variant: "default" }
+          description: t('stats.academicPerformance'),
+          badge: { text: t('stats.excellent'), variant: "default" }
         },
         {
           id: "attendance-overview",
-          title: "Attendance",
+          title: t('stats.attendance'),
           value: "94.3%",
-          progress: { value: 94.3, max: 100, label: "Combined rate" },
+          progress: { value: 94.3, max: 100, label: t('stats.combinedRate') },
           icon: Calendar,
           color: "text-purple-600",
-          description: "Overall attendance rate",
-          badge: { text: "Outstanding", variant: "default" }
+          description: t('stats.overallAttendanceRate'),
+          badge: { text: t('stats.outstanding'), variant: "default" }
         },
         {
           id: "notifications",
-          title: "New Updates",
+          title: t('stats.newUpdates'),
           value: 7,
           icon: AlertCircle,
           color: "text-orange-600",
-          description: "Unread notifications",
-          badge: { text: "New", variant: "destructive" }
+          description: t('stats.unreadNotifications'),
+          badge: { text: t('stats.new'), variant: "destructive" }
         }
       ];
 
@@ -241,7 +249,7 @@ const cardVariants = {
 
 const iconVariants = {
   initial: { scale: 1 },
-  hover: { 
+  hover: {
     scale: 1.1,
     transition: { duration: 0.2 }
   }
@@ -260,7 +268,9 @@ const progressVariants = {
 };
 
 export function StatsCards({ user, className = "" }: StatsCardsProps) {
-  const stats = getStatsForRole(user);
+  const t = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
+  const stats = getStatsForRole(user, t, tCommon);
 
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ${className}`}>
@@ -322,15 +332,14 @@ export function StatsCards({ user, className = "" }: StatsCardsProps) {
                     </div>
                     <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                       <motion.div
-                        className={`h-full rounded-full ${
-                          stat.progress.value >= 90 
-                            ? "bg-green-500" 
-                            : stat.progress.value >= 70 
-                            ? "bg-blue-500" 
-                            : stat.progress.value >= 50 
-                            ? "bg-yellow-500" 
-                            : "bg-red-500"
-                        }`}
+                        className={`h-full rounded-full ${stat.progress.value >= 90
+                            ? "bg-green-500"
+                            : stat.progress.value >= 70
+                              ? "bg-blue-500"
+                              : stat.progress.value >= 50
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
+                          }`}
                         variants={progressVariants}
                         initial="initial"
                         animate="animate"
@@ -349,8 +358,8 @@ export function StatsCards({ user, className = "" }: StatsCardsProps) {
                       <TrendingDown className="h-3 w-3 text-red-600" />
                     )}
                     <span className={
-                      stat.change.type === "increase" 
-                        ? "text-green-600" 
+                      stat.change.type === "increase"
+                        ? "text-green-600"
                         : "text-red-600"
                     }>
                       {stat.change.type === "increase" ? "+" : "-"}
