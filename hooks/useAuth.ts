@@ -1,4 +1,6 @@
 "use client";
+import { handleApiError, showErrorToast, showSuccessToast } from "@/utils/error-handler";
+
 
 import {
   authService,
@@ -16,7 +18,7 @@ import {
   getStoredUser,
   setAuthData,
 } from "@/utils/auth";
-import { handleApiError, showErrorToast } from "@/utils/error-handler";
+
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -66,12 +68,15 @@ export function useAuth(): UseAuthReturn {
           setUser(response.user);
           setAuthData(response.user, response.user.token);
 
+          // Show success toast
+          showSuccessToast("Login successful! Redirecting...", "Welcome back!");
+
           // Redirect based on user verification status
           if (!response.user.isVerified) {
             sessionStorage.setItem(AUTH_STORAGE_KEYS.USER_ID, response.user.id);
-            router.push("/otp");
+            setTimeout(() => router.push("/otp"), 1000);
           } else {
-            router.push("/(auth)/classroom");
+            setTimeout(() => router.push("/classroom/classrooms/create"), 1000);
           }
         } else {
           throw new Error(response.message || "Login failed");

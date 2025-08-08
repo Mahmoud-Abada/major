@@ -1,9 +1,20 @@
 "use client";
 
-import { useAuth, UseAuthReturn } from "@/hooks/useAuth";
+import { AuthUser } from "@/services/auth";
 import { createContext, ReactNode, useContext } from "react";
 
-interface AuthContextType extends UseAuthReturn {
+interface AuthContextType {
+  user: AuthUser | null;
+  loading: boolean;
+  error: string | null;
+  login: () => Promise<void>;
+  register: () => Promise<void>;
+  sendOTP: () => Promise<void>;
+  verifyOTP: () => Promise<void>;
+  forgetPassword: () => Promise<void>;
+  resetPassword: () => Promise<void>;
+  logout: () => void;
+  clearError: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -15,12 +26,21 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const auth = useAuth();
-
+  // Disable authentication - provide mock context
   const contextValue: AuthContextType = {
-    ...auth,
-    isAuthenticated: !!auth.user,
-    isLoading: auth.loading,
+    user: null,
+    loading: false,
+    error: null,
+    login: async () => { },
+    register: async () => { },
+    sendOTP: async () => { },
+    verifyOTP: async () => { },
+    forgetPassword: async () => { },
+    resetPassword: async () => { },
+    logout: () => { },
+    clearError: () => { },
+    isAuthenticated: true, // Always authenticated
+    isLoading: false,
   };
 
   return (
@@ -36,34 +56,12 @@ export function useAuthContext(): AuthContextType {
   return context;
 }
 
-// Higher-order component for protecting routes
+// Higher-order component for protecting routes (disabled)
 export function withAuth<P extends object>(
   Component: React.ComponentType<P>,
 ): React.ComponentType<P> {
   return function AuthenticatedComponent(props: P) {
-    const { isAuthenticated, isLoading, user } = useAuthContext();
-
-    if (isLoading) {
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-neutral-100"></div>
-        </div>
-      );
-    }
-
-    if (!isAuthenticated || !user) {
-      return (
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-            <p className="mt-2 text-gray-600">
-              You need to be logged in to access this page.
-            </p>
-          </div>
-        </div>
-      );
-    }
-
+    // Disable authentication checks - allow access to all components
     return <Component {...props} />;
   };
 }

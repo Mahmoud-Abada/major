@@ -5,10 +5,7 @@
 
 "use client";
 
-import { useAuthContext } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 
 interface ProtectedRouteProps {
     children: ReactNode;
@@ -25,70 +22,7 @@ export function ProtectedRoute({
     fallback,
     redirectTo = "/unauthorized",
 }: ProtectedRouteProps) {
-    const { user, isAuthenticated, isLoading } = useAuthContext();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (isLoading) return;
-
-        if (requireAuth && !isAuthenticated) {
-            const currentPath = window.location.pathname;
-            const unauthorizedUrl = new URL("/unauthorized", window.location.origin);
-            unauthorizedUrl.searchParams.set("callbackUrl", currentPath);
-            router.push(unauthorizedUrl.toString());
-            return;
-        }
-
-        if (
-            requireAuth &&
-            isAuthenticated &&
-            user &&
-            allowedRoles.length > 0 &&
-            !allowedRoles.includes(user.userType)
-        ) {
-            router.push(redirectTo);
-            return;
-        }
-    }, [
-        isAuthenticated,
-        isLoading,
-        user,
-        requireAuth,
-        allowedRoles,
-        router,
-        redirectTo,
-    ]);
-
-    // Show loading state
-    if (isLoading) {
-        return (
-            fallback || (
-                <div className="flex min-h-screen items-center justify-center">
-                    <div className="flex items-center gap-2">
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        <span>Loading...</span>
-                    </div>
-                </div>
-            )
-        );
-    }
-
-    // Check authentication
-    if (requireAuth && !isAuthenticated) {
-        return null; // Will redirect via useEffect
-    }
-
-    // Check role-based access
-    if (
-        requireAuth &&
-        isAuthenticated &&
-        user &&
-        allowedRoles.length > 0 &&
-        !allowedRoles.includes(user.userType)
-    ) {
-        return null; // Will redirect via useEffect
-    }
-
+    // Disable all authentication checks - always allow access
     return <>{children}</>;
 }
 
