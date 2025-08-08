@@ -1,108 +1,72 @@
 /**
  * Base API Service
- * Centralized API service with authentication, error handling, and retry logic
+ * Common functionality for all API services
  */
 
-export interface ApiConfig {
+import { fetchWithConfig, RequestConfig, tokenManager } from '../../lib/api-utils';
+import { ErrorHandler } from './ErrorHandler';
+
+export interface ApiServiceConfig {
   baseUrl: string;
   timeout?: number;
-  retryAttempts?: number;
+  retries?: number;
   retryDelay?: number;
 }
 
-export interface ApiResponse<T = any> {
-  data: T;
-  success: boolean;
-  message?: string;
-  errors?: string[];
-}
-
-export interface ApiError {
-  message: string;
-  code: string;
-  details?: any;
-}
-
-export abstract class BaseApiService {
+export abstract class ApiService {
   protected baseUrl: string;
   protected timeout: number;
-  protected retryAttempts: number;
+  protected retries: number;
   protected retryDelay: number;
+  protected errorHandler: ErrorHandler;
 
-  constructor(config: ApiConfig) {
+  constructor(config: ApiServiceConfig) {
     this.baseUrl = config.baseUrl;
-    this.timeout = config.timeout || 10000;
-    this.retryAttempts = config.retryAttempts || 3;
+    this.timeout = config.timeout || 30000;
+    this.retries = config.retries || 3;
     this.retryDelay = config.retryDelay || 1000;
-  }
-
-  protected abstract getAuthToken(): string | null;
-
-  private getDefaultHeaders(): Record<string, string> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const token = this.getAuthToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
+    this.errorHandler = ErrorHandler.getInstance();
   }
 
   protected async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestConfig = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
-    const config: RequestInit = {
+    const token = tokenManager.getToken();
+
+    const config: RequestConfig = {
+      timeout: this.timeout,
+      retries: this.retries,
+      retryDelay: this.retryDelay,
       ...options,
       headers: {
-        ...this.getDefaultHeaders(),
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
-      signal: AbortSignal.timeout(this.timeout),
     };
 
     try {
-      const response = await fetch(url, config);
-      
+      const response = await fetchWithConfig(url, config);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new ApiServiceError(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-          response.status.toString(),
-          errorData
+        throw new Error(
+          errorData.message || `HTTP ${response.status}: ${response.statusText}`
         );
       }
 
       return await response.json();
     } catch (error) {
-      if (error instanceof ApiServiceError) {
-        throw error;
-      }
-      
-      if (error instanceof DOMException && error.name === 'TimeoutError') {
-        throw new ApiServiceError(
-          'Request timeout',
-          'TIMEOUT_ERROR',
-          error
-        );
-      }
-      
-      // Network or other errors
-      throw new ApiServiceError(
-        error instanceof Error ? error.message : 'Network error occurred',
-        'NETWORK_ERROR',
-        error
-      );
+      const appError = this.errorHandler.handleError(error);
+      this.errorHandler.logError(appError);
+      throw error;
     }
   }
 
   protected async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
+    const url = new URL(endpoint, this.baseUrl);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -111,47 +75,31 @@ export abstract class BaseApiService {
       });
     }
 
-    return this.request(url.pathname + url.search);
+    return this.request<T>(url.pathname + url.search, { method: 'GET' });
   }
 
   protected async post<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request(endpoint, {
+    return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
   protected async put<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request(endpoint, {
+    return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
   protected async patch<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request(endpoint, {
+    return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  protected async delete<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request(endpoint, {
-      method: 'DELETE',
-      body: data ? JSON.stringify(data) : undefined,
-    });
-  }
-}
-
-// Custom error class for API services
-export class ApiServiceError extends Error {
-  public code: string;
-  public details?: any;
-
-  constructor(message: string, code: string, details?: any) {
-    super(message);
-    this.name = 'ApiServiceError';
-    this.code = code;
-    this.details = details;
+  protected async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
   }
 }

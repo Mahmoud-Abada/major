@@ -8,41 +8,41 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    AlertCircle,
-    Calendar,
-    FileText,
-    Image,
-    Link,
-    MessageSquare,
-    Paperclip,
-    Plus,
-    Send,
-    Settings,
-    Upload,
-    Users,
-    X
+  AlertCircle,
+  Calendar,
+  FileText,
+  Image,
+  Link,
+  MessageSquare,
+  Paperclip,
+  Plus,
+  Send,
+  Settings,
+  Upload,
+  Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -84,7 +84,7 @@ export function PostComposer({
       allowComments: true,
       targetAudience: "all",
       priority: "medium",
-    }
+    },
   );
 
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
@@ -179,7 +179,15 @@ export function PostComposer({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Post Type Selection */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-              {(["announcement", "homework", "quiz", "poll", "material"] as const).map((type) => (
+              {(
+                [
+                  "announcement",
+                  "homework",
+                  "quiz",
+                  "poll",
+                  "material",
+                ] as const
+              ).map((type) => (
                 <Button
                   key={type}
                   type="button"
@@ -200,7 +208,9 @@ export function PostComposer({
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Enter post title..."
                 className="mt-1"
                 required
@@ -213,7 +223,9 @@ export function PostComposer({
               <Textarea
                 id="content"
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
                 placeholder="Write your post content here..."
                 className="mt-1 min-h-32"
                 required
@@ -231,7 +243,9 @@ export function PostComposer({
                   id="dueDate"
                   type="datetime-local"
                   value={formData.dueDate || ""}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dueDate: e.target.value })
+                  }
                   className="mt-1"
                 />
               </div>
@@ -241,7 +255,10 @@ export function PostComposer({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>Attachments</Label>
-                <Dialog open={attachmentDialog} onOpenChange={setAttachmentDialog}>
+                <Dialog
+                  open={attachmentDialog}
+                  onOpenChange={setAttachmentDialog}
+                >
                   <DialogTrigger asChild>
                     <Button type="button" variant="outline" size="sm">
                       <Plus className="h-4 w-4 mr-2" />
@@ -266,15 +283,27 @@ export function PostComposer({
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button type="button" variant="outline" className="flex-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                        >
                           <Upload className="h-4 w-4 mr-2" />
                           Upload File
                         </Button>
-                        <Button type="button" variant="outline" className="flex-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                        >
                           <Image className="h-4 w-4 mr-2" />
                           Add Image
                         </Button>
-                        <Button type="button" variant="outline" className="flex-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                        >
                           <Link className="h-4 w-4 mr-2" />
                           Add Link
                         </Button>
@@ -395,9 +424,15 @@ export function PostComposer({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All (Students & Parents)</SelectItem>
-                            <SelectItem value="students">Students Only</SelectItem>
-                            <SelectItem value="parents">Parents Only</SelectItem>
+                            <SelectItem value="all">
+                              All (Students & Parents)
+                            </SelectItem>
+                            <SelectItem value="students">
+                              Students Only
+                            </SelectItem>
+                            <SelectItem value="parents">
+                              Parents Only
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -437,7 +472,9 @@ export function PostComposer({
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-medium">{formData.title || "Post Title"}</h4>
+                        <h4 className="font-medium">
+                          {formData.title || "Post Title"}
+                        </h4>
                         <Badge
                           variant="outline"
                           className={cn("text-xs", getTypeColor(formData.type))}
@@ -447,7 +484,10 @@ export function PostComposer({
                         {formData.priority !== "medium" && (
                           <Badge
                             variant="outline"
-                            className={cn("text-xs", getPriorityColor(formData.priority))}
+                            className={cn(
+                              "text-xs",
+                              getPriorityColor(formData.priority),
+                            )}
                           >
                             {formData.priority} priority
                           </Badge>
@@ -462,12 +502,13 @@ export function PostComposer({
                           Due: {new Date(formData.dueDate).toLocaleString()}
                         </div>
                       )}
-                      {formData.attachments && formData.attachments.length > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Paperclip className="h-3 w-3" />
-                          {formData.attachments.length} attachment(s)
-                        </div>
-                      )}
+                      {formData.attachments &&
+                        formData.attachments.length > 0 && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Paperclip className="h-3 w-3" />
+                            {formData.attachments.length} attachment(s)
+                          </div>
+                        )}
                     </div>
                   </div>
                 </CardContent>
@@ -483,7 +524,10 @@ export function PostComposer({
                   </Badge>
                 )}
                 <span>
-                  Target: {formData.targetAudience === "all" ? "All" : formData.targetAudience}
+                  Target:{" "}
+                  {formData.targetAudience === "all"
+                    ? "All"
+                    : formData.targetAudience}
                 </span>
               </div>
 

@@ -15,7 +15,7 @@ import {
   Info,
   MoreHorizontal,
   Settings,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useState } from "react";
 // User type - will be replaced with actual API types
@@ -39,32 +39,46 @@ interface NotificationsPanelProps {
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
-    case "success": return CheckCircle;
-    case "warning": return AlertTriangle;
-    case "error": return XCircle;
-    case "announcement": return Bell;
+    case "success":
+      return CheckCircle;
+    case "warning":
+      return AlertTriangle;
+    case "error":
+      return XCircle;
+    case "announcement":
+      return Bell;
     case "info":
-    default: return Info;
+    default:
+      return Info;
   }
 };
 
 const getNotificationColor = (type: string) => {
   switch (type) {
-    case "success": return "text-green-600 bg-green-50";
-    case "warning": return "text-yellow-600 bg-yellow-50";
-    case "error": return "text-red-600 bg-red-50";
-    case "announcement": return "text-purple-600 bg-purple-50";
+    case "success":
+      return "text-green-600 bg-green-50";
+    case "warning":
+      return "text-yellow-600 bg-yellow-50";
+    case "error":
+      return "text-red-600 bg-red-50";
+    case "announcement":
+      return "text-purple-600 bg-purple-50";
     case "info":
-    default: return "text-blue-600 bg-blue-50";
+    default:
+      return "text-blue-600 bg-blue-50";
   }
 };
 
 const getPriorityBadge = (priority: string) => {
   switch (priority) {
-    case "high": return { text: "High", variant: "destructive" as const };
-    case "medium": return { text: "Medium", variant: "outline" as const };
-    case "low": return { text: "Low", variant: "secondary" as const };
-    default: return null;
+    case "high":
+      return { text: "High", variant: "destructive" as const };
+    case "medium":
+      return { text: "Medium", variant: "outline" as const };
+    case "low":
+      return { text: "Low", variant: "secondary" as const };
+    default:
+      return null;
   }
 };
 
@@ -76,19 +90,24 @@ const itemVariants = {
     transition: {
       delay: index * 0.05,
       duration: 0.3,
-      ease: "easeOut"
-    }
+      ease: "easeOut",
+    },
   }),
   exit: {
     opacity: 0,
     x: 20,
     height: 0,
-    transition: { duration: 0.2 }
-  }
+    transition: { duration: 0.2 },
+  },
 };
 
-export function NotificationsPanel({ user, className = "" }: NotificationsPanelProps) {
-  const [notifications, setNotifications] = useState(getNotificationsByRecipient(user.id));
+export function NotificationsPanel({
+  user,
+  className = "",
+}: NotificationsPanelProps) {
+  const [notifications, setNotifications] = useState(
+    getNotificationsByRecipient(user.id),
+  );
   const unreadNotifications = getUnreadNotifications(user.id);
   const unreadCount = unreadNotifications.length;
 
@@ -100,7 +119,7 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
   };
 
   const handleMarkAllAsRead = () => {
-    notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       if (!notification.isRead) {
         markNotificationAsRead(notification.id);
       }
@@ -113,7 +132,7 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
       handleMarkAsRead(notification.id);
     }
     if (notification.action?.url) {
-      window.open(notification.action.url, '_self');
+      window.open(notification.action.url, "_self");
     }
   };
 
@@ -175,10 +194,11 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className={`relative p-4 rounded-lg border transition-all duration-200 cursor-pointer group ${notification.isRead
+                    className={`relative p-4 rounded-lg border transition-all duration-200 cursor-pointer group ${
+                      notification.isRead
                         ? "bg-background hover:bg-muted/50 border-border"
                         : "bg-muted/30 hover:bg-muted/50 border-primary/20 shadow-sm"
-                      }`}
+                    }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     {/* Unread indicator */}
@@ -188,7 +208,9 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
 
                     <div className="flex items-start space-x-3 ml-2">
                       {/* Icon */}
-                      <div className={`p-2 rounded-full ${colorClass} flex-shrink-0`}>
+                      <div
+                        className={`p-2 rounded-full ${colorClass} flex-shrink-0`}
+                      >
                         <Icon className="h-4 w-4" />
                       </div>
 
@@ -197,18 +219,31 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className={`text-sm font-medium ${notification.isRead ? "text-muted-foreground" : "text-foreground"
-                                }`}>
+                              <h4
+                                className={`text-sm font-medium ${
+                                  notification.isRead
+                                    ? "text-muted-foreground"
+                                    : "text-foreground"
+                                }`}
+                              >
                                 {notification.title}
                               </h4>
                               {priorityBadge && (
-                                <Badge variant={priorityBadge.variant} className="text-xs">
+                                <Badge
+                                  variant={priorityBadge.variant}
+                                  className="text-xs"
+                                >
                                   {priorityBadge.text}
                                 </Badge>
                               )}
                             </div>
-                            <p className={`text-sm ${notification.isRead ? "text-muted-foreground/80" : "text-muted-foreground"
-                              }`}>
+                            <p
+                              className={`text-sm ${
+                                notification.isRead
+                                  ? "text-muted-foreground/80"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
                               {notification.message}
                             </p>
 
@@ -220,7 +255,9 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                                 </Badge>
                                 <span className="text-xs text-muted-foreground flex items-center">
                                   <Clock className="h-3 w-3 mr-1" />
-                                  {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                                  {formatDistanceToNow(notification.createdAt, {
+                                    addSuffix: true,
+                                  })}
                                 </span>
                               </div>
 
@@ -233,7 +270,10 @@ export function NotificationsPanel({ user, className = "" }: NotificationsPanelP
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     if (notification.action?.url) {
-                                      window.open(notification.action.url, '_self');
+                                      window.open(
+                                        notification.action.url,
+                                        "_self",
+                                      );
                                     }
                                   }}
                                 >

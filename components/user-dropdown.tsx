@@ -16,8 +16,8 @@ import { RiLogoutBoxLine, RiSettingsLine, RiTeamLine } from "@remixicon/react";
 import { useTranslations } from "next-intl";
 
 export default function UserDropdown() {
-  const t = useTranslations('navigation');
-  const tCommon = useTranslations('common');
+  const t = useTranslations("navigation");
+  const tCommon = useTranslations("common");
 
   return (
     <DropdownMenu>
@@ -25,14 +25,14 @@ export default function UserDropdown() {
         <Button
           variant="ghost"
           className="h-auto p-1 md:p-0 hover:bg-transparent focus:ring-2 focus:ring-primary/20 rounded-full"
-          aria-label={t('profile')}
+          aria-label={t("profile")}
         >
           <Avatar className="size-7 md:size-8">
             <AvatarImage
               src="https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/exp1/user_sam4wh.png"
               width={32}
               height={32}
-              alt={t('profileImage') || 'Profile image'}
+              alt={t("profileImage") || "Profile image"}
             />
             <AvatarFallback className="text-xs md:text-sm">KK</AvatarFallback>
           </Avatar>
@@ -59,7 +59,9 @@ export default function UserDropdown() {
               className="opacity-60 shrink-0"
               aria-hidden="true"
             />
-            <span className="text-sm">{t('accountSettings') || 'Account settings'}</span>
+            <span className="text-sm">
+              {t("accountSettings") || "Account settings"}
+            </span>
           </DropdownMenuItem>
           <DropdownMenuItem className="p-2 md:p-3 cursor-pointer">
             <RiTeamLine
@@ -67,7 +69,9 @@ export default function UserDropdown() {
               className="opacity-60 shrink-0"
               aria-hidden="true"
             />
-            <span className="text-sm">{t('affiliateArea') || 'Affiliate area'}</span>
+            <span className="text-sm">
+              {t("affiliateArea") || "Affiliate area"}
+            </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -77,7 +81,7 @@ export default function UserDropdown() {
             className="opacity-60 shrink-0"
             aria-hidden="true"
           />
-          <span className="text-sm">{t('logout')}</span>
+          <span className="text-sm">{t("logout")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

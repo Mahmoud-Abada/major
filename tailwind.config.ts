@@ -73,8 +73,6 @@ module.exports = {
         error: colors.red,
         info: colors.blue,
       },
-
-
     },
   },
   plugins: [

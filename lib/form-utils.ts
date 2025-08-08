@@ -418,6 +418,3 @@ export const clearFormFromStorage = (
   const storage = persistent ? localStorage : sessionStorage;
   storage.removeItem(`form_${key}`);
 };
-
-
-

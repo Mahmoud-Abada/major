@@ -86,16 +86,16 @@ export function DraggableEvent({
 
   const style = transform
     ? {
-      transform: CSS.Translate.toString(transform),
-      height: height || "auto",
-      width:
-        isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
-    }
+        transform: CSS.Translate.toString(transform),
+        height: height || "auto",
+        width:
+          isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
+      }
     : {
-      height: height || "auto",
-      width:
-        isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
-    };
+        height: height || "auto",
+        width:
+          isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
+      };
 
   // Handle touch start to track where on the event the user touched
   const handleTouchStart = (e: React.TouchEvent) => {

@@ -1,11 +1,12 @@
 "use client";
 
-import OTPVerificationForm from "@/components/auth/otp";
+import OTPForm from "@/components/forms/OTPForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
 
 export default function OtpPage() {
   return (
-    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
-      <OTPVerificationForm />
-    </div>
+    <AuthLayout showInfo={false}>
+      <OTPForm />
+    </AuthLayout>
   );
 }

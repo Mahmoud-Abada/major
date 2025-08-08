@@ -63,14 +63,20 @@ export interface AuthService {
   signOut(): Promise<void>;
   getCurrentUser(): User | null;
   refreshSession(): Promise<AuthResponse>;
-  forgotPassword(data: ForgotPasswordInput): Promise<{ success: boolean; message: string }>;
+  forgotPassword(
+    data: ForgotPasswordInput,
+  ): Promise<{ success: boolean; message: string }>;
   resetPassword(data: ResetPasswordInput): Promise<AuthResponse>;
   verifyOTP(data: OtpVerificationInput): Promise<AuthResponse>;
-  changePassword(data: ChangePasswordInput): Promise<{ success: boolean; message: string }>;
+  changePassword(
+    data: ChangePasswordInput,
+  ): Promise<{ success: boolean; message: string }>;
   updateProfile(data: UpdateProfileInput): Promise<User>;
   deleteAccount(): Promise<{ success: boolean; message: string }>;
   enableTwoFactor(): Promise<{ secret: string; qrCode: string }>;
-  disableTwoFactor(password: string): Promise<{ success: boolean; message: string }>;
+  disableTwoFactor(
+    password: string,
+  ): Promise<{ success: boolean; message: string }>;
   verifyTwoFactor(code: string): Promise<AuthResponse>;
 }
 
@@ -81,15 +87,21 @@ export interface AuthService {
 // In-memory storage for mock data (in real app, this would be a database)
 let users: User[] = [...mockUsers];
 let sessions: SessionData[] = [];
-let otpCodes: Map<string, { code: string; expiresAt: Date; attempts: number }> = new Map();
-let resetTokens: Map<string, { token: string; expiresAt: Date; userId: string }> = new Map();
+const otpCodes: Map<
+  string,
+  { code: string; expiresAt: Date; attempts: number }
+> = new Map();
+const resetTokens: Map<
+  string,
+  { token: string; expiresAt: Date; userId: string }
+> = new Map();
 
 // ─────────────────────────────
 // Utility Functions
 // ─────────────────────────────
 
 const simulateDelay = (ms: number = 500): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 const generateToken = (): string => {
@@ -101,7 +113,10 @@ const generateOTP = (): string => {
 };
 
 const generateResetToken = (): string => {
-  return Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
+  return (
+    Math.random().toString(36).substring(2) +
+    Math.random().toString(36).substring(2)
+  );
 };
 
 const isAccountLocked = (user: User): boolean => {
@@ -109,7 +124,7 @@ const isAccountLocked = (user: User): boolean => {
 };
 
 const incrementFailedAttempts = (userId: string): void => {
-  const userIndex = users.findIndex(u => u.id === userId);
+  const userIndex = users.findIndex((u) => u.id === userId);
   if (userIndex !== -1) {
     users[userIndex].failedLoginAttempts += 1;
     users[userIndex].updatedAt = new Date();
@@ -122,7 +137,7 @@ const incrementFailedAttempts = (userId: string): void => {
 };
 
 const resetFailedAttempts = (userId: string): void => {
-  const userIndex = users.findIndex(u => u.id === userId);
+  const userIndex = users.findIndex((u) => u.id === userId);
   if (userIndex !== -1) {
     users[userIndex].failedLoginAttempts = 0;
     users[userIndex].lockedUntil = undefined;
@@ -131,12 +146,18 @@ const resetFailedAttempts = (userId: string): void => {
   }
 };
 
-const createSession = (user: User, rememberMe: boolean = false): SessionData => {
+const createSession = (
+  user: User,
+  rememberMe: boolean = false,
+): SessionData => {
   const session: SessionData = {
     id: generateToken(),
     userId: user.id,
     token: generateToken(),
-    expiresAt: new Date(Date.now() + (rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000)), // 30 days or 1 day
+    expiresAt: new Date(
+      Date.now() +
+        (rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000),
+    ), // 30 days or 1 day
     rememberMe,
     createdAt: new Date(),
     lastActivity: new Date(),
@@ -149,14 +170,16 @@ const createSession = (user: User, rememberMe: boolean = false): SessionData => 
 };
 
 const findSessionByToken = (token: string): SessionData | null => {
-  return sessions.find(s => s.token === token && s.expiresAt > new Date()) || null;
+  return (
+    sessions.find((s) => s.token === token && s.expiresAt > new Date()) || null
+  );
 };
 
 const removeSession = (token: string): void => {
-  sessions = sessions.filter(s => s.token !== token);
+  sessions = sessions.filter((s) => s.token !== token);
 };
 
-const sanitizeUser = (user: User): Omit<User, 'password'> => {
+const sanitizeUser = (user: User): Omit<User, "password"> => {
   const { password, ...sanitizedUser } = user;
   return sanitizedUser;
 };
@@ -174,7 +197,7 @@ export const authService: AuthService = {
       const validatedData = signInSchema.parse(credentials);
 
       // Find user by email
-      const user = users.find(u => u.email === validatedData.email);
+      const user = users.find((u) => u.email === validatedData.email);
 
       if (!user) {
         return {
@@ -187,7 +210,8 @@ export const authService: AuthService = {
       if (isAccountLocked(user)) {
         return {
           success: false,
-          message: "Account is temporarily locked due to too many failed attempts. Please try again later.",
+          message:
+            "Account is temporarily locked due to too many failed attempts. Please try again later.",
         };
       }
 
@@ -231,7 +255,8 @@ export const authService: AuthService = {
 
         return {
           success: false,
-          message: "Two-factor authentication required. Please enter the OTP sent to your device.",
+          message:
+            "Two-factor authentication required. Please enter the OTP sent to your device.",
           requiresTwoFactor: true,
         };
       }
@@ -253,7 +278,6 @@ export const authService: AuthService = {
         token: session.token,
         message: "Sign in successful",
       };
-
     } catch (error) {
       console.error("Sign in error:", error);
       return {
@@ -271,7 +295,7 @@ export const authService: AuthService = {
       const validatedData = signUpSchema.parse(userData);
 
       // Check if email already exists
-      const existingUser = users.find(u => u.email === validatedData.email);
+      const existingUser = users.find((u) => u.email === validatedData.email);
       if (existingUser) {
         return {
           success: false,
@@ -338,10 +362,10 @@ export const authService: AuthService = {
 
       return {
         success: true,
-        message: "Account created successfully. Please check your email for verification instructions.",
+        message:
+          "Account created successfully. Please check your email for verification instructions.",
         requiresEmailVerification: true,
       };
-
     } catch (error) {
       console.error("Sign up error:", error);
       return {
@@ -377,8 +401,8 @@ export const authService: AuthService = {
         return null;
       }
 
-      const user = users.find(u => u.id === session.userId);
-      return user ? sanitizeUser(user) as User : null;
+      const user = users.find((u) => u.id === session.userId);
+      return user ? (sanitizeUser(user) as User) : null;
     } catch (error) {
       console.error("Get current user error:", error);
       return null;
@@ -406,7 +430,7 @@ export const authService: AuthService = {
         };
       }
 
-      const user = users.find(u => u.id === session.userId);
+      const user = users.find((u) => u.id === session.userId);
       if (!user || user.status !== "active") {
         authStorage.clearAuth();
         return {
@@ -432,18 +456,21 @@ export const authService: AuthService = {
     }
   },
 
-  async forgotPassword(data: ForgotPasswordInput): Promise<{ success: boolean; message: string }> {
+  async forgotPassword(
+    data: ForgotPasswordInput,
+  ): Promise<{ success: boolean; message: string }> {
     await simulateDelay();
 
     try {
       const validatedData = forgotPasswordSchema.parse(data);
 
-      const user = users.find(u => u.email === validatedData.email);
+      const user = users.find((u) => u.email === validatedData.email);
       if (!user) {
         // Don't reveal if email exists for security
         return {
           success: true,
-          message: "If an account with this email exists, you will receive password reset instructions.",
+          message:
+            "If an account with this email exists, you will receive password reset instructions.",
         };
       }
 
@@ -459,7 +486,8 @@ export const authService: AuthService = {
 
       return {
         success: true,
-        message: "If an account with this email exists, you will receive password reset instructions.",
+        message:
+          "If an account with this email exists, you will receive password reset instructions.",
       };
     } catch (error) {
       console.error("Forgot password error:", error);
@@ -484,7 +512,7 @@ export const authService: AuthService = {
         };
       }
 
-      const userIndex = users.findIndex(u => u.id === resetData.userId);
+      const userIndex = users.findIndex((u) => u.id === resetData.userId);
       if (userIndex === -1) {
         return {
           success: false,
@@ -504,13 +532,15 @@ export const authService: AuthService = {
 
       return {
         success: true,
-        message: "Password reset successfully. You can now sign in with your new password.",
+        message:
+          "Password reset successfully. You can now sign in with your new password.",
       };
     } catch (error) {
       console.error("Reset password error:", error);
       return {
         success: false,
-        message: "An error occurred while resetting password. Please try again.",
+        message:
+          "An error occurred while resetting password. Please try again.",
       };
     }
   },
@@ -554,7 +584,7 @@ export const authService: AuthService = {
       }
 
       // Find and update user
-      const userIndex = users.findIndex(u => u.email === validatedData.email);
+      const userIndex = users.findIndex((u) => u.email === validatedData.email);
       if (userIndex === -1) {
         return {
           success: false,
@@ -594,7 +624,9 @@ export const authService: AuthService = {
     }
   },
 
-  async changePassword(data: ChangePasswordInput): Promise<{ success: boolean; message: string }> {
+  async changePassword(
+    data: ChangePasswordInput,
+  ): Promise<{ success: boolean; message: string }> {
     await simulateDelay();
 
     try {
@@ -608,7 +640,7 @@ export const authService: AuthService = {
         };
       }
 
-      const user = users.find(u => u.id === currentUser.id);
+      const user = users.find((u) => u.id === currentUser.id);
       if (!user) {
         return {
           success: false,
@@ -625,7 +657,7 @@ export const authService: AuthService = {
       }
 
       // Update password
-      const userIndex = users.findIndex(u => u.id === user.id);
+      const userIndex = users.findIndex((u) => u.id === user.id);
       users[userIndex].password = validatedData.newPassword; // In real app, this would be hashed
       users[userIndex].lastPasswordChange = new Date();
       users[userIndex].updatedAt = new Date();
@@ -654,7 +686,7 @@ export const authService: AuthService = {
         throw new Error("You must be signed in to update your profile");
       }
 
-      const userIndex = users.findIndex(u => u.id === currentUser.id);
+      const userIndex = users.findIndex((u) => u.id === currentUser.id);
       if (userIndex === -1) {
         throw new Error("User not found");
       }
@@ -693,10 +725,10 @@ export const authService: AuthService = {
       }
 
       // Remove user from mock database
-      users = users.filter(u => u.id !== currentUser.id);
+      users = users.filter((u) => u.id !== currentUser.id);
 
       // Remove all sessions for this user
-      sessions = sessions.filter(s => s.userId !== currentUser.id);
+      sessions = sessions.filter((s) => s.userId !== currentUser.id);
 
       // Clear auth storage
       authStorage.clearAuth();
@@ -724,7 +756,9 @@ export const authService: AuthService = {
     return { secret, qrCode };
   },
 
-  async disableTwoFactor(password: string): Promise<{ success: boolean; message: string }> {
+  async disableTwoFactor(
+    password: string,
+  ): Promise<{ success: boolean; message: string }> {
     await simulateDelay();
 
     try {
@@ -737,7 +771,7 @@ export const authService: AuthService = {
         };
       }
 
-      const user = users.find(u => u.id === currentUser.id);
+      const user = users.find((u) => u.id === currentUser.id);
       if (!user) {
         return {
           success: false,
@@ -754,7 +788,7 @@ export const authService: AuthService = {
       }
 
       // Disable two-factor authentication
-      const userIndex = users.findIndex(u => u.id === user.id);
+      const userIndex = users.findIndex((u) => u.id === user.id);
       users[userIndex].twoFactorEnabled = false;
       users[userIndex].updatedAt = new Date();
 
@@ -778,7 +812,7 @@ export const authService: AuthService = {
     if (code === "123456") {
       const currentUser = this.getCurrentUser();
       if (currentUser) {
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        const userIndex = users.findIndex((u) => u.id === currentUser.id);
         users[userIndex].twoFactorEnabled = true;
         users[userIndex].updatedAt = new Date();
 
@@ -802,4 +836,3 @@ export const authService: AuthService = {
 
 export { generateOTP, generateToken, sanitizeUser };
 export type { AdminUser, ParentUser, StudentUser, TeacherUser, User };
-

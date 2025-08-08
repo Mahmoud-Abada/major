@@ -1,6 +1,5 @@
 "use client";
 
-import { RootState } from "@/store/store";
 import {
   BellElectric,
   BriefcaseBusiness,
@@ -16,7 +15,6 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import React from "react";
-import { useSelector } from "react-redux";
 
 type Feature = {
   title: string;
@@ -27,9 +25,7 @@ type Feature = {
 const Info = () => {
   const { theme } = useTheme();
   const t = useTranslations("auth");
-  const selectedRole = useSelector(
-    (state: RootState) => state.userRole.selectedRole,
-  );
+  const selectedRole = "student"; // Default to student for now
 
   const studentFeatures: Feature[] = [
     {
@@ -86,10 +82,8 @@ const Info = () => {
     selectedRole === "student" ? studentFeatures : teacherFeatures;
 
   return (
-    <section
-      className={`max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block`}
-    >
-      <div className="flex items-center space-x-3">
+    <section className="w-full max-w-[28rem] p-6 py-8 h-fit lg:h-[36.49rem] hidden lg:block">
+      <div className="flex items-center space-x-3 rtl:space-x-reverse">
         <Image
           src={"/major-logo.svg"}
           alt={"major app"}
@@ -98,17 +92,20 @@ const Info = () => {
         />
       </div>
 
-      <div className="mt-6 space-y-10">
+      <div className="mt-6 space-y-6 lg:space-y-10">
         {features.map((feature, index) => (
-          <div key={index} className="flex items-start space-x-3 mt-6">
+          <div
+            key={index}
+            className="flex items-start space-x-3 rtl:space-x-reverse mt-6"
+          >
             <div
-              className={`w-[1.5rem] h-[1.5rem] ${
+              className={`w-[1.5rem] h-[1.5rem] flex-shrink-0 ${
                 theme === "dark" ? "text-neutral-300" : "text-[#47536B]"
               }`}
             >
               {feature.icon}
             </div>
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 flex-1">
               <h3
                 className={`text-sm font-semibold leading-[1.31rem] ${
                   theme === "dark" ? "text-neutral-100" : "text-[#343942]"

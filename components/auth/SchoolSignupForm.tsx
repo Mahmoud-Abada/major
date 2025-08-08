@@ -20,7 +20,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../store/hooks";
-import  registerUser  from "../../store/slices/authSlice";
+import registerUser from "../../store/slices/authSlice";
 import { RegisterData } from "../../types/authTypes";
 import { LocationType } from "../../types/location";
 import LocationSelector from "../LocationSelector";

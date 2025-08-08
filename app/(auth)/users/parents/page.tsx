@@ -35,7 +35,8 @@ const itemVariants = {
 
 export default function ParentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRelationship, setSelectedRelationship] = useState<string>("all");
+  const [selectedRelationship, setSelectedRelationship] =
+    useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("name");
   const [selectedParents, setSelectedParents] = useState<string[]>([]);
@@ -51,13 +52,18 @@ export default function ParentsPage() {
           parent.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           parent.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           parent.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (parent.occupation && parent.occupation.toLowerCase().includes(searchQuery.toLowerCase()))
+          (parent.occupation &&
+            parent.occupation
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())),
       );
     }
 
     // Filter by relationship
     if (selectedRelationship !== "all") {
-      filtered = filtered.filter((parent) => parent.relationship === selectedRelationship);
+      filtered = filtered.filter(
+        (parent) => parent.relationship === selectedRelationship,
+      );
     }
 
     // Filter by status
@@ -70,7 +76,7 @@ export default function ParentsPage() {
       switch (sortBy) {
         case "name":
           return `${a.firstName} ${a.lastName}`.localeCompare(
-            `${b.firstName} ${b.lastName}`
+            `${b.firstName} ${b.lastName}`,
           );
         case "children":
           return b.children.length - a.children.length;
@@ -93,7 +99,8 @@ export default function ParentsPage() {
       active: mockParents.filter((p) => p.status === "active").length,
       fathers: mockParents.filter((p) => p.relationship === "father").length,
       mothers: mockParents.filter((p) => p.relationship === "mother").length,
-      guardians: mockParents.filter((p) => p.relationship === "guardian").length,
+      guardians: mockParents.filter((p) => p.relationship === "guardian")
+        .length,
       totalChildren: mockParents.reduce((sum, p) => sum + p.children.length, 0),
     };
     return stats;
@@ -103,7 +110,7 @@ export default function ParentsPage() {
     setSelectedParents((prev) =>
       prev.includes(parentId)
         ? prev.filter((id) => id !== parentId)
-        : [...prev, parentId]
+        : [...prev, parentId],
     );
   };
 
@@ -230,7 +237,10 @@ export default function ParentsPage() {
             className="pl-10"
           />
         </div>
-        <Select value={selectedRelationship} onValueChange={setSelectedRelationship}>
+        <Select
+          value={selectedRelationship}
+          onValueChange={setSelectedRelationship}
+        >
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Relationship" />
           </SelectTrigger>

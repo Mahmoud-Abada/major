@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
-    RiArrowLeftLine,
-    RiBugLine,
-    RiErrorWarningLine,
-    RiHomeLine,
-    RiInformationLine,
-    RiRefreshLine,
+  RiArrowLeftLine,
+  RiBugLine,
+  RiErrorWarningLine,
+  RiHomeLine,
+  RiInformationLine,
+  RiRefreshLine,
 } from "@remixicon/react";
 import { motion } from "framer-motion";
 import * as React from "react";
@@ -52,7 +52,10 @@ function DefaultErrorFallback({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={cn("flex items-center justify-center min-h-[400px] p-4", className)}
+      className={cn(
+        "flex items-center justify-center min-h-[400px] p-4",
+        className,
+      )}
     >
       <Card className="w-full max-w-lg">
         <CardHeader className="text-center">
@@ -63,7 +66,8 @@ function DefaultErrorFallback({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-muted-foreground">
-            We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
+            We encountered an unexpected error. Please try refreshing the page
+            or contact support if the problem persists.
           </p>
 
           {showDetails && (
@@ -96,15 +100,17 @@ function DefaultErrorFallback({
                 >
                   <div className="mb-2 font-semibold">Error:</div>
                   <div className="mb-4 text-destructive">{error.message}</div>
-                  
+
                   <div className="mb-2 font-semibold">Stack Trace:</div>
                   <div className="whitespace-pre-wrap text-muted-foreground">
                     {error.stack}
                   </div>
-                  
+
                   {errorInfo.componentStack && (
                     <>
-                      <div className="mb-2 mt-4 font-semibold">Component Stack:</div>
+                      <div className="mb-2 mt-4 font-semibold">
+                        Component Stack:
+                      </div>
                       <div className="whitespace-pre-wrap text-muted-foreground">
                         {errorInfo.componentStack}
                       </div>
@@ -122,7 +128,7 @@ function DefaultErrorFallback({
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.location.href = "/"}
+              onClick={() => (window.location.href = "/")}
               className="gap-2"
             >
               <RiHomeLine className="h-4 w-4" />
@@ -182,7 +188,7 @@ export class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError && this.state.error && this.state.errorInfo) {
       const FallbackComponent = this.props.fallback || DefaultErrorFallback;
-      
+
       return (
         <FallbackComponent
           error={this.state.error}
@@ -219,10 +225,7 @@ export function useErrorHandler() {
 }
 
 // Async error boundary for handling promise rejections
-export function AsyncErrorBoundary({
-  children,
-  ...props
-}: ErrorBoundaryProps) {
+export function AsyncErrorBoundary({ children, ...props }: ErrorBoundaryProps) {
   React.useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
@@ -232,7 +235,10 @@ export function AsyncErrorBoundary({
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
     };
   }, []);
 
@@ -265,7 +271,7 @@ export const ErrorFallbacks = {
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
           <RiErrorWarningLine className="h-10 w-10 text-destructive" />
         </div>
-        
+
         <div>
           <h1 className="text-2xl font-bold mb-2">Page Error</h1>
           <p className="text-muted-foreground">
@@ -293,15 +299,23 @@ export const ErrorFallbacks = {
 
   // Inline error fallback for components within a page
   Inline: ({ error, resetError, className }: ErrorFallbackProps) => (
-    <div className={cn("rounded-lg border border-destructive/20 bg-destructive/5 p-4", className)}>
+    <div
+      className={cn(
+        "rounded-lg border border-destructive/20 bg-destructive/5 p-4",
+        className,
+      )}
+    >
       <div className="flex items-start gap-3">
         <RiErrorWarningLine className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-destructive mb-1">Component Error</h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {error.message}
-          </p>
-          <Button variant="outline" size="sm" onClick={resetError} className="gap-2">
+          <p className="text-sm text-muted-foreground mb-3">{error.message}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetError}
+            className="gap-2"
+          >
             <RiRefreshLine className="h-4 w-4" />
             Retry
           </Button>
@@ -314,7 +328,7 @@ export const ErrorFallbacks = {
 // Higher-order component for wrapping components with error boundary
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">,
 ) {
   const WrappedComponent = (props: P) => (
     <ErrorBoundary {...errorBoundaryProps}>

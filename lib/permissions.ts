@@ -440,12 +440,15 @@ class PermissionCheckerImpl implements PermissionChecker {
     const rolePermissions = this.getRolePermissions(user.role);
 
     // Check if user has the specific permission
-    const hasDirectPermission = rolePermissions.some(p => p.id === permissionId);
+    const hasDirectPermission = rolePermissions.some(
+      (p) => p.id === permissionId,
+    );
 
     // For admin users, check their specific permissions array
     if (user.role === "admin") {
       const adminUser = user as AdminUser;
-      const hasAdminPermission = adminUser.permissions?.includes(permissionId) ||
+      const hasAdminPermission =
+        adminUser.permissions?.includes(permissionId) ||
         adminUser.permissions?.includes("*"); // Wildcard permission
       return hasDirectPermission || hasAdminPermission;
     }
@@ -475,8 +478,8 @@ class PermissionCheckerImpl implements PermissionChecker {
     }
 
     // Check if user has at least one of the required permissions
-    return requiredPermissions.some(permission =>
-      this.hasPermission(user, permission)
+    return requiredPermissions.some((permission) =>
+      this.hasPermission(user, permission),
     );
   }
 
@@ -499,16 +502,18 @@ export const permissionChecker = new PermissionCheckerImpl();
 // Higher-order component for route protection (to be used in .tsx files)
 export const createPermissionWrapper = (
   requiredPermissions: string[],
-  fallbackMessage: string = "Access Denied"
+  fallbackMessage: string = "Access Denied",
 ) => {
   return {
     requiredPermissions,
     fallbackMessage,
     checkAccess: (user: User | null): boolean => {
-      return user ? requiredPermissions.some(permission =>
-        permissionChecker.hasPermission(user, permission)
-      ) : false;
-    }
+      return user
+        ? requiredPermissions.some((permission) =>
+            permissionChecker.hasPermission(user, permission),
+          )
+        : false;
+    },
   };
 };
 

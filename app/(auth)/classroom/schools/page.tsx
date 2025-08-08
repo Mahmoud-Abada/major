@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building } from "lucide-react";
@@ -441,7 +441,9 @@ export default function SchoolsPage() {
           <Card>
             <CardHeader>
               <CardTitle>المؤسسات العمومية</CardTitle>
-              <CardDescription>عرض وإدارة المؤسسات التعليمية العمومية.</CardDescription>
+              <CardDescription>
+                عرض وإدارة المؤسسات التعليمية العمومية.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (

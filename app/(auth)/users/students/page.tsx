@@ -12,7 +12,14 @@ import {
 } from "@/components/ui/select";
 import { UserCard } from "@/components/users/user-card";
 import { motion } from "framer-motion";
-import { Download, GraduationCap, Plus, Search, Upload, Users } from "lucide-react";
+import {
+  Download,
+  GraduationCap,
+  Plus,
+  Search,
+  Upload,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 // Empty students array - will be populated from API
@@ -51,7 +58,7 @@ export default function StudentsPage() {
           student.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           student.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
+          student.studentId.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -62,7 +69,9 @@ export default function StudentsPage() {
 
     // Filter by status
     if (selectedStatus !== "all") {
-      filtered = filtered.filter((student) => student.status === selectedStatus);
+      filtered = filtered.filter(
+        (student) => student.status === selectedStatus,
+      );
     }
 
     // Sort students
@@ -70,7 +79,7 @@ export default function StudentsPage() {
       switch (sortBy) {
         case "name":
           return `${a.firstName} ${a.lastName}`.localeCompare(
-            `${b.firstName} ${b.lastName}`
+            `${b.firstName} ${b.lastName}`,
           );
         case "studentId":
           return a.studentId.localeCompare(b.studentId);
@@ -91,10 +100,13 @@ export default function StudentsPage() {
     const stats = {
       total: mockStudents.length,
       active: mockStudents.filter((s) => s.status === "active").length,
-      byGrade: mockStudents.reduce((acc, student) => {
-        acc[student.grade] = (acc[student.grade] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
+      byGrade: mockStudents.reduce(
+        (acc, student) => {
+          acc[student.grade] = (acc[student.grade] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
     };
     return stats;
   }, []);
@@ -103,7 +115,7 @@ export default function StudentsPage() {
     setSelectedStudents((prev) =>
       prev.includes(studentId)
         ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
+        : [...prev, studentId],
     );
   };
 

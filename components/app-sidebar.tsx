@@ -33,7 +33,7 @@ import {
   RiTestTubeLine,
   RiTimeLine,
   RiUserFollowLine,
-  RiUserLine
+  RiUserLine,
 } from "@remixicon/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -41,7 +41,7 @@ import { usePathname } from "next/navigation";
 import * as React from "react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const t = useTranslations('sidebar');
+  const t = useTranslations("sidebar");
   const [expandedGroups, setExpandedGroups] = React.useState<
     Record<string, boolean>
   >({
@@ -59,125 +59,125 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
     navMain: [
       {
-        title: t('dashboard'),
+        title: t("dashboard"),
         url: "/dashboard",
         icon: RiDashboardLine,
       },
       {
-        title: t('classroom'),
+        title: t("classroom"),
         icon: RiBuildingLine,
         subcategories: [
           {
-            title: t('statistics'),
+            title: t("statistics"),
             url: "/classroom/statistics",
             icon: RiDashboardLine,
           },
           {
-            title: t('classes'),
+            title: t("classes"),
             url: "/classroom/classes",
             icon: RiBookLine,
           },
           {
-            title: t('groups'),
+            title: t("groups"),
             url: "/classroom/groups",
             icon: RiGroupLine,
           },
           {
-            title: t('students'),
+            title: t("students"),
             url: "/classroom/students",
             icon: RiUserLine,
           },
           {
-            title: t('teachers'),
+            title: t("teachers"),
             url: "/classroom/teachers",
             icon: RiTeamLine,
           },
           {
-            title: t('posts'),
+            title: t("posts"),
             url: "/classroom/posts",
             icon: RiNotificationLine,
           },
           {
-            title: t('events'),
+            title: t("events"),
             url: "/classroom/events",
             icon: RiCalendarEventLine,
           },
           {
-            title: t('calendar'),
+            title: t("calendar"),
             url: "/classroom/calendar",
             icon: RiCalendarLine,
           },
           {
-            title: t('schools'),
+            title: t("schools"),
             url: "/classroom/schools",
             icon: RiSchoolLine,
           },
           {
-            title: t('parents'),
+            title: t("parents"),
             url: "/classroom/parents",
             icon: RiParentLine,
           },
           {
-            title: t('payments'),
+            title: t("payments"),
             url: "/classroom/payments",
             icon: RiMoneyDollarCircleLine,
           },
         ],
       },
       {
-        title: t('management'),
+        title: t("management"),
         icon: RiBookLine,
         subcategories: [
           {
-            title: t('marks'),
+            title: t("marks"),
             url: "/classroom/marks",
             icon: RiTestTubeLine,
           },
           {
-            title: t('attendance'),
+            title: t("attendance"),
             url: "/classroom/attendance",
             icon: RiUserFollowLine,
           },
           {
-            title: t('homeworks'),
+            title: t("homeworks"),
             url: "/classroom/homeworks",
             icon: RiPencilLine,
           },
           {
-            title: t('schedule'),
+            title: t("schedule"),
             url: "/classroom/schedule",
             icon: RiTimeLine,
           },
         ],
       },
       {
-        title: t('inbox'),
+        title: t("inbox"),
         url: "/inbox",
         icon: RiMailLine,
       },
       {
-        title: t('learning'),
+        title: t("learning"),
         icon: RiBookOpenLine,
         subcategories: [
           {
-            title: t('courses'),
+            title: t("courses"),
             url: "/learning/courses",
             icon: RiBookLine,
           },
           {
-            title: t('resources'),
+            title: t("resources"),
             url: "/learning/resources",
             icon: RiBookLine,
           },
           {
-            title: t('assignments'),
+            title: t("assignments"),
             url: "/learning/assignments",
             icon: RiPencilLine,
           },
         ],
       },
       {
-        title: t('settings'),
+        title: t("settings"),
         url: "/settings",
         icon: RiSettings3Line,
       },
@@ -211,13 +211,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={() => toggleGroup(item.title)}
-                      className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 hover:bg-accent/50 ${isActive(item.url) ? "bg-primary/10 text-primary" : ""
-                        }`}
+                      className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 hover:bg-accent/50 ${
+                        isActive(item.url) ? "bg-primary/10 text-primary" : ""
+                      }`}
                     >
                       {item.icon && (
                         <item.icon
-                          className={`shrink-0 transition-colors ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"
-                            }`}
+                          className={`shrink-0 transition-colors ${
+                            isActive(item.url)
+                              ? "text-primary"
+                              : "text-muted-foreground/70"
+                          }`}
                           size={20}
                         />
                       )}
@@ -244,16 +248,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <SidebarMenuItem key={subItem.title}>
                           <SidebarMenuButton
                             asChild
-                            className={`group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-all duration-200 ${isActive(subItem.url)
+                            className={`group/menu-button w-full flex items-center gap-3 h-9 px-3 rounded-lg text-sm transition-all duration-200 ${
+                              isActive(subItem.url)
                                 ? "bg-primary/10 text-primary font-medium shadow-sm"
                                 : "hover:bg-accent/30 text-muted-foreground hover:text-foreground"
-                              }`}
+                            }`}
                           >
                             <Link href={subItem.url}>
                               {subItem.icon && (
                                 <subItem.icon
-                                  className={`shrink-0 transition-colors ${isActive(subItem.url) ? "text-primary" : "text-muted-foreground/60"
-                                    }`}
+                                  className={`shrink-0 transition-colors ${
+                                    isActive(subItem.url)
+                                      ? "text-primary"
+                                      : "text-muted-foreground/60"
+                                  }`}
                                   size={18}
                                 />
                               )}
@@ -269,20 +277,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 ${isActive(item.url)
+                    className={`group/menu-button w-full flex items-center gap-3 h-10 px-3 rounded-lg transition-all duration-200 ${
+                      isActive(item.url)
                         ? "bg-primary/10 text-primary shadow-sm"
                         : "hover:bg-accent/50 hover:text-foreground"
-                      }`}
+                    }`}
                   >
                     <Link href={item.url || "#"}>
                       {item.icon && (
                         <item.icon
-                          className={`shrink-0 transition-colors ${isActive(item.url) ? "text-primary" : "text-muted-foreground/70"
-                            }`}
+                          className={`shrink-0 transition-colors ${
+                            isActive(item.url)
+                              ? "text-primary"
+                              : "text-muted-foreground/70"
+                          }`}
                           size={20}
                         />
                       )}
-                      <span className="text-sm font-medium truncate">{item.title}</span>
+                      <span className="text-sm font-medium truncate">
+                        {item.title}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -303,7 +317,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="text-muted-foreground/70 transition-colors group-hover/menu-button:text-foreground"
                   size={20}
                 />
-                <span className="text-sm font-medium">{t('signOut')}</span>
+                <span className="text-sm font-medium">{t("signOut")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

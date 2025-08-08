@@ -26,7 +26,10 @@ const nameSchema = z
   .string()
   .min(2, "Name must be at least 2 characters")
   .max(50, "Name must be at most 50 characters")
-  .regex(/^[a-zA-Z\s-']+$/, "Name can only contain letters, spaces, and hyphens");
+  .regex(
+    /^[a-zA-Z\s-']+$/,
+    "Name can only contain letters, spaces, and hyphens",
+  );
 
 const phoneSchema = z
   .string()
@@ -34,14 +37,20 @@ const phoneSchema = z
   .optional();
 
 // User role enum
-export const UserRoleSchema = z.enum(["admin", "teacher", "student", "parent"], {
-  errorMap: () => ({ message: "Please select a valid role" }),
-});
+export const UserRoleSchema = z.enum(
+  ["admin", "teacher", "student", "parent"],
+  {
+    errorMap: () => ({ message: "Please select a valid role" }),
+  },
+);
 
 // User status enum
-export const UserStatusSchema = z.enum(["active", "inactive", "pending", "suspended"], {
-  errorMap: () => ({ message: "Invalid user status" }),
-});
+export const UserStatusSchema = z.enum(
+  ["active", "inactive", "pending", "suspended"],
+  {
+    errorMap: () => ({ message: "Invalid user status" }),
+  },
+);
 
 // ─────────────────────────────
 // Sign In Schema
@@ -69,11 +78,13 @@ const baseSignUpSchema = z.object({
   role: UserRoleSchema,
 });
 
-export const signUpSchema = baseSignUpSchema
-  .refine((data) => data.password === data.confirmPassword, {
+export const signUpSchema = baseSignUpSchema.refine(
+  (data) => data.password === data.confirmPassword,
+  {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  });
+  },
+);
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
 
@@ -87,14 +98,16 @@ export const forgotPasswordSchema = z.object({
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Reset token is required"),
-  password: passwordSchema,
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Reset token is required"),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
@@ -116,17 +129,20 @@ export type OtpVerificationInput = z.infer<typeof otpVerificationSchema>;
 // Change Password Schema
 // ─────────────────────────────
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: passwordSchema,
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-}).refine((data) => data.currentPassword !== data.newPassword, {
-  message: "New password must be different from current password",
-  path: ["newPassword"],
-});
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: "New password must be different from current password",
+    path: ["newPassword"],
+  });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
@@ -164,7 +180,9 @@ export const twoFactorVerificationSchema = z.object({
     .regex(/^\d{6}$/, "TOTP code must contain only numbers"),
 });
 
-export type TwoFactorVerificationInput = z.infer<typeof twoFactorVerificationSchema>;
+export type TwoFactorVerificationInput = z.infer<
+  typeof twoFactorVerificationSchema
+>;
 
 // ─────────────────────────────
 // Session Schema
@@ -190,17 +208,19 @@ export type SessionData = z.infer<typeof sessionSchema>;
 
 export const authResponseSchema = z.object({
   success: z.boolean(),
-  user: z.object({
-    id: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    email: z.string().email(),
-    role: UserRoleSchema,
-    status: UserStatusSchema,
-    avatar: z.string().optional(),
-    isEmailVerified: z.boolean(),
-    twoFactorEnabled: z.boolean(),
-  }).optional(),
+  user: z
+    .object({
+      id: z.string(),
+      firstName: z.string(),
+      lastName: z.string(),
+      email: z.string().email(),
+      role: UserRoleSchema,
+      status: UserStatusSchema,
+      avatar: z.string().optional(),
+      isEmailVerified: z.boolean(),
+      twoFactorEnabled: z.boolean(),
+    })
+    .optional(),
   token: z.string().optional(),
   message: z.string().optional(),
   requiresTwoFactor: z.boolean().optional(),
@@ -249,7 +269,9 @@ export const validatePassword = (password: string): boolean => {
   return passwordSchema.safeParse(password).success;
 };
 
-export const getPasswordStrength = (password: string): {
+export const getPasswordStrength = (
+  password: string,
+): {
   score: number;
   feedback: string[];
 } => {
@@ -260,7 +282,8 @@ export const getPasswordStrength = (password: string): {
   else feedback.push("Use at least 8 characters");
 
   if (password.length >= 12) score += 1;
-  else if (password.length >= 8) feedback.push("Consider using 12+ characters for better security");
+  else if (password.length >= 8)
+    feedback.push("Consider using 12+ characters for better security");
 
   if (/[a-z]/.test(password)) score += 1;
   else feedback.push("Add lowercase letters");
@@ -284,53 +307,65 @@ export const getPasswordStrength = (password: string): {
 // Role-specific validation
 // ─────────────────────────────
 
-export const adminSignUpSchema = baseSignUpSchema.extend({
-  role: z.literal("admin"),
-  department: z.string().min(1, "Department is required"),
-  position: z.string().min(1, "Position is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const adminSignUpSchema = baseSignUpSchema
+  .extend({
+    role: z.literal("admin"),
+    department: z.string().min(1, "Department is required"),
+    position: z.string().min(1, "Position is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export const teacherSignUpSchema = baseSignUpSchema.extend({
-  role: z.literal("teacher"),
-  subjects: z.array(z.string()).min(1, "At least one subject is required"),
-  qualifications: z.array(z.string()).min(1, "At least one qualification is required"),
-  bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const teacherSignUpSchema = baseSignUpSchema
+  .extend({
+    role: z.literal("teacher"),
+    subjects: z.array(z.string()).min(1, "At least one subject is required"),
+    qualifications: z
+      .array(z.string())
+      .min(1, "At least one qualification is required"),
+    bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export const studentSignUpSchema = baseSignUpSchema.extend({
-  role: z.literal("student"),
-  studentId: z.string().min(1, "Student ID is required"),
-  grade: z.string().min(1, "Grade is required"),
-  dateOfBirth: z.date().refine(
-    (date) => {
-      const today = new Date();
-      const age = today.getFullYear() - date.getFullYear();
-      return age >= 6 && age <= 25;
-    },
-    { message: "Student must be between 6 and 25 years old" }
-  ),
-  parentEmail: emailSchema.optional(),
-  parentPhone: phoneSchema,
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const studentSignUpSchema = baseSignUpSchema
+  .extend({
+    role: z.literal("student"),
+    studentId: z.string().min(1, "Student ID is required"),
+    grade: z.string().min(1, "Grade is required"),
+    dateOfBirth: z.date().refine(
+      (date) => {
+        const today = new Date();
+        const age = today.getFullYear() - date.getFullYear();
+        return age >= 6 && age <= 25;
+      },
+      { message: "Student must be between 6 and 25 years old" },
+    ),
+    parentEmail: emailSchema.optional(),
+    parentPhone: phoneSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export const parentSignUpSchema = baseSignUpSchema.extend({
-  role: z.literal("parent"),
-  relationship: z.enum(["father", "mother", "guardian", "other"]),
-  occupation: z.string().optional(),
-  children: z.array(z.string()).min(1, "At least one child must be specified"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const parentSignUpSchema = baseSignUpSchema
+  .extend({
+    role: z.literal("parent"),
+    relationship: z.enum(["father", "mother", "guardian", "other"]),
+    occupation: z.string().optional(),
+    children: z
+      .array(z.string())
+      .min(1, "At least one child must be specified"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export type AdminSignUpInput = z.infer<typeof adminSignUpSchema>;
 export type TeacherSignUpInput = z.infer<typeof teacherSignUpSchema>;

@@ -1,11 +1,12 @@
 "use client";
 
-import PasswordResetForm from "@/components/auth/forgot-password";
+import ForgotPasswordForm from "@/components/forms/ForgotPasswordForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
 
-export default function PasswordPage() {
+export default function ForgotPasswordPage() {
   return (
-    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
-      <PasswordResetForm />
-    </div>
+    <AuthLayout showInfo={false}>
+      <ForgotPasswordForm />
+    </AuthLayout>
   );
 }

@@ -8,7 +8,7 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   TrendingDown,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 // User type - will be replaced with actual API types
 interface User {
@@ -51,11 +51,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { month: "Feb", users: 920 },
             { month: "Mar", users: 1050 },
             { month: "Apr", users: 1180 },
-            { month: "May", users: 1247 }
+            { month: "May", users: 1247 },
           ],
           color: "text-blue-600",
           trend: { value: 12.5, direction: "up", period: "this month" },
-          description: "Total platform users over time"
+          description: "Total platform users over time",
         },
         {
           id: "revenue-breakdown",
@@ -65,11 +65,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { category: "Mathematics", value: 35, amount: "85,750 DA" },
             { category: "Sciences", value: 28, amount: "68,600 DA" },
             { category: "Languages", value: 22, amount: "53,900 DA" },
-            { category: "Computer Science", value: 15, amount: "36,750 DA" }
+            { category: "Computer Science", value: 15, amount: "36,750 DA" },
           ],
           color: "text-green-600",
-          description: "Monthly revenue distribution"
-        }
+          description: "Monthly revenue distribution",
+        },
       ];
 
     case "teacher":
@@ -82,11 +82,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { class: "Math A", average: 85 },
             { class: "Math B", average: 78 },
             { class: "Physics", average: 82 },
-            { class: "Algebra", average: 88 }
+            { class: "Algebra", average: 88 },
           ],
           color: "text-green-600",
           trend: { value: 3.2, direction: "up", period: "this semester" },
-          description: "Average grades by class"
+          description: "Average grades by class",
         },
         {
           id: "attendance-trends",
@@ -96,11 +96,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { week: "Week 1", rate: 92 },
             { week: "Week 2", rate: 88 },
             { week: "Week 3", rate: 90 },
-            { week: "Week 4", rate: 87 }
+            { week: "Week 4", rate: 87 },
           ],
           color: "text-purple-600",
-          description: "Weekly attendance rates"
-        }
+          description: "Weekly attendance rates",
+        },
       ];
 
     case "student":
@@ -113,11 +113,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { subject: "Math", current: 85, target: 90 },
             { subject: "Physics", current: 78, target: 85 },
             { subject: "Chemistry", current: 82, target: 88 },
-            { subject: "Literature", current: 88, target: 90 }
+            { subject: "Literature", current: 88, target: 90 },
           ],
           color: "text-green-600",
           trend: { value: 2.3, direction: "up", period: "this semester" },
-          description: "Current vs target grades"
+          description: "Current vs target grades",
         },
         {
           id: "study-time",
@@ -127,11 +127,11 @@ const getChartsForRole = (user: User): ChartData[] => {
             { subject: "Mathematics", hours: 12, percentage: 35 },
             { subject: "Physics", hours: 8, percentage: 24 },
             { subject: "Chemistry", hours: 7, percentage: 21 },
-            { subject: "Literature", hours: 7, percentage: 20 }
+            { subject: "Literature", hours: 7, percentage: 20 },
           ],
           color: "text-blue-600",
-          description: "Weekly study hours by subject"
-        }
+          description: "Weekly study hours by subject",
+        },
       ];
 
     case "parent":
@@ -144,12 +144,12 @@ const getChartsForRole = (user: User): ChartData[] => {
             { name: "Rania", subject: "Overall", score: 88, trend: "up" },
             { name: "Rania", subject: "Mathematics", score: 85, trend: "up" },
             { name: "Rania", subject: "Physics", score: 82, trend: "stable" },
-            { name: "Rania", subject: "Literature", score: 90, trend: "up" }
+            { name: "Rania", subject: "Literature", score: 90, trend: "up" },
           ],
           color: "text-green-600",
           trend: { value: 3.2, direction: "up", period: "this month" },
-          description: "Academic performance overview"
-        }
+          description: "Academic performance overview",
+        },
       ];
 
     default:
@@ -158,8 +158,10 @@ const getChartsForRole = (user: User): ChartData[] => {
 };
 
 // Simple Bar Chart Component
-const BarChart = ({ data, color }: { data: any[], color: string }) => {
-  const maxValue = Math.max(...data.map(item => item.average || item.score || 0));
+const BarChart = ({ data, color }: { data: any[]; color: string }) => {
+  const maxValue = Math.max(
+    ...data.map((item) => item.average || item.score || 0),
+  );
 
   return (
     <div className="space-y-3">
@@ -178,10 +180,16 @@ const BarChart = ({ data, color }: { data: any[], color: string }) => {
             <div className="flex items-center justify-between mb-1">
               <div className="h-2 bg-muted rounded-full flex-1 mr-2 overflow-hidden">
                 <motion.div
-                  className={`h-full rounded-full ${color.includes('green') ? 'bg-green-500' : color.includes('blue') ? 'bg-blue-500' : color.includes('purple') ? 'bg-purple-500' : 'bg-gray-500'}`}
+                  className={`h-full rounded-full ${color.includes("green") ? "bg-green-500" : color.includes("blue") ? "bg-blue-500" : color.includes("purple") ? "bg-purple-500" : "bg-gray-500"}`}
                   initial={{ width: 0 }}
-                  animate={{ width: `${((item.average || item.score || 0) / maxValue) * 100}%` }}
-                  transition={{ delay: index * 0.1 + 0.3, duration: 0.8, ease: "easeOut" }}
+                  animate={{
+                    width: `${((item.average || item.score || 0) / maxValue) * 100}%`,
+                  }}
+                  transition={{
+                    delay: index * 0.1 + 0.3,
+                    duration: 0.8,
+                    ease: "easeOut",
+                  }}
                 />
               </div>
               <span className="text-xs font-medium w-8 text-right">
@@ -196,13 +204,15 @@ const BarChart = ({ data, color }: { data: any[], color: string }) => {
 };
 
 // Simple Line Chart Component (using progress bars as approximation)
-const LineChart = ({ data, color }: { data: any[], color: string }) => {
+const LineChart = ({ data, color }: { data: any[]; color: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-end h-32 px-2">
         {data.map((item, index) => {
           const value = item.users || item.rate || item.current || 0;
-          const maxValue = Math.max(...data.map(d => d.users || d.rate || d.current || 0));
+          const maxValue = Math.max(
+            ...data.map((d) => d.users || d.rate || d.current || 0),
+          );
           const height = (value / maxValue) * 100;
 
           return (
@@ -216,10 +226,14 @@ const LineChart = ({ data, color }: { data: any[], color: string }) => {
               <div className="flex flex-col items-center">
                 <span className="text-xs font-medium mb-1">{value}</span>
                 <motion.div
-                  className={`w-8 rounded-t ${color.includes('green') ? 'bg-green-500' : color.includes('blue') ? 'bg-blue-500' : color.includes('purple') ? 'bg-purple-500' : 'bg-gray-500'}`}
+                  className={`w-8 rounded-t ${color.includes("green") ? "bg-green-500" : color.includes("blue") ? "bg-blue-500" : color.includes("purple") ? "bg-purple-500" : "bg-gray-500"}`}
                   initial={{ height: 0 }}
                   animate={{ height: `${height}%` }}
-                  transition={{ delay: index * 0.1 + 0.3, duration: 0.8, ease: "easeOut" }}
+                  transition={{
+                    delay: index * 0.1 + 0.3,
+                    duration: 0.8,
+                    ease: "easeOut",
+                  }}
                 />
               </div>
               <span className="text-xs text-muted-foreground">
@@ -234,8 +248,14 @@ const LineChart = ({ data, color }: { data: any[], color: string }) => {
 };
 
 // Simple Pie Chart Component (using progress rings)
-const PieChart = ({ data, color }: { data: any[], color: string }) => {
-  const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500'];
+const PieChart = ({ data, color }: { data: any[]; color: string }) => {
+  const colors = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-purple-500",
+    "bg-orange-500",
+    "bg-pink-500",
+  ];
 
   return (
     <div className="space-y-3">
@@ -248,7 +268,9 @@ const PieChart = ({ data, color }: { data: any[], color: string }) => {
           className="flex items-center justify-between"
         >
           <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`} />
+            <div
+              className={`w-3 h-3 rounded-full ${colors[index % colors.length]}`}
+            />
             <span className="text-sm text-muted-foreground">
               {item.category || item.subject}
             </span>
@@ -258,9 +280,7 @@ const PieChart = ({ data, color }: { data: any[], color: string }) => {
               {item.value || item.percentage}%
             </div>
             {item.amount && (
-              <div className="text-xs text-muted-foreground">
-                {item.amount}
-              </div>
+              <div className="text-xs text-muted-foreground">{item.amount}</div>
             )}
           </div>
         </motion.div>
@@ -270,7 +290,7 @@ const PieChart = ({ data, color }: { data: any[], color: string }) => {
 };
 
 // Progress Chart Component
-const ProgressChart = ({ data, color }: { data: any[], color: string }) => {
+const ProgressChart = ({ data, color }: { data: any[]; color: string }) => {
   return (
     <div className="space-y-4">
       {data.map((item, index) => (
@@ -283,9 +303,7 @@ const ProgressChart = ({ data, color }: { data: any[], color: string }) => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium">
-                {item.subject}
-              </span>
+              <span className="text-sm font-medium">{item.subject}</span>
               {item.trend && (
                 <div className="flex items-center">
                   {item.trend === "up" ? (
@@ -300,10 +318,7 @@ const ProgressChart = ({ data, color }: { data: any[], color: string }) => {
             </div>
             <span className="text-sm font-medium">{item.score}%</span>
           </div>
-          <Progress
-            value={item.score}
-            className="h-2"
-          />
+          <Progress value={item.score} className="h-2" />
         </motion.div>
       ))}
     </div>
@@ -318,9 +333,9 @@ const chartVariants = {
     transition: {
       delay: index * 0.2,
       duration: 0.5,
-      ease: "easeOut"
-    }
-  })
+      ease: "easeOut",
+    },
+  }),
 };
 
 export function Charts({ user, className = "" }: ChartsProps) {
@@ -344,10 +359,18 @@ export function Charts({ user, className = "" }: ChartsProps) {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center">
-                  {chart.type === "bar" && <BarChart3 className="h-5 w-5 mr-2" />}
-                  {chart.type === "line" && <Activity className="h-5 w-5 mr-2" />}
-                  {chart.type === "pie" && <PieChartIcon className="h-5 w-5 mr-2" />}
-                  {chart.type === "progress" && <TrendingUp className="h-5 w-5 mr-2" />}
+                  {chart.type === "bar" && (
+                    <BarChart3 className="h-5 w-5 mr-2" />
+                  )}
+                  {chart.type === "line" && (
+                    <Activity className="h-5 w-5 mr-2" />
+                  )}
+                  {chart.type === "pie" && (
+                    <PieChartIcon className="h-5 w-5 mr-2" />
+                  )}
+                  {chart.type === "progress" && (
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                  )}
                   {chart.title}
                 </CardTitle>
                 {chart.trend && (
@@ -357,7 +380,13 @@ export function Charts({ user, className = "" }: ChartsProps) {
                     ) : (
                       <TrendingDown className="h-4 w-4 text-red-600" />
                     )}
-                    <span className={chart.trend.direction === "up" ? "text-green-600" : "text-red-600"}>
+                    <span
+                      className={
+                        chart.trend.direction === "up"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
                       {chart.trend.value}%
                     </span>
                   </div>
@@ -370,10 +399,18 @@ export function Charts({ user, className = "" }: ChartsProps) {
               )}
             </CardHeader>
             <CardContent>
-              {chart.type === "bar" && <BarChart data={chart.data} color={chart.color} />}
-              {chart.type === "line" && <LineChart data={chart.data} color={chart.color} />}
-              {chart.type === "pie" && <PieChart data={chart.data} color={chart.color} />}
-              {chart.type === "progress" && <ProgressChart data={chart.data} color={chart.color} />}
+              {chart.type === "bar" && (
+                <BarChart data={chart.data} color={chart.color} />
+              )}
+              {chart.type === "line" && (
+                <LineChart data={chart.data} color={chart.color} />
+              )}
+              {chart.type === "pie" && (
+                <PieChart data={chart.data} color={chart.color} />
+              )}
+              {chart.type === "progress" && (
+                <ProgressChart data={chart.data} color={chart.color} />
+              )}
             </CardContent>
           </Card>
         </motion.div>

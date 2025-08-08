@@ -1,78 +1,72 @@
 "use client";
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
 } from "@/components/ui/pagination";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import {
-    RiArrowDownSLine,
-    RiArrowUpSLine,
-    RiCloseCircleLine,
-    RiDeleteBinLine,
-    RiErrorWarningLine,
-    RiFilter3Line,
-    RiSearch2Line
+  RiArrowDownSLine,
+  RiArrowUpSLine,
+  RiCloseCircleLine,
+  RiDeleteBinLine,
+  RiErrorWarningLine,
+  RiFilter3Line,
+  RiSearch2Line,
 } from "@remixicon/react";
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    FilterFn,
-    PaginationState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFacetedUniqueValues,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
+  ColumnDef,
+  ColumnFiltersState,
+  FilterFn,
+  PaginationState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-    ReactNode,
-    useId,
-    useMemo,
-    useRef,
-    useState
-} from "react";
+import { ReactNode, useId, useMemo, useRef, useState } from "react";
 
 // Generic data table interfaces
 export interface DataTableColumn<T> extends ColumnDef<T> {
@@ -97,7 +91,11 @@ export interface DataTableProps<T> {
   enablePagination?: boolean;
   pageSize?: number;
   viewModes?: ("table" | "grid")[];
-  renderGridItem?: (item: T, isSelected: boolean, onSelect: () => void) => ReactNode;
+  renderGridItem?: (
+    item: T,
+    isSelected: boolean,
+    onSelect: () => void,
+  ) => ReactNode;
   onRowClick?: (item: T) => void;
   bulkActions?: Array<{
     label: string;
@@ -151,7 +149,9 @@ export function DataTable<T extends { id: string }>({
   loading = false,
 }: DataTableProps<T>) {
   const id = useId();
-  const [viewMode, setViewMode] = useState<"table" | "grid">(viewModes[0] || "table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">(
+    viewModes[0] || "table",
+  );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [pagination, setPagination] = useState<PaginationState>({
@@ -174,7 +174,9 @@ export function DataTable<T extends { id: string }>({
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && "indeterminate")
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
             aria-label="Select all"
           />
         ),
@@ -210,7 +212,9 @@ export function DataTable<T extends { id: string }>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     state: {
       sorting,
-      pagination: enablePagination ? pagination : { pageIndex: 0, pageSize: data.length },
+      pagination: enablePagination
+        ? pagination
+        : { pageIndex: 0, pageSize: data.length },
       columnFilters,
       columnVisibility,
     },
@@ -227,7 +231,7 @@ export function DataTable<T extends { id: string }>({
     if (onDataChange) {
       const selectedRows = table.getSelectedRowModel().rows;
       const updatedData = data.filter(
-        (item) => !selectedRows.some((row) => row.original.id === item.id)
+        (item) => !selectedRows.some((row) => row.original.id === item.id),
       );
       onDataChange(updatedData);
       table.resetRowSelection();
@@ -247,9 +251,11 @@ export function DataTable<T extends { id: string }>({
               ref={inputRef}
               className={cn(
                 "peer min-w-60 ps-9 bg-background bg-gradient-to-br from-accent/60 to-accent",
-                Boolean(table.getColumn(searchKey)?.getFilterValue()) && "pe-9"
+                Boolean(table.getColumn(searchKey)?.getFilterValue()) && "pe-9",
               )}
-              value={(table.getColumn(searchKey)?.getFilterValue() ?? "") as string}
+              value={
+                (table.getColumn(searchKey)?.getFilterValue() ?? "") as string
+              }
               onChange={(e) =>
                 table.getColumn(searchKey)?.setFilterValue(e.target.value)
               }
@@ -275,14 +281,15 @@ export function DataTable<T extends { id: string }>({
           </div>
 
           {/* Custom Filters */}
-          {enableFiltering && filters.map((filter) => (
-            <FilterPopover
-              key={filter.key}
-              filter={filter}
-              table={table}
-              id={id}
-            />
-          ))}
+          {enableFiltering &&
+            filters.map((filter) => (
+              <FilterPopover
+                key={filter.key}
+                filter={filter}
+                table={table}
+                id={id}
+              />
+            ))}
         </div>
 
         {/* Right side - Actions and View Controls */}
@@ -310,7 +317,9 @@ export function DataTable<T extends { id: string }>({
               {bulkActions.map((action, index) => (
                 <Button
                   key={index}
-                  variant={action.variant === "destructive" ? "destructive" : "outline"}
+                  variant={
+                    action.variant === "destructive" ? "destructive" : "outline"
+                  }
                   size="sm"
                   onClick={() => handleBulkAction(action.action)}
                   className="gap-2"
@@ -341,11 +350,17 @@ export function DataTable<T extends { id: string }>({
                         <RiErrorWarningLine className="opacity-80" size={16} />
                       </div>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete{" "}
-                          {table.getSelectedRowModel().rows.length} selected{" "}
-                          {table.getSelectedRowModel().rows.length === 1 ? "item" : "items"}.
+                          This action cannot be undone. This will permanently
+                          delete {table.getSelectedRowModel().rows.length}{" "}
+                          selected{" "}
+                          {table.getSelectedRowModel().rows.length === 1
+                            ? "item"
+                            : "items"}
+                          .
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                     </div>
@@ -374,7 +389,9 @@ export function DataTable<T extends { id: string }>({
                   <DropdownMenuCheckboxItem
                     key={column.id}
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
@@ -482,7 +499,11 @@ function TableView<T>({
               {headerGroup.headers.map((header: any) => (
                 <TableHead
                   key={header.id}
-                  style={{ width: header.getSize() ? `${header.getSize()}px` : undefined }}
+                  style={{
+                    width: header.getSize()
+                      ? `${header.getSize()}px`
+                      : undefined,
+                  }}
                   className="bg-muted/50"
                 >
                   {header.isPlaceholder ? null : header.column.getCanSort() ? (
@@ -490,14 +511,20 @@ function TableView<T>({
                       className="flex cursor-pointer select-none items-center gap-2"
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                       {{
                         asc: <RiArrowUpSLine size={16} />,
                         desc: <RiArrowDownSLine size={16} />,
                       }[header.column.getIsSorted() as string] ?? null}
                     </div>
                   ) : (
-                    flexRender(header.column.columnDef.header, header.getContext())
+                    flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )
                   )}
                 </TableHead>
               ))}
@@ -507,7 +534,10 @@ function TableView<T>({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+              <TableCell
+                colSpan={table.getAllColumns().length}
+                className="h-24 text-center"
+              >
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                   <span className="ml-2">Loading...</span>
@@ -527,13 +557,16 @@ function TableView<T>({
                   className={cn(
                     "border-b transition-colors hover:bg-muted/50",
                     onRowClick && "cursor-pointer",
-                    row.getIsSelected() && "bg-muted"
+                    row.getIsSelected() && "bg-muted",
                   )}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell: any) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </motion.tr>
@@ -541,7 +574,10 @@ function TableView<T>({
             </motion.tbody>
           ) : (
             <TableRow>
-              <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+              <TableCell
+                colSpan={table.getAllColumns().length}
+                className="h-24 text-center"
+              >
                 {emptyState || "No results found."}
               </TableCell>
             </TableRow>
@@ -563,7 +599,11 @@ function GridView<T>({
   table: any;
   loading: boolean;
   emptyState?: ReactNode;
-  renderGridItem?: (item: T, isSelected: boolean, onSelect: () => void) => ReactNode;
+  renderGridItem?: (
+    item: T,
+    isSelected: boolean,
+    onSelect: () => void,
+  ) => ReactNode;
   onRowClick?: (item: T) => void;
 }) {
   if (loading) {
@@ -602,15 +642,13 @@ function GridView<T>({
           className={cn(
             "border rounded-lg p-4 transition-colors hover:bg-muted/50",
             onRowClick && "cursor-pointer",
-            row.getIsSelected() && "bg-muted"
+            row.getIsSelected() && "bg-muted",
           )}
           onClick={() => onRowClick?.(row.original)}
         >
           {renderGridItem ? (
-            renderGridItem(
-              row.original,
-              row.getIsSelected(),
-              () => row.toggleSelected()
+            renderGridItem(row.original, row.getIsSelected(), () =>
+              row.toggleSelected(),
             )
           ) : (
             <div>
@@ -634,7 +672,11 @@ function FilterPopover<T>({
   table,
   id,
 }: {
-  filter: { key: string; label: string; options: Array<{ label: string; value: string }> };
+  filter: {
+    key: string;
+    label: string;
+    options: Array<{ label: string; value: string }>;
+  };
   table: any;
   id: string;
 }) {

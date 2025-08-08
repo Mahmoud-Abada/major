@@ -21,7 +21,7 @@ const baseQuery = fetchBaseQuery({
     const token =
       typeof window !== "undefined"
         ? localStorage.getItem("auth_token") ||
-          sessionStorage.getItem("auth_token")
+        sessionStorage.getItem("auth_token")
         : null;
 
     if (token) {

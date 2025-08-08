@@ -9,45 +9,45 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Calendar,
-    Check,
-    ChevronDown,
-    Clock,
-    Download,
-    Filter,
-    MoreHorizontal,
-    Save,
-    Search,
-    Users,
-    X,
+  Calendar,
+  Check,
+  ChevronDown,
+  Clock,
+  Download,
+  Filter,
+  MoreHorizontal,
+  Save,
+  Search,
+  Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -90,7 +90,9 @@ export function AttendanceGrid({
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showBulkDialog, setShowBulkDialog] = useState(false);
-  const [bulkStatus, setBulkStatus] = useState<"present" | "absent" | "late" | "excused">("present");
+  const [bulkStatus, setBulkStatus] = useState<
+    "present" | "absent" | "late" | "excused"
+  >("present");
   const [bulkNotes, setBulkNotes] = useState("");
 
   const filteredStudents = students.filter((student) => {
@@ -104,22 +106,28 @@ export function AttendanceGrid({
     if (statusFilter === "all") return true;
 
     const record = attendanceRecords.find(
-      (r) => r.studentId === student.id && r.date === selectedDate
+      (r) => r.studentId === student.id && r.date === selectedDate,
     );
     return record?.status === statusFilter;
   });
 
-  const getAttendanceRecord = (studentId: string): AttendanceRecord | undefined => {
+  const getAttendanceRecord = (
+    studentId: string,
+  ): AttendanceRecord | undefined => {
     return attendanceRecords.find(
-      (r) => r.studentId === studentId && r.date === selectedDate
+      (r) => r.studentId === studentId && r.date === selectedDate,
     );
   };
 
-  const updateAttendance = (studentId: string, status: AttendanceRecord["status"], notes?: string) => {
+  const updateAttendance = (
+    studentId: string,
+    status: AttendanceRecord["status"],
+    notes?: string,
+  ) => {
     const updatedRecords = attendanceRecords.filter(
-      (r) => !(r.studentId === studentId && r.date === selectedDate)
+      (r) => !(r.studentId === studentId && r.date === selectedDate),
     );
-    
+
     updatedRecords.push({
       studentId,
       date: selectedDate,
@@ -182,14 +190,29 @@ export function AttendanceGrid({
   };
 
   const attendanceStats = {
-    present: attendanceRecords.filter((r) => r.date === selectedDate && r.status === "present").length,
-    absent: attendanceRecords.filter((r) => r.date === selectedDate && r.status === "absent").length,
-    late: attendanceRecords.filter((r) => r.date === selectedDate && r.status === "late").length,
-    excused: attendanceRecords.filter((r) => r.date === selectedDate && r.status === "excused").length,
+    present: attendanceRecords.filter(
+      (r) => r.date === selectedDate && r.status === "present",
+    ).length,
+    absent: attendanceRecords.filter(
+      (r) => r.date === selectedDate && r.status === "absent",
+    ).length,
+    late: attendanceRecords.filter(
+      (r) => r.date === selectedDate && r.status === "late",
+    ).length,
+    excused: attendanceRecords.filter(
+      (r) => r.date === selectedDate && r.status === "excused",
+    ).length,
   };
 
-  const totalMarked = Object.values(attendanceStats).reduce((sum, count) => sum + count, 0);
-  const attendanceRate = students.length > 0 ? ((attendanceStats.present + attendanceStats.late) / students.length) * 100 : 0;
+  const totalMarked = Object.values(attendanceStats).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
+  const attendanceRate =
+    students.length > 0
+      ? ((attendanceStats.present + attendanceStats.late) / students.length) *
+        100
+      : 0;
 
   return (
     <div className={className}>
@@ -215,19 +238,27 @@ export function AttendanceGrid({
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{attendanceStats.present}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {attendanceStats.present}
+              </div>
               <div className="text-sm text-muted-foreground">Present</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{attendanceStats.absent}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {attendanceStats.absent}
+              </div>
               <div className="text-sm text-muted-foreground">Absent</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{attendanceStats.late}</div>
+              <div className="text-2xl font-bold text-yellow-600">
+                {attendanceStats.late}
+              </div>
               <div className="text-sm text-muted-foreground">Late</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{attendanceStats.excused}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {attendanceStats.excused}
+              </div>
               <div className="text-sm text-muted-foreground">Excused</div>
             </div>
           </div>
@@ -270,7 +301,9 @@ export function AttendanceGrid({
                 onClick={handleSelectAll}
                 disabled={filteredStudents.length === 0}
               >
-                {selectedStudents.length === filteredStudents.length ? "Deselect All" : "Select All"}
+                {selectedStudents.length === filteredStudents.length
+                  ? "Deselect All"
+                  : "Select All"}
               </Button>
 
               <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
@@ -287,13 +320,17 @@ export function AttendanceGrid({
                   <DialogHeader>
                     <DialogTitle>Bulk Update Attendance</DialogTitle>
                     <DialogDescription>
-                      Update attendance status for {selectedStudents.length} selected students.
+                      Update attendance status for {selectedStudents.length}{" "}
+                      selected students.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="bulk-status">Status</Label>
-                      <Select value={bulkStatus} onValueChange={(value: any) => setBulkStatus(value)}>
+                      <Select
+                        value={bulkStatus}
+                        onValueChange={(value: any) => setBulkStatus(value)}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -316,7 +353,10 @@ export function AttendanceGrid({
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowBulkDialog(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowBulkDialog(false)}
+                    >
                       Cancel
                     </Button>
                     <Button onClick={handleBulkUpdate}>
@@ -364,15 +404,17 @@ export function AttendanceGrid({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className={cn(
-                  "transition-all duration-200",
-                  isSelected && "ring-2 ring-primary",
-                  record?.status && "border-l-4",
-                  record?.status === "present" && "border-l-green-500",
-                  record?.status === "absent" && "border-l-red-500",
-                  record?.status === "late" && "border-l-yellow-500",
-                  record?.status === "excused" && "border-l-blue-500"
-                )}>
+                <Card
+                  className={cn(
+                    "transition-all duration-200",
+                    isSelected && "ring-2 ring-primary",
+                    record?.status && "border-l-4",
+                    record?.status === "present" && "border-l-green-500",
+                    record?.status === "absent" && "border-l-red-500",
+                    record?.status === "late" && "border-l-yellow-500",
+                    record?.status === "excused" && "border-l-blue-500",
+                  )}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -380,9 +422,16 @@ export function AttendanceGrid({
                           checked={isSelected}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedStudents([...selectedStudents, student.id]);
+                              setSelectedStudents([
+                                ...selectedStudents,
+                                student.id,
+                              ]);
                             } else {
-                              setSelectedStudents(selectedStudents.filter((id) => id !== student.id));
+                              setSelectedStudents(
+                                selectedStudents.filter(
+                                  (id) => id !== student.id,
+                                ),
+                              );
                             }
                           }}
                         />
@@ -418,7 +467,10 @@ export function AttendanceGrid({
                         {record?.status && (
                           <Badge
                             variant="outline"
-                            className={cn("flex items-center gap-1", getStatusColor(record.status))}
+                            className={cn(
+                              "flex items-center gap-1",
+                              getStatusColor(record.status),
+                            )}
                           >
                             {getStatusIcon(record.status)}
                             {record.status}
@@ -434,25 +486,33 @@ export function AttendanceGrid({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => updateAttendance(student.id, "present")}
+                              onClick={() =>
+                                updateAttendance(student.id, "present")
+                              }
                             >
                               <Check className="h-4 w-4 mr-2 text-green-600" />
                               Present
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => updateAttendance(student.id, "absent")}
+                              onClick={() =>
+                                updateAttendance(student.id, "absent")
+                              }
                             >
                               <X className="h-4 w-4 mr-2 text-red-600" />
                               Absent
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => updateAttendance(student.id, "late")}
+                              onClick={() =>
+                                updateAttendance(student.id, "late")
+                              }
                             >
                               <Clock className="h-4 w-4 mr-2 text-yellow-600" />
                               Late
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => updateAttendance(student.id, "excused")}
+                              onClick={() =>
+                                updateAttendance(student.id, "excused")
+                              }
                             >
                               <Calendar className="h-4 w-4 mr-2 text-blue-600" />
                               Excused

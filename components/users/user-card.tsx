@@ -6,7 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
-import { BookOpen, Calendar, Edit, Eye, GraduationCap, Heart, Mail, Phone, Shield, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  Edit,
+  Eye,
+  GraduationCap,
+  Heart,
+  Mail,
+  Phone,
+  Shield,
+  Trash2,
+} from "lucide-react";
 import { RoleBadge } from "./role-badge";
 // User types - will be replaced with actual API types
 interface User {
@@ -213,9 +224,13 @@ export function UserCard({
           {/* User Avatar and Basic Info */}
           <div className="flex items-start gap-3 mb-4">
             <Avatar className="h-12 w-12 flex-shrink-0">
-              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarImage
+                src={user.avatar}
+                alt={`${user.firstName} ${user.lastName}`}
+              />
               <AvatarFallback>
-                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                {user.firstName.charAt(0)}
+                {user.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
 

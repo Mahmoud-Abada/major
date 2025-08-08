@@ -11,13 +11,13 @@ interface ThemeProviderProps {
   disableTransitionOnChange?: boolean;
 }
 
-export function ThemeProvider({ 
-  children, 
+export function ThemeProvider({
+  children,
   attribute = "class",
   defaultTheme = "system",
   enableSystem = true,
   disableTransitionOnChange = false,
-  ...props 
+  ...props
 }: ThemeProviderProps) {
   return (
     <NextThemesProvider

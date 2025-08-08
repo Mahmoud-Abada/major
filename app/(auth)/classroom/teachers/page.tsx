@@ -33,91 +33,91 @@ import { useDispatch, useSelector } from "react-redux";
 const getTeacherColumns = (
   onEdit: (teacher: Teacher) => void,
   onDelete: (id: string) => void,
-  onView: (id: string) => void
+  onView: (id: string) => void,
 ) => [
-    {
-      id: "select",
-      header: "Select",
-    },
-    {
-      header: "Name",
-      accessorKey: "name",
-    },
-    {
-      header: "ID",
-      accessorKey: "teacherId",
-    },
-    {
-      header: "Status",
-      accessorKey: "status",
-    },
-    {
-      header: "Specialization",
-      accessorKey: "specialization",
-      cell: ({ row }: { row: { original: Teacher } }) => (
-        <span>{row.original.specialization.slice(0, 2).join(", ")}</span>
-      ),
-    },
-    {
-      header: "Experience",
-      accessorKey: "experience",
-      cell: ({ row }: { row: { original: Teacher } }) => (
-        <span>{row.original.experience} سنة</span>
-      ),
-    },
-    {
-      header: "Classes",
-      accessorKey: "classIds",
-      cell: ({ row }: { row: { original: Teacher } }) => (
-        <span>{row.original.classIds.length}</span>
-      ),
-    },
-    {
-      header: "Salary",
-      accessorKey: "salary",
-      cell: ({ row }: { row: { original: Teacher } }) => (
-        <span>{row.original.salary.toLocaleString()} دج</span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }: { row: { original: Teacher } }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(row.original.id);
-            }}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(row.original);
-            }}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(row.original.id);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
+  {
+    id: "select",
+    header: "Select",
+  },
+  {
+    header: "Name",
+    accessorKey: "name",
+  },
+  {
+    header: "ID",
+    accessorKey: "teacherId",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Specialization",
+    accessorKey: "specialization",
+    cell: ({ row }: { row: { original: Teacher } }) => (
+      <span>{row.original.specialization.slice(0, 2).join(", ")}</span>
+    ),
+  },
+  {
+    header: "Experience",
+    accessorKey: "experience",
+    cell: ({ row }: { row: { original: Teacher } }) => (
+      <span>{row.original.experience} سنة</span>
+    ),
+  },
+  {
+    header: "Classes",
+    accessorKey: "classIds",
+    cell: ({ row }: { row: { original: Teacher } }) => (
+      <span>{row.original.classIds.length}</span>
+    ),
+  },
+  {
+    header: "Salary",
+    accessorKey: "salary",
+    cell: ({ row }: { row: { original: Teacher } }) => (
+      <span>{row.original.salary.toLocaleString()} دج</span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }: { row: { original: Teacher } }) => (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onView(row.original.id);
+          }}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(row.original);
+          }}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(row.original.id);
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
+];
 
 export default function TeachersPage() {
   const dispatch = useDispatch();
@@ -135,7 +135,7 @@ export default function TeachersPage() {
     {
       ssr: false,
       loading: () => <p>Loading table...</p>,
-    }
+    },
   );
 
   const handleAddTeacher = () => {
@@ -183,19 +183,25 @@ export default function TeachersPage() {
         return teachers.filter((teacher) => teacher.status === "On Leave");
       case "math":
         return teachers.filter((teacher) =>
-          teacher.specialization.some(spec => spec.includes("الرياضيات"))
+          teacher.specialization.some((spec) => spec.includes("الرياضيات")),
         );
       case "sciences":
         return teachers.filter((teacher) =>
-          teacher.specialization.some(spec =>
-            spec.includes("الفيزياء") || spec.includes("الكيمياء") || spec.includes("علوم")
-          )
+          teacher.specialization.some(
+            (spec) =>
+              spec.includes("الفيزياء") ||
+              spec.includes("الكيمياء") ||
+              spec.includes("علوم"),
+          ),
         );
       case "languages":
         return teachers.filter((teacher) =>
-          teacher.specialization.some(spec =>
-            spec.includes("العربية") || spec.includes("الفرنسية") || spec.includes("الإنجليزية")
-          )
+          teacher.specialization.some(
+            (spec) =>
+              spec.includes("العربية") ||
+              spec.includes("الفرنسية") ||
+              spec.includes("الإنجليزية"),
+          ),
         );
       case "experienced":
         return teachers.filter((teacher) => teacher.experience >= 10);
@@ -204,7 +210,11 @@ export default function TeachersPage() {
     }
   };
 
-  const columns = getTeacherColumns(handleEditTeacher, handleDeleteTeacher, handleViewTeacher);
+  const columns = getTeacherColumns(
+    handleEditTeacher,
+    handleDeleteTeacher,
+    handleViewTeacher,
+  );
 
   return (
     <div className="flex flex-col space-y-6 p-6">
@@ -328,9 +338,7 @@ export default function TeachersPage() {
           <Card>
             <CardHeader>
               <CardTitle>أساتذة الرياضيات</CardTitle>
-              <CardDescription>
-                عرض وإدارة أساتذة الرياضيات.
-              </CardDescription>
+              <CardDescription>عرض وإدارة أساتذة الرياضيات.</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (

@@ -49,15 +49,15 @@ const formVariants: Record<string, Variants> = {
   },
   bounce: {
     initial: { opacity: 0, y: 20, scale: 0.9 },
-    animate: { 
-      opacity: 1, 
-      y: 0, 
+    animate: {
+      opacity: 1,
+      y: 0,
       scale: 1,
       transition: {
         type: "spring",
         stiffness: 300,
         damping: 20,
-      }
+      },
     },
     exit: { opacity: 0, y: -20, scale: 0.9 },
   },
@@ -86,13 +86,13 @@ const fieldVariants: Record<string, Variants> = {
   shake: {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    error: { 
+    error: {
       x: [0, -10, 10, -10, 10, 0],
-      transition: { duration: 0.5, ease: "easeInOut" }
+      transition: { duration: 0.5, ease: "easeInOut" },
     },
-    success: { 
+    success: {
       y: [0, -2, 0],
-      transition: { duration: 0.3, ease: "easeInOut" }
+      transition: { duration: 0.3, ease: "easeInOut" },
     },
   },
 };
@@ -177,7 +177,7 @@ export function AnimatedField({
   // Trigger animation when error or success state changes
   React.useEffect(() => {
     if (error || success) {
-      setAnimationKey(prev => prev + 1);
+      setAnimationKey((prev) => prev + 1);
     }
   }, [error, success]);
 
@@ -198,11 +198,11 @@ export function AnimatedField({
         "relative",
         error && "text-destructive",
         success && "text-green-600",
-        className
+        className,
       )}
     >
       {children}
-      
+
       {/* Loading indicator */}
       {loading && (
         <motion.div
@@ -214,7 +214,7 @@ export function AnimatedField({
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
         </motion.div>
       )}
-      
+
       {/* Error message */}
       <AnimatePresence>
         {error && typeof error === "string" && (
@@ -300,11 +300,13 @@ export function StepIndicator({
   const isHorizontal = orientation === "horizontal";
 
   return (
-    <div className={cn(
-      "flex",
-      isHorizontal ? "items-center justify-between" : "flex-col space-y-4",
-      className
-    )}>
+    <div
+      className={cn(
+        "flex",
+        isHorizontal ? "items-center justify-between" : "flex-col space-y-4",
+        className,
+      )}
+    >
       {steps.map((step, index) => {
         const isActive = index === currentStep;
         const isCompleted = completedSteps.includes(index);
@@ -316,7 +318,7 @@ export function StepIndicator({
             className={cn(
               "flex items-center",
               !isHorizontal && "w-full",
-              isHorizontal && index < steps.length - 1 && "flex-1"
+              isHorizontal && index < steps.length - 1 && "flex-1",
             )}
           >
             {/* Step indicator */}
@@ -328,12 +330,15 @@ export function StepIndicator({
                 variant === "lines" && "w-6 h-6",
                 isActive && "border-primary bg-primary text-primary-foreground",
                 isCompleted && "border-green-500 bg-green-500 text-white",
-                !isActive && !isCompleted && "border-muted bg-background"
+                !isActive && !isCompleted && "border-muted bg-background",
               )}
               animate={{
                 scale: isActive ? 1.1 : 1,
-                backgroundColor: isActive ? "var(--primary)" : 
-                                isCompleted ? "var(--green-500)" : "var(--background)",
+                backgroundColor: isActive
+                  ? "var(--primary)"
+                  : isCompleted
+                    ? "var(--green-500)"
+                    : "var(--background)",
               }}
               transition={{ duration: 0.2 }}
             >
@@ -347,16 +352,15 @@ export function StepIndicator({
 
             {/* Step label */}
             {(variant === "numbers" || variant === "lines") && (
-              <div className={cn(
-                "ml-3 min-w-0",
-                !isHorizontal && "flex-1"
-              )}>
-                <div className={cn(
-                  "text-sm font-medium",
-                  isActive && "text-primary",
-                  isCompleted && "text-green-600",
-                  !isActive && !isCompleted && "text-muted-foreground"
-                )}>
+              <div className={cn("ml-3 min-w-0", !isHorizontal && "flex-1")}>
+                <div
+                  className={cn(
+                    "text-sm font-medium",
+                    isActive && "text-primary",
+                    isCompleted && "text-green-600",
+                    !isActive && !isCompleted && "text-muted-foreground",
+                  )}
+                >
                   {step.label}
                 </div>
                 {step.description && (
@@ -372,9 +376,9 @@ export function StepIndicator({
               <motion.div
                 className="flex-1 h-0.5 mx-4 bg-muted"
                 initial={{ scaleX: 0 }}
-                animate={{ 
+                animate={{
                   scaleX: isPast ? 1 : 0,
-                  backgroundColor: isPast ? "var(--primary)" : "var(--muted)"
+                  backgroundColor: isPast ? "var(--primary)" : "var(--muted)",
                 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
                 style={{ originX: 0 }}
@@ -416,15 +420,15 @@ export function FormProgress({
           </motion.span>
         </div>
       )}
-      
+
       <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
         <motion.div
           className="h-full bg-primary rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
-          transition={{ 
+          transition={{
             duration: animated ? 0.5 : 0,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       </div>
@@ -459,7 +463,7 @@ export function FloatingLabel({
         className={cn(
           "absolute left-3 text-muted-foreground pointer-events-none transition-colors",
           focused && "text-primary",
-          labelClassName
+          labelClassName,
         )}
         animate={{
           top: shouldFloat ? "0.5rem" : "50%",
@@ -508,11 +512,7 @@ export function ValidationMessage({
           animate="animate"
           exit="exit"
           transition={{ duration: 0.2 }}
-          className={cn(
-            "text-sm mt-1",
-            typeStyles[type],
-            className
-          )}
+          className={cn("text-sm mt-1", typeStyles[type], className)}
         >
           {message}
         </motion.div>
@@ -546,13 +546,18 @@ export const formAnimationPresets = {
 };
 
 // Hook for form animations
-export function useFormAnimation(preset: keyof typeof formAnimationPresets = "smooth") {
+export function useFormAnimation(
+  preset: keyof typeof formAnimationPresets = "smooth",
+) {
   const [config, setConfig] = React.useState(formAnimationPresets[preset]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const applyPreset = React.useCallback((presetName: keyof typeof formAnimationPresets) => {
-    setConfig(formAnimationPresets[presetName]);
-  }, []);
+  const applyPreset = React.useCallback(
+    (presetName: keyof typeof formAnimationPresets) => {
+      setConfig(formAnimationPresets[presetName]);
+    },
+    [],
+  );
 
   const startSubmission = React.useCallback(() => {
     setIsSubmitting(true);

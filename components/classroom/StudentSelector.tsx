@@ -9,38 +9,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    ChevronDown,
-    Mail,
-    Plus,
-    Search,
-    UserPlus,
-    Users,
-    X
+  ChevronDown,
+  Mail,
+  Plus,
+  Search,
+  UserPlus,
+  Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -83,7 +83,7 @@ export function StudentSelector({
       !selectedStudents.find((s) => s.id === student.id) &&
       (student.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchQuery.toLowerCase()))
+        student.email.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   const handleSelectStudent = (student: Student) => {
@@ -99,13 +99,16 @@ export function StudentSelector({
 
   const handleBulkSelect = (students: Student[]) => {
     const newStudents = students.filter(
-      (student) => !selectedStudents.find((s) => s.id === student.id)
+      (student) => !selectedStudents.find((s) => s.id === student.id),
     );
     const totalStudents = selectedStudents.length + newStudents.length;
-    
+
     if (maxStudents && totalStudents > maxStudents) {
       const availableSlots = maxStudents - selectedStudents.length;
-      onStudentsChange([...selectedStudents, ...newStudents.slice(0, availableSlots)]);
+      onStudentsChange([
+        ...selectedStudents,
+        ...newStudents.slice(0, availableSlots),
+      ]);
     } else {
       onStudentsChange([...selectedStudents, ...newStudents]);
     }
@@ -149,7 +152,10 @@ export function StudentSelector({
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={disabled || (maxStudents && selectedStudents.length >= maxStudents)}
+                    disabled={
+                      disabled ||
+                      (maxStudents && selectedStudents.length >= maxStudents)
+                    }
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Students
@@ -222,7 +228,11 @@ export function StudentSelector({
                   <BulkStudentSelector
                     availableStudents={filteredStudents}
                     onSelect={handleBulkSelect}
-                    maxSelections={maxStudents ? maxStudents - selectedStudents.length : undefined}
+                    maxSelections={
+                      maxStudents
+                        ? maxStudents - selectedStudents.length
+                        : undefined
+                    }
                   />
                 </DialogContent>
               </Dialog>
@@ -320,7 +330,7 @@ function BulkStudentSelector({
     (student) =>
       student.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase())
+      student.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleToggleStudent = (studentId: string) => {
@@ -348,7 +358,7 @@ function BulkStudentSelector({
 
   const handleConfirm = () => {
     const selectedStudents = availableStudents.filter((s) =>
-      selectedIds.includes(s.id)
+      selectedIds.includes(s.id),
     );
     onSelect(selectedStudents);
     setSelectedIds([]);

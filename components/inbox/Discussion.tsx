@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import {
-    Download,
-    Edit2,
-    FileText,
-    Mic,
-    MoreHorizontal,
-    Paperclip,
-    Send,
-    Trash2
+  Download,
+  Edit2,
+  FileText,
+  Mic,
+  MoreHorizontal,
+  Paperclip,
+  Send,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
@@ -109,7 +109,14 @@ const Discussion = () => {
       ],
       isPinned: false,
       isEdited: false,
-      readBy: ["student1", "student2", "student3", "student4", "student5", "teacher1"],
+      readBy: [
+        "student1",
+        "student2",
+        "student3",
+        "student4",
+        "student5",
+        "teacher1",
+      ],
       mentions: [],
       priority: "high",
     },
@@ -265,7 +272,9 @@ const Discussion = () => {
       {/* Header */}
       <div className="h-16 border-b border-neutral-800 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold">مناقشة درس الرياضيات - الجبر المتقدم</h1>
+          <h1 className="text-lg font-semibold">
+            مناقشة درس الرياضيات - الجبر المتقدم
+          </h1>
           <span className="px-2 py-1 bg-green-500 text-xs rounded-full">
             متصل
           </span>

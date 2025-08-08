@@ -40,7 +40,7 @@ import {
   Settings,
   Shield,
   Sun,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -62,7 +62,7 @@ const pageVariants = {
 const cardVariants = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
-  transition: { duration: 0.2 }
+  transition: { duration: 0.2 },
 };
 
 interface NotificationSettings {
@@ -100,23 +100,25 @@ export default function SettingsPage() {
   const [user, setUser] = useState<UserType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] =
+    useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
 
   // Settings state
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
-    emailNotifications: true,
-    pushNotifications: true,
-    smsNotifications: false,
-    classroomUpdates: true,
-    gradeUpdates: true,
-    attendanceAlerts: true,
-    systemAnnouncements: true,
-    marketingEmails: false,
-  });
+  const [notificationSettings, setNotificationSettings] =
+    useState<NotificationSettings>({
+      emailNotifications: true,
+      pushNotifications: true,
+      smsNotifications: false,
+      classroomUpdates: true,
+      gradeUpdates: true,
+      attendanceAlerts: true,
+      systemAnnouncements: true,
+      marketingEmails: false,
+    });
 
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>({
     profileVisibility: "contacts",
@@ -149,7 +151,7 @@ export default function SettingsPage() {
     const savedTheme = themeStorage.getTheme();
     const savedLanguage = themeStorage.getLanguage();
 
-    setDisplaySettings(prev => ({
+    setDisplaySettings((prev) => ({
       ...prev,
       theme: savedTheme,
       language: savedLanguage,
@@ -158,8 +160,11 @@ export default function SettingsPage() {
     setIsLoading(false);
   }, [router]);
 
-  const handleNotificationChange = (key: keyof NotificationSettings, value: boolean) => {
-    setNotificationSettings(prev => ({
+  const handleNotificationChange = (
+    key: keyof NotificationSettings,
+    value: boolean,
+  ) => {
+    setNotificationSettings((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -170,8 +175,11 @@ export default function SettingsPage() {
     });
   };
 
-  const handlePrivacyChange = (key: keyof PrivacySettings, value: boolean | string) => {
-    setPrivacySettings(prev => ({
+  const handlePrivacyChange = (
+    key: keyof PrivacySettings,
+    value: boolean | string,
+  ) => {
+    setPrivacySettings((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -182,8 +190,11 @@ export default function SettingsPage() {
     });
   };
 
-  const handleDisplayChange = (key: keyof DisplaySettings, value: string | boolean) => {
-    setDisplaySettings(prev => ({
+  const handleDisplayChange = (
+    key: keyof DisplaySettings,
+    value: string | boolean,
+  ) => {
+    setDisplaySettings((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -307,9 +318,7 @@ export default function SettingsPage() {
               <p className="text-muted-foreground mb-4">
                 Please sign in to access settings.
               </p>
-              <Button onClick={() => router.push("/signin")}>
-                Sign In
-              </Button>
+              <Button onClick={() => router.push("/signin")}>Sign In</Button>
             </div>
           </CardContent>
         </Card>
@@ -358,7 +367,11 @@ export default function SettingsPage() {
 
         <div className="space-y-8">
           {/* Notifications */}
-          <motion.div variants={cardVariants} initial="initial" animate="animate">
+          <motion.div
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -370,7 +383,9 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="email-notifications">Email Notifications</Label>
+                      <Label htmlFor="email-notifications">
+                        Email Notifications
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Receive notifications via email
                       </p>
@@ -388,7 +403,9 @@ export default function SettingsPage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="push-notifications">Push Notifications</Label>
+                      <Label htmlFor="push-notifications">
+                        Push Notifications
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Receive push notifications in your browser
                       </p>
@@ -406,7 +423,9 @@ export default function SettingsPage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="classroom-updates">Classroom Updates</Label>
+                      <Label htmlFor="classroom-updates">
+                        Classroom Updates
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Get notified about classroom activities
                       </p>
@@ -443,7 +462,11 @@ export default function SettingsPage() {
           </motion.div>
 
           {/* Display Settings */}
-          <motion.div variants={cardVariants} initial="initial" animate="animate">
+          <motion.div
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -457,13 +480,17 @@ export default function SettingsPage() {
                     <Label htmlFor="theme">Theme</Label>
                     <Select
                       value={displaySettings.theme}
-                      onValueChange={(value) => handleDisplayChange("theme", value)}
+                      onValueChange={(value) =>
+                        handleDisplayChange("theme", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue>
                           <div className="flex items-center gap-2">
                             {getThemeIcon(displaySettings.theme)}
-                            <span className="capitalize">{displaySettings.theme}</span>
+                            <span className="capitalize">
+                              {displaySettings.theme}
+                            </span>
                           </div>
                         </SelectValue>
                       </SelectTrigger>
@@ -494,16 +521,22 @@ export default function SettingsPage() {
                     <Label htmlFor="language">Language</Label>
                     <Select
                       value={displaySettings.language}
-                      onValueChange={(value) => handleDisplayChange("language", value)}
+                      onValueChange={(value) =>
+                        handleDisplayChange("language", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue>
                           <div className="flex items-center gap-2">
                             <Languages className="h-4 w-4" />
                             <span>
-                              {displaySettings.language === "en" ? "English" :
-                                displaySettings.language === "ar" ? "العربية" :
-                                  displaySettings.language === "fr" ? "Français" : "English"}
+                              {displaySettings.language === "en"
+                                ? "English"
+                                : displaySettings.language === "ar"
+                                  ? "العربية"
+                                  : displaySettings.language === "fr"
+                                    ? "Français"
+                                    : "English"}
                             </span>
                           </div>
                         </SelectValue>
@@ -559,7 +592,11 @@ export default function SettingsPage() {
           </motion.div>
 
           {/* Privacy Settings */}
-          <motion.div variants={cardVariants} initial="initial" animate="animate">
+          <motion.div
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -610,7 +647,9 @@ export default function SettingsPage() {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="allow-messages">Allow Direct Messages</Label>
+                      <Label htmlFor="allow-messages">
+                        Allow Direct Messages
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Allow other users to send you direct messages
                       </p>
@@ -629,7 +668,11 @@ export default function SettingsPage() {
           </motion.div>
 
           {/* Security Actions */}
-          <motion.div variants={cardVariants} initial="initial" animate="animate">
+          <motion.div
+            variants={cardVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -645,7 +688,10 @@ export default function SettingsPage() {
                       Update your account password
                     </p>
                   </div>
-                  <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
+                  <Dialog
+                    open={showChangePasswordDialog}
+                    onOpenChange={setShowChangePasswordDialog}
+                  >
                     <DialogTrigger asChild>
                       <Button variant="outline">
                         <Key className="h-4 w-4 mr-2" />
@@ -661,13 +707,17 @@ export default function SettingsPage() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="current-password">Current Password</Label>
+                          <Label htmlFor="current-password">
+                            Current Password
+                          </Label>
                           <div className="relative">
                             <Input
                               id="current-password"
                               type={showPasswords ? "text" : "password"}
                               value={currentPassword}
-                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              onChange={(e) =>
+                                setCurrentPassword(e.target.value)
+                              }
                               placeholder="Enter current password"
                             />
                             <Button
@@ -696,7 +746,9 @@ export default function SettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="confirm-password">Confirm New Password</Label>
+                          <Label htmlFor="confirm-password">
+                            Confirm New Password
+                          </Label>
                           <Input
                             id="confirm-password"
                             type={showPasswords ? "text" : "password"}
@@ -723,12 +775,17 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between p-4 border border-destructive/20 rounded-lg bg-destructive/5">
                   <div>
-                    <h4 className="font-medium text-destructive">Delete Account</h4>
+                    <h4 className="font-medium text-destructive">
+                      Delete Account
+                    </h4>
                     <p className="text-sm text-muted-foreground">
                       Permanently delete your account and all data
                     </p>
                   </div>
-                  <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                  <Dialog
+                    open={showDeleteDialog}
+                    onOpenChange={setShowDeleteDialog}
+                  >
                     <DialogTrigger asChild>
                       <Button variant="destructive">
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -742,8 +799,9 @@ export default function SettingsPage() {
                           Delete Account
                         </DialogTitle>
                         <DialogDescription>
-                          This action cannot be undone. This will permanently delete your
-                          account and remove all your data from our servers.
+                          This action cannot be undone. This will permanently
+                          delete your account and remove all your data from our
+                          servers.
                         </DialogDescription>
                       </DialogHeader>
                       <DialogFooter>
@@ -753,7 +811,10 @@ export default function SettingsPage() {
                         >
                           Cancel
                         </Button>
-                        <Button variant="destructive" onClick={handleDeleteAccount}>
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteAccount}
+                        >
                           Delete Account
                         </Button>
                       </DialogFooter>

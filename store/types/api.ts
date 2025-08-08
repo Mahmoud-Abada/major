@@ -49,6 +49,7 @@ export interface Classroom {
   level: string;
   color: string;
   maxStudents?: number;
+  currentStudents?: number;
   price: number;
   schedule: ScheduleItem[];
   mode: "monthly" | "sessional" | "semestrial";

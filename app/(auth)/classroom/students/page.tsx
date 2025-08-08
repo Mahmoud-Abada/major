@@ -21,7 +21,7 @@ import {
   deleteStudent,
   selectFilteredStudents,
   selectStudentsLoading,
-  updateStudent
+  updateStudent,
 } from "@/store/slices/classroom/studentsSlice";
 import { Student, StudentFormData } from "@/types/classroom";
 import { Edit, Eye, Trash2, UserPlus } from "lucide-react";
@@ -34,79 +34,79 @@ import { useDispatch, useSelector } from "react-redux";
 const getStudentColumns = (
   onEdit: (student: Student) => void,
   onDelete: (id: string) => void,
-  onView: (id: string) => void
+  onView: (id: string) => void,
 ) => [
-    {
-      id: "select",
-      header: "Select",
-    },
-    {
-      header: "Name",
-      accessorKey: "name",
-    },
-    {
-      header: "ID",
-      accessorKey: "studentId",
-    },
-    {
-      header: "Status",
-      accessorKey: "status",
-    },
-    {
-      header: "Grade",
-      accessorKey: "grade",
-    },
-    {
-      header: "Class",
-      accessorKey: "class",
-    },
-    {
-      header: "Attendance",
-      accessorKey: "attendance",
-    },
-    {
-      header: "GPA",
-      accessorKey: "gpa",
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }: { row: { original: Student } }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(row.original.id);
-            }}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(row.original);
-            }}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(row.original.id);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
+  {
+    id: "select",
+    header: "Select",
+  },
+  {
+    header: "Name",
+    accessorKey: "name",
+  },
+  {
+    header: "ID",
+    accessorKey: "studentId",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Grade",
+    accessorKey: "grade",
+  },
+  {
+    header: "Class",
+    accessorKey: "class",
+  },
+  {
+    header: "Attendance",
+    accessorKey: "attendance",
+  },
+  {
+    header: "GPA",
+    accessorKey: "gpa",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }: { row: { original: Student } }) => (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onView(row.original.id);
+          }}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(row.original);
+          }}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(row.original.id);
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
+];
 
 export default function StudentsPage() {
   const dispatch = useDispatch();
@@ -124,7 +124,7 @@ export default function StudentsPage() {
     {
       ssr: false,
       loading: () => <p>Loading table...</p>,
-    }
+    },
   );
 
   const handleAddStudent = () => {
@@ -173,19 +173,25 @@ export default function StudentsPage() {
       case "university":
         return students.filter((student) => student.grade === "الجامعي");
       case "sciences":
-        return students.filter((student) =>
-          student.class?.includes("علوم") || student.class?.includes("ع ت")
+        return students.filter(
+          (student) =>
+            student.class?.includes("علوم") || student.class?.includes("ع ت"),
         );
       case "literature":
-        return students.filter((student) =>
-          student.class?.includes("آداب") || student.class?.includes("آف")
+        return students.filter(
+          (student) =>
+            student.class?.includes("آداب") || student.class?.includes("آف"),
         );
       default:
         return students;
     }
   };
 
-  const columns = getStudentColumns(handleEditStudent, handleDeleteStudent, handleViewStudent);
+  const columns = getStudentColumns(
+    handleEditStudent,
+    handleDeleteStudent,
+    handleViewStudent,
+  );
 
   return (
     <div className="flex flex-col space-y-6 p-6">
@@ -260,9 +266,7 @@ export default function StudentsPage() {
           <Card>
             <CardHeader>
               <CardTitle>الطلاب غير النشطين</CardTitle>
-              <CardDescription>
-                عرض وإدارة الطلاب غير النشطين.
-              </CardDescription>
+              <CardDescription>عرض وإدارة الطلاب غير النشطين.</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -308,9 +312,7 @@ export default function StudentsPage() {
           <Card>
             <CardHeader>
               <CardTitle>الطلاب الجامعيون</CardTitle>
-              <CardDescription>
-                عرض وإدارة الطلاب الجامعيين.
-              </CardDescription>
+              <CardDescription>عرض وإدارة الطلاب الجامعيين.</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (

@@ -1,54 +1,97 @@
 "use client";
 
 import ClassroomCreateForm from "@/components/forms/ClassroomCreateForm";
-import { useToast } from '@/components/ui/use-toast';
-import { useCreateClassrooms } from '@/hooks/useClassroom';
-import { useRouter } from 'next/navigation';
-
-// Simple toast replacement - you can integrate with your preferred toast library
-const toast = {
-    success: (message: string) => console.log("Success:", message),
-    error: (message: string) => console.error("Error:", message),
-};
+import { useToast } from "@/components/ui/use-toast";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useClassroomApi } from "@/hooks/useClassroomApi";
+import { Classroom } from "@/services/classroom-api";
+import { useRouter } from "next/navigation";
 
 export default function CreateClassroomPage() {
-    const router = useRouter();
-    const { toast: useToastHook } = useToast();
-    const { mutate: createClassrooms, loading } = useCreateClassrooms();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user } = useAuthContext();
+  const classroomApi = useClassroomApi({ showToasts: false });
 
-    const handleSubmit = async (data: any) => {
-        try {
-            await createClassrooms({ classrooms: [data.classroomsData] });
+  const handleSubmit = async (formData: any) => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a classroom",
+        variant: "destructive",
+      });
+      return;
+    }
 
-            useToastHook({
-                title: 'نجح',
-                description: 'تم إنشاء الفصل الدراسي بنجاح'
-            });
+    try {
+      // Transform form data to match backend API structure
+      const classroomData: Omit<Classroom, 'id' | 'createdAt' | 'updatedAt'> = {
+        teacher: user.id,
+        school: formData.school || undefined,
+        title: formData.title,
+        location: formData.location,
+        frontPicture: formData.frontPicture || undefined,
+        backPicture: formData.backPicture || undefined,
+        isArchived: false,
+        description: formData.description || undefined,
+        field: formData.field,
+        level: formData.level,
+        color: formData.color,
+        maxStudents: formData.maxStudents || undefined,
+        price: formData.price || 0,
+        schedule: formData.schedule || [],
+        mode: formData.mode,
+        perDuration: formData.mode === 'monthly' ? (formData.perDuration || 30) : undefined,
+        perSessions: formData.mode === 'sessional' ? (formData.perSessions || 10) : undefined,
+        perSemester: formData.mode === 'semestrial' ? formData.perSemester : undefined,
+      };
 
-            toast.success("تم إنشاء الفصل الدراسي بنجاح");
-            router.push("/classroom/classes");
-        } catch (error: any) {
-            console.error("Error creating classroom:", error);
+      console.log("Creating classroom with data:", JSON.stringify(classroomData, null, 2));
 
-            useToastHook({
-                title: 'خطأ',
-                description: error.message || 'فشل في إنشاء الفصل الدراسي',
-                variant: 'destructive'
-            });
+      const result = await classroomApi.createClassrooms([classroomData]);
 
-            toast.error("حدث خطأ أثناء إنشاء الفصل الدراسي");
-        }
-    };
+      if (result && result.length > 0) {
+        toast({
+          title: "Success",
+          description: "Classroom created successfully",
+        });
 
-    const handleCancel = () => {
-        router.back();
-    };
+        // Redirect to the classes list page
+        router.push("/classroom/classes");
+      } else {
+        throw new Error("Failed to create classroom - no data returned");
+      }
+    } catch (error: any) {
+      console.error("Error creating classroom:", error);
 
-    return (
-        <ClassroomCreateForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            loading={loading}
-        />
-    );
+      // Handle specific API errors
+      let errorMessage = "Failed to create classroom";
+
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    router.back();
+  };
+
+  return (
+    <ClassroomCreateForm
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      loading={classroomApi.isCreating}
+    />
+  );
 }

@@ -13,7 +13,7 @@ export {
   useGetClassroomQuery,
   // Classroom API hooks
   useGetClassroomsQuery,
-  useUpdateClassroomMutation
+  useUpdateClassroomMutation,
 } from "../api/classroomApi";
 
 export {
@@ -21,7 +21,7 @@ export {
   // Group API hooks
   useCreateGroupsMutation,
   useDeleteGroupMutation,
-  useUpdateGroupMutation
+  useUpdateGroupMutation,
 } from "../api/groupApi";
 
 export {
@@ -33,7 +33,7 @@ export {
   useUpdateGroupExemptionMutation,
   useUpdateGroupMarkMutation,
   useUpdateMarkMutation,
-  useUpdateStudentMarkMutation
+  useUpdateStudentMarkMutation,
 } from "../api/markApi";
 
 export {
@@ -42,7 +42,7 @@ export {
   useGetClassroomAttendanceQuery,
   useGetEventAttendanceQuery,
   useGetStudentAttendanceQuery,
-  useUpdateStudentAttendanceMutation
+  useUpdateStudentAttendanceMutation,
 } from "../api/attendanceApi";
 
 export {
@@ -57,6 +57,5 @@ export {
   useSubmitHomeworkMutation,
   useSubmitPollMutation,
   useSubmitQuizMutation,
-  useUpdatePostMutation
+  useUpdatePostMutation,
 } from "../api/postApi";
-

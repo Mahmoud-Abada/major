@@ -3,6 +3,20 @@
  * Handles all API interactions with the classroom service
  */
 
+// Utility function to show success notifications
+const showSuccessNotification = (title: string, message?: string) => {
+  if (typeof window !== "undefined") {
+    const event = new CustomEvent("show-notification", {
+      detail: {
+        type: "success",
+        title,
+        message,
+      },
+    });
+    window.dispatchEvent(event);
+  }
+};
+
 // Base classroom entity interfaces
 export interface Classroom {
   id: string;
@@ -223,89 +237,171 @@ class ClassroomApiService {
   async createClassrooms(
     params: CreateClassroomParams,
   ): Promise<ApiResponse<Classroom[]>> {
-    return this.request("/create-classroom", {
+    const result = await this.request<ApiResponse<Classroom[]>>("/create-classroom", {
       method: "POST",
       body: JSON.stringify(params.classrooms),
     });
+
+    showSuccessNotification(
+      "Classrooms Created",
+      `Successfully created ${params.classrooms.length} classroom${params.classrooms.length > 1 ? 's' : ''}`
+    );
+
+    return result;
   }
 
   async updateClassroom(
     params: UpdateClassroomParams,
   ): Promise<ApiResponse<Classroom>> {
-    return this.request("/update-classroom", {
+    const result = await this.request<ApiResponse<Classroom>>("/update-classroom", {
       method: "POST",
       body: JSON.stringify(params),
     });
+
+    showSuccessNotification(
+      "Classroom Updated",
+      "Classroom information has been successfully updated"
+    );
+
+    return result;
   }
 
   async deleteClassroom(classroomId: string): Promise<ApiResponse<void>> {
-    return this.request("/delete-classroom", {
+    const result = await this.request<ApiResponse<void>>("/delete-classroom", {
       method: "DELETE",
       body: JSON.stringify({ classroomId }),
     });
+
+    showSuccessNotification(
+      "Classroom Deleted",
+      "Classroom has been successfully deleted"
+    );
+
+    return result;
   }
 
   async getClassrooms(
     params: GetClassroomsParams,
   ): Promise<PaginatedResponse<Classroom>> {
-    return this.request("/get-classrooms", {
+    // Use users service for get-classrooms as per API documentation
+    const usersServiceUrl = process.env.NEXT_PUBLIC_USERS_API_URL || "http://127.0.0.1:5000";
+    const token = this.getAuthToken();
+
+    const response = await fetch(`${usersServiceUrl}/classroom/get-classrooms`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(params),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ClassroomApiError(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+        response.status.toString(),
+        errorData,
+      );
+    }
+
+    return await response.json();
   }
 
   async addClassroomStudent(
     assignments: Array<{ classroom: string; student: string }>,
   ): Promise<ApiResponse<void>> {
-    return this.request("/add-classroom-student", {
+    const result = await this.request<ApiResponse<void>>("/add-classroom-student", {
       method: "POST",
       body: JSON.stringify(assignments),
     });
+
+    showSuccessNotification(
+      "Students Added",
+      `Successfully added ${assignments.length} student${assignments.length > 1 ? 's' : ''} to classroom`
+    );
+
+    return result;
   }
 
   // Group Management Methods
   async createGroups(
     groups: Omit<Group, "id" | "createdAt" | "updatedAt">[],
   ): Promise<ApiResponse<Group[]>> {
-    return this.request("/create-group", {
+    const result = await this.request<ApiResponse<Group[]>>("/create-group", {
       method: "POST",
       body: JSON.stringify(groups),
     });
+
+    showSuccessNotification(
+      "Groups Created",
+      `Successfully created ${groups.length} group${groups.length > 1 ? 's' : ''}`
+    );
+
+    return result;
   }
 
   async updateGroup(params: {
     groupId: string;
     groupData: Partial<Group>;
   }): Promise<ApiResponse<Group>> {
-    return this.request("/update-group", {
+    const result = await this.request<ApiResponse<Group>>("/update-group", {
       method: "POST",
       body: JSON.stringify(params),
     });
+
+    showSuccessNotification(
+      "Group Updated",
+      "Group information has been successfully updated"
+    );
+
+    return result;
   }
 
   async deleteGroup(groupId: string): Promise<ApiResponse<void>> {
-    return this.request("/delete-group", {
+    const result = await this.request<ApiResponse<void>>("/delete-group", {
       method: "DELETE",
       body: JSON.stringify({ groupId }),
     });
+
+    showSuccessNotification(
+      "Group Deleted",
+      "Group has been successfully deleted"
+    );
+
+    return result;
   }
 
   async addGroupStudent(
     assignments: Array<{ student: string; group: string }>,
   ): Promise<ApiResponse<void>> {
-    return this.request("/add-group-student", {
+    const result = await this.request<ApiResponse<void>>("/add-group-student", {
       method: "POST",
       body: JSON.stringify(assignments),
     });
+
+    showSuccessNotification(
+      "Students Added to Group",
+      `Successfully added ${assignments.length} student${assignments.length > 1 ? 's' : ''} to group`
+    );
+
+    return result;
   }
 
   async addGroupClassroom(
     assignments: Array<{ classroom: string; group: string }>,
   ): Promise<ApiResponse<void>> {
-    return this.request("/add-group-classroom", {
+    const result = await this.request<ApiResponse<void>>("/add-group-classroom", {
       method: "POST",
       body: JSON.stringify(assignments),
     });
+
+    showSuccessNotification(
+      "Groups Added to Classroom",
+      `Successfully linked ${assignments.length} group${assignments.length > 1 ? 's' : ''} to classroom`
+    );
+
+    return result;
   }
 
   // Marks Management Methods

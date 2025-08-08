@@ -51,7 +51,7 @@ export default function UsersPage() {
         (user) =>
           user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+          user.email.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -70,7 +70,7 @@ export default function UsersPage() {
       switch (sortBy) {
         case "name":
           return `${a.firstName} ${a.lastName}`.localeCompare(
-            `${b.firstName} ${b.lastName}`
+            `${b.firstName} ${b.lastName}`,
           );
         case "email":
           return a.email.localeCompare(b.email);
@@ -107,7 +107,7 @@ export default function UsersPage() {
     setSelectedUsers((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+        : [...prev, userId],
     );
   };
 

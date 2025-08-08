@@ -9,46 +9,46 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Award,
-    Calculator,
-    Download,
-    Edit,
-    FileText,
-    GraduationCap,
-    MoreHorizontal,
-    Plus,
-    Save,
-    Search,
-    Users
+  Award,
+  Calculator,
+  Download,
+  Edit,
+  FileText,
+  GraduationCap,
+  MoreHorizontal,
+  Plus,
+  Save,
+  Search,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -124,16 +124,21 @@ export function GradeEntry({
   };
 
   const getStudentAverage = (studentId: string): number => {
-    const studentGrades = getStudentGrades(studentId).filter((g) => !g.isExempted);
+    const studentGrades = getStudentGrades(studentId).filter(
+      (g) => !g.isExempted,
+    );
     if (studentGrades.length === 0) return 0;
 
     const totalWeightedScore = studentGrades.reduce((sum, grade) => {
       const percentage = (grade.value / grade.maxValue) * 100;
       const weight = grade.weight || 1;
-      return sum + (percentage * weight);
+      return sum + percentage * weight;
     }, 0);
 
-    const totalWeight = studentGrades.reduce((sum, grade) => sum + (grade.weight || 1), 0);
+    const totalWeight = studentGrades.reduce(
+      (sum, grade) => sum + (grade.weight || 1),
+      0,
+    );
     return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
   };
 
@@ -215,7 +220,7 @@ export function GradeEntry({
 
   const handleExemptStudent = (studentId: string, gradeId: string) => {
     const updatedGrades = grades.map((g) =>
-      g.id === gradeId ? { ...g, isExempted: !g.isExempted } : g
+      g.id === gradeId ? { ...g, isExempted: !g.isExempted } : g,
     );
     onGradesChange(updatedGrades);
   };
@@ -243,9 +248,13 @@ export function GradeEntry({
     return `${student.firstName.charAt(0)}${student.lastName.charAt(0)}`;
   };
 
-  const classAverage = students.length > 0 
-    ? students.reduce((sum, student) => sum + getStudentAverage(student.id), 0) / students.length
-    : 0;
+  const classAverage =
+    students.length > 0
+      ? students.reduce(
+          (sum, student) => sum + getStudentAverage(student.id),
+          0,
+        ) / students.length
+      : 0;
 
   return (
     <div className={className}>
@@ -272,27 +281,53 @@ export function GradeEntry({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {grades.filter((g) => !g.isExempted && (g.value / g.maxValue) >= 0.9).length}
+                {
+                  grades.filter(
+                    (g) => !g.isExempted && g.value / g.maxValue >= 0.9,
+                  ).length
+                }
               </div>
-              <div className="text-sm text-muted-foreground">Excellent (90%+)</div>
+              <div className="text-sm text-muted-foreground">
+                Excellent (90%+)
+              </div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
-                {grades.filter((g) => !g.isExempted && (g.value / g.maxValue) >= 0.8 && (g.value / g.maxValue) < 0.9).length}
+                {
+                  grades.filter(
+                    (g) =>
+                      !g.isExempted &&
+                      g.value / g.maxValue >= 0.8 &&
+                      g.value / g.maxValue < 0.9,
+                  ).length
+                }
               </div>
               <div className="text-sm text-muted-foreground">Good (80-89%)</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">
-                {grades.filter((g) => !g.isExempted && (g.value / g.maxValue) >= 0.7 && (g.value / g.maxValue) < 0.8).length}
+                {
+                  grades.filter(
+                    (g) =>
+                      !g.isExempted &&
+                      g.value / g.maxValue >= 0.7 &&
+                      g.value / g.maxValue < 0.8,
+                  ).length
+                }
               </div>
               <div className="text-sm text-muted-foreground">Fair (70-79%)</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">
-                {grades.filter((g) => !g.isExempted && (g.value / g.maxValue) < 0.7).length}
+                {
+                  grades.filter(
+                    (g) => !g.isExempted && g.value / g.maxValue < 0.7,
+                  ).length
+                }
               </div>
-              <div className="text-sm text-muted-foreground">Needs Improvement</div>
+              <div className="text-sm text-muted-foreground">
+                Needs Improvement
+              </div>
             </div>
           </div>
         </CardContent>
@@ -335,7 +370,9 @@ export function GradeEntry({
                 onClick={handleSelectAll}
                 disabled={filteredStudents.length === 0}
               >
-                {selectedStudents.length === filteredStudents.length ? "Deselect All" : "Select All"}
+                {selectedStudents.length === filteredStudents.length
+                  ? "Deselect All"
+                  : "Select All"}
               </Button>
 
               <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
@@ -353,15 +390,16 @@ export function GradeEntry({
                   <DialogHeader>
                     <DialogTitle>Add Grade to Multiple Students</DialogTitle>
                     <DialogDescription>
-                      Add the same grade to {selectedStudents.length} selected students.
+                      Add the same grade to {selectedStudents.length} selected
+                      students.
                     </DialogDescription>
                   </DialogHeader>
-                  <GradeForm
-                    grade={newGrade}
-                    onChange={setNewGrade}
-                  />
+                  <GradeForm grade={newGrade} onChange={setNewGrade} />
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setShowBulkDialog(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowBulkDialog(false)}
+                    >
                       Cancel
                     </Button>
                     <Button onClick={handleBulkAddGrade}>
@@ -414,10 +452,12 @@ export function GradeEntry({
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className={cn(
-                  "transition-all duration-200",
-                  isSelected && "ring-2 ring-primary"
-                )}>
+                <Card
+                  className={cn(
+                    "transition-all duration-200",
+                    isSelected && "ring-2 ring-primary",
+                  )}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-4">
@@ -425,9 +465,16 @@ export function GradeEntry({
                           checked={isSelected}
                           onCheckedChange={(checked) => {
                             if (checked) {
-                              setSelectedStudents([...selectedStudents, student.id]);
+                              setSelectedStudents([
+                                ...selectedStudents,
+                                student.id,
+                              ]);
                             } else {
-                              setSelectedStudents(selectedStudents.filter((id) => id !== student.id));
+                              setSelectedStudents(
+                                selectedStudents.filter(
+                                  (id) => id !== student.id,
+                                ),
+                              );
                             }
                           }}
                         />
@@ -456,11 +503,17 @@ export function GradeEntry({
 
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className={cn("text-lg font-bold", getGradeColor(average))}>
+                          <div
+                            className={cn(
+                              "text-lg font-bold",
+                              getGradeColor(average),
+                            )}
+                          >
                             {average.toFixed(1)}%
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {studentGrades.length} grade{studentGrades.length !== 1 ? "s" : ""}
+                            {studentGrades.length} grade
+                            {studentGrades.length !== 1 ? "s" : ""}
                           </div>
                         </div>
 
@@ -478,7 +531,8 @@ export function GradeEntry({
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>
-                                Add Grade for {student.firstName} {student.lastName}
+                                Add Grade for {student.firstName}{" "}
+                                {student.lastName}
                               </DialogTitle>
                             </DialogHeader>
                             <GradeForm
@@ -489,10 +543,12 @@ export function GradeEntry({
                               <Button variant="outline" onClick={resetForm}>
                                 Cancel
                               </Button>
-                              <Button onClick={() => {
-                                handleAddGrade(student.id);
-                                resetForm();
-                              }}>
+                              <Button
+                                onClick={() => {
+                                  handleAddGrade(student.id);
+                                  resetForm();
+                                }}
+                              >
                                 Add Grade
                               </Button>
                             </DialogFooter>
@@ -504,7 +560,9 @@ export function GradeEntry({
                     {/* Student Grades */}
                     {studentGrades.length > 0 && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-muted-foreground">Recent Grades</h4>
+                        <h4 className="text-sm font-medium text-muted-foreground">
+                          Recent Grades
+                        </h4>
                         <div className="grid gap-2">
                           {studentGrades.slice(-3).map((grade) => (
                             <div
@@ -514,11 +572,16 @@ export function GradeEntry({
                               <div className="flex items-center gap-2">
                                 <Badge
                                   variant="outline"
-                                  className={cn("text-xs", getMarkTypeColor(grade.markType))}
+                                  className={cn(
+                                    "text-xs",
+                                    getMarkTypeColor(grade.markType),
+                                  )}
                                 >
                                   {grade.markType}
                                 </Badge>
-                                <span className="text-sm">{grade.description}</span>
+                                <span className="text-sm">
+                                  {grade.description}
+                                </span>
                                 {grade.isExempted && (
                                   <Badge variant="outline" className="text-xs">
                                     Exempted
@@ -526,11 +589,19 @@ export function GradeEntry({
                                 )}
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className={cn(
-                                  "font-medium",
-                                  grade.isExempted ? "text-muted-foreground" : getGradeColor((grade.value / grade.maxValue) * 100)
-                                )}>
-                                  {grade.isExempted ? "EX" : `${grade.value}/${grade.maxValue}`}
+                                <span
+                                  className={cn(
+                                    "font-medium",
+                                    grade.isExempted
+                                      ? "text-muted-foreground"
+                                      : getGradeColor(
+                                          (grade.value / grade.maxValue) * 100,
+                                        ),
+                                  )}
+                                >
+                                  {grade.isExempted
+                                    ? "EX"
+                                    : `${grade.value}/${grade.maxValue}`}
                                 </span>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -546,15 +617,24 @@ export function GradeEntry({
                                       Edit
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                      onClick={() => handleExemptStudent(student.id, grade.id)}
+                                      onClick={() =>
+                                        handleExemptStudent(
+                                          student.id,
+                                          grade.id,
+                                        )
+                                      }
                                     >
                                       <Award className="h-4 w-4 mr-2" />
-                                      {grade.isExempted ? "Remove Exemption" : "Exempt"}
+                                      {grade.isExempted
+                                        ? "Remove Exemption"
+                                        : "Exempt"}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                       className="text-destructive"
-                                      onClick={() => handleDeleteGrade(grade.id)}
+                                      onClick={() =>
+                                        handleDeleteGrade(grade.id)
+                                      }
                                     >
                                       Delete
                                     </DropdownMenuItem>
@@ -588,7 +668,10 @@ export function GradeEntry({
 
       {/* Edit Grade Dialog */}
       {editingGrade && (
-        <Dialog open={!!editingGrade} onOpenChange={() => setEditingGrade(null)}>
+        <Dialog
+          open={!!editingGrade}
+          onOpenChange={() => setEditingGrade(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Edit Grade</DialogTitle>

@@ -1,13 +1,12 @@
 "use client";
 
-import Info from "@/components/auth/Info";
-import SigninForm from "../../components/auth/SigninForm";
+import LoginForm from "@/components/forms/LoginForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
-      <Info />
-      <SigninForm />
-    </div>
+    <AuthLayout>
+      <LoginForm />
+    </AuthLayout>
   );
 }

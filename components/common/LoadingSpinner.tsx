@@ -35,7 +35,11 @@ const textSizeClasses = {
 };
 
 // Spinner variant
-const SpinnerVariant = ({ size, color, className }: {
+const SpinnerVariant = ({
+  size,
+  color,
+  className,
+}: {
   size: keyof typeof sizeClasses;
   color: keyof typeof colorClasses;
   className?: string;
@@ -45,13 +49,17 @@ const SpinnerVariant = ({ size, color, className }: {
       "animate-spin rounded-full border-2 border-transparent border-t-current",
       sizeClasses[size],
       colorClasses[color],
-      className
+      className,
     )}
   />
 );
 
 // Dots variant
-const DotsVariant = ({ size, color, className }: {
+const DotsVariant = ({
+  size,
+  color,
+  className,
+}: {
   size: keyof typeof sizeClasses;
   color: keyof typeof colorClasses;
   className?: string;
@@ -71,7 +79,7 @@ const DotsVariant = ({ size, color, className }: {
           className={cn(
             "rounded-full bg-current",
             dotSize[size],
-            colorClasses[color]
+            colorClasses[color],
           )}
           animate={{
             scale: [1, 1.2, 1],
@@ -89,7 +97,11 @@ const DotsVariant = ({ size, color, className }: {
 };
 
 // Pulse variant
-const PulseVariant = ({ size, color, className }: {
+const PulseVariant = ({
+  size,
+  color,
+  className,
+}: {
   size: keyof typeof sizeClasses;
   color: keyof typeof colorClasses;
   className?: string;
@@ -99,7 +111,7 @@ const PulseVariant = ({ size, color, className }: {
       "rounded-full bg-current",
       sizeClasses[size],
       colorClasses[color],
-      className
+      className,
     )}
     animate={{
       scale: [1, 1.2, 1],
@@ -113,7 +125,11 @@ const PulseVariant = ({ size, color, className }: {
 );
 
 // Bars variant
-const BarsVariant = ({ size, color, className }: {
+const BarsVariant = ({
+  size,
+  color,
+  className,
+}: {
   size: keyof typeof sizeClasses;
   color: keyof typeof colorClasses;
   className?: string;
@@ -141,7 +157,7 @@ const BarsVariant = ({ size, color, className }: {
             "bg-current rounded-sm",
             barWidth[size],
             barHeight[size],
-            colorClasses[color]
+            colorClasses[color],
           )}
           animate={{
             scaleY: [0.4, 1, 0.4],
@@ -158,7 +174,11 @@ const BarsVariant = ({ size, color, className }: {
 };
 
 // Ring variant
-const RingVariant = ({ size, color, className }: {
+const RingVariant = ({
+  size,
+  color,
+  className,
+}: {
   size: keyof typeof sizeClasses;
   color: keyof typeof colorClasses;
   className?: string;
@@ -167,13 +187,13 @@ const RingVariant = ({ size, color, className }: {
     <div
       className={cn(
         "absolute inset-0 rounded-full border-2 border-current opacity-20",
-        colorClasses[color]
+        colorClasses[color],
       )}
     />
     <motion.div
       className={cn(
         "absolute inset-0 rounded-full border-2 border-transparent border-t-current",
-        colorClasses[color]
+        colorClasses[color],
       )}
       animate={{ rotate: 360 }}
       transition={{
@@ -224,7 +244,7 @@ export function LoadingSpinner({
         "flex items-center gap-3",
         textPosition === "bottom" && "flex-col",
         textPosition === "right" && "flex-row",
-        className
+        className,
       )}
     >
       {renderSpinner()}
@@ -232,7 +252,7 @@ export function LoadingSpinner({
         className={cn(
           "text-current font-medium",
           textSizeClasses[size],
-          colorClasses[color]
+          colorClasses[color],
         )}
       >
         {text}
@@ -258,7 +278,7 @@ export function Skeleton({
   animation = "pulse",
 }: SkeletonProps) {
   const baseClasses = "bg-muted";
-  
+
   const variantClasses = {
     text: "rounded-sm h-4",
     circular: "rounded-full",
@@ -274,7 +294,8 @@ export function Skeleton({
 
   const style: React.CSSProperties = {};
   if (width) style.width = typeof width === "number" ? `${width}px` : width;
-  if (height) style.height = typeof height === "number" ? `${height}px` : height;
+  if (height)
+    style.height = typeof height === "number" ? `${height}px` : height;
 
   return (
     <div
@@ -282,7 +303,7 @@ export function Skeleton({
         baseClasses,
         variantClasses[variant],
         animationClasses[animation],
-        className
+        className,
       )}
       style={style}
     />
@@ -318,7 +339,7 @@ export function LoadingOverlay({
           className={cn(
             "absolute inset-0 flex items-center justify-center bg-background/80 z-10",
             blur && "backdrop-blur-sm",
-            overlayClassName
+            overlayClassName,
           )}
         >
           <LoadingSpinner {...spinner} />
@@ -344,7 +365,11 @@ export const LoadingStates = {
   ),
 
   // Table loading skeleton
-  Table: ({ rows = 5, columns = 4, className }: {
+  Table: ({
+    rows = 5,
+    columns = 4,
+    className,
+  }: {
     rows?: number;
     columns?: number;
     className?: string;
@@ -365,10 +390,7 @@ export const LoadingStates = {
   ),
 
   // List loading skeleton
-  List: ({ items = 3, className }: {
-    items?: number;
-    className?: string;
-  }) => (
+  List: ({ items = 3, className }: { items?: number; className?: string }) => (
     <div className={cn("space-y-4", className)}>
       {Array.from({ length: items }).map((_, i) => (
         <div key={i} className="flex items-center gap-4">
@@ -383,11 +405,13 @@ export const LoadingStates = {
   ),
 
   // Grid loading skeleton
-  Grid: ({ items = 6, className }: {
-    items?: number;
-    className?: string;
-  }) => (
-    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4", className)}>
+  Grid: ({ items = 6, className }: { items?: number; className?: string }) => (
+    <div
+      className={cn(
+        "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4",
+        className,
+      )}
+    >
       {Array.from({ length: items }).map((_, i) => (
         <div key={i} className="space-y-3">
           <Skeleton variant="rectangular" height={200} />

@@ -13,7 +13,7 @@ import { useTheme } from "next-themes";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const  t  = useTranslations();
+  const t = useTranslations();
 
   const themes = [
     {
@@ -53,11 +53,7 @@ export default function ThemeToggle() {
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-56"
-        sideOffset={4}
-      >
+      <DropdownMenuContent align="end" className="w-56" sideOffset={4}>
         {themes.map((themeOption) => {
           const Icon = themeOption.icon;
           const isSelected = theme === themeOption.value;

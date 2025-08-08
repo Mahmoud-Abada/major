@@ -44,49 +44,68 @@ const listItemVariants: Record<string, Variants> = {
   },
   bounce: {
     initial: { opacity: 0, y: -20, scale: 0.8 },
-    animate: { 
-      opacity: 1, 
-      y: 0, 
+    animate: {
+      opacity: 1,
+      y: 0,
       scale: 1,
       transition: {
         type: "spring",
         stiffness: 400,
         damping: 10,
-      }
+      },
     },
     exit: { opacity: 0, y: 20, scale: 0.8 },
   },
   elastic: {
     initial: { opacity: 0, scale: 0 },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       scale: 1,
       transition: {
         type: "spring",
         stiffness: 300,
         damping: 20,
-      }
+      },
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       scale: 0,
       transition: {
         type: "spring",
         stiffness: 300,
         damping: 20,
-      }
+      },
     },
   },
 };
 
 // Direction-based variants
-const getDirectionalVariants = (direction: string, baseVariant: Variants): Variants => {
+const getDirectionalVariants = (
+  direction: string,
+  baseVariant: Variants,
+): Variants => {
   if (baseVariant === listItemVariants.slide) {
     const directions = {
-      up: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 } },
-      down: { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 20 } },
-      left: { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -20 } },
-      right: { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: 20 } },
+      up: {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -20 },
+      },
+      down: {
+        initial: { opacity: 0, y: -20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: 20 },
+      },
+      left: {
+        initial: { opacity: 0, x: 20 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: -20 },
+      },
+      right: {
+        initial: { opacity: 0, x: -20 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: 20 },
+      },
     };
     return directions[direction as keyof typeof directions] || baseVariant;
   }
@@ -145,7 +164,10 @@ export function AnimatedList({
             <Reorder.Item
               key={key}
               value={item}
-              className={cn("cursor-grab active:cursor-grabbing", itemClassName)}
+              className={cn(
+                "cursor-grab active:cursor-grabbing",
+                itemClassName,
+              )}
               whileDrag={{ scale: 1.05, zIndex: 10 }}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={0.1}
@@ -234,7 +256,7 @@ export function AnimatedGrid({
       className={cn(
         `grid gap-4`,
         `grid-cols-1 sm:grid-cols-2 lg:grid-cols-${columns}`,
-        className
+        className,
       )}
     >
       {children.map((child, index) => (
@@ -333,7 +355,7 @@ export function InfiniteAnimatedList({
           loadMore();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (observerRef.current) {
@@ -345,22 +367,23 @@ export function InfiniteAnimatedList({
 
   return (
     <div>
-      <AnimatedList {...listProps}>
-        {children}
-      </AnimatedList>
-      
+      <AnimatedList {...listProps}>{children}</AnimatedList>
+
       <div ref={observerRef} className="py-4">
-        {loading && (loader || (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          </div>
-        ))}
-        
-        {!hasMore && !loading && (endMessage || (
-          <div className="text-center text-muted-foreground text-sm">
-            No more items to load
-          </div>
-        ))}
+        {loading &&
+          (loader || (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            </div>
+          ))}
+
+        {!hasMore &&
+          !loading &&
+          (endMessage || (
+            <div className="text-center text-muted-foreground text-sm">
+              No more items to load
+            </div>
+          ))}
       </div>
     </div>
   );
@@ -383,7 +406,8 @@ export function SortableAnimatedList({
   ...listProps
 }: SortableAnimatedListProps) {
   const handleSort = (key: string) => {
-    const newDirection = sortKey === key && sortDirection === "asc" ? "desc" : "asc";
+    const newDirection =
+      sortKey === key && sortDirection === "asc" ? "desc" : "asc";
     onSort?.(key, newDirection);
   };
 
@@ -399,7 +423,7 @@ export function SortableAnimatedList({
                 "px-3 py-1 text-sm rounded-md border transition-colors",
                 sortKey === key
                   ? "bg-primary text-primary-foreground"
-                  : "bg-background hover:bg-muted"
+                  : "bg-background hover:bg-muted",
               )}
             >
               {label}
@@ -412,10 +436,8 @@ export function SortableAnimatedList({
           ))}
         </div>
       )}
-      
-      <AnimatedList {...listProps}>
-        {children}
-      </AnimatedList>
+
+      <AnimatedList {...listProps}>{children}</AnimatedList>
     </div>
   );
 }
@@ -451,17 +473,22 @@ export const listAnimationPresets = {
 };
 
 // Hook for managing list animations
-export function useListAnimation(initialVariant: AnimatedListProps["variant"] = "slide") {
+export function useListAnimation(
+  initialVariant: AnimatedListProps["variant"] = "slide",
+) {
   const [variant, setVariant] = React.useState(initialVariant);
   const [staggerDelay, setStaggerDelay] = React.useState(0.1);
   const [duration, setDuration] = React.useState(0.3);
 
-  const applyPreset = React.useCallback((presetName: keyof typeof listAnimationPresets) => {
-    const preset = listAnimationPresets[presetName];
-    setVariant(preset.variant);
-    setStaggerDelay(preset.staggerDelay);
-    setDuration(preset.duration);
-  }, []);
+  const applyPreset = React.useCallback(
+    (presetName: keyof typeof listAnimationPresets) => {
+      const preset = listAnimationPresets[presetName];
+      setVariant(preset.variant);
+      setStaggerDelay(preset.staggerDelay);
+      setDuration(preset.duration);
+    },
+    [],
+  );
 
   return {
     variant,
@@ -477,7 +504,7 @@ export function useListAnimation(initialVariant: AnimatedListProps["variant"] = 
 // Higher-order component for animated lists
 export function withListAnimation<P extends { children: React.ReactNode[] }>(
   Component: React.ComponentType<P>,
-  animationProps?: Partial<AnimatedListProps>
+  animationProps?: Partial<AnimatedListProps>,
 ) {
   const WrappedComponent = ({ children, ...props }: P) => (
     <AnimatedList {...animationProps}>

@@ -79,13 +79,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  useTransition
-} from "react";
+import { useId, useMemo, useRef, useState, useTransition } from "react";
 
 type Item = {
   id: string;
@@ -283,7 +277,11 @@ interface DataViewProps {
   onRowClick?: (item: Item) => void;
 }
 
-export default function DataView({ initialData, columns, onRowClick }: DataViewProps) {
+export default function DataView({
+  initialData,
+  columns,
+  onRowClick,
+}: DataViewProps) {
   const id = useId();
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -303,9 +301,6 @@ export default function DataView({ initialData, columns, onRowClick }: DataViewP
 
   const [data, setData] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Changed to false since we're using local data
-
-
-
 
   const handleDeleteRows = () => {
     const selectedRows = table.getSelectedRowModel().rows;
@@ -637,7 +632,7 @@ function TableView({
                     <div
                       className={cn(
                         header.column.getCanSort() &&
-                        "flex h-full cursor-pointer select-none items-center gap-2",
+                          "flex h-full cursor-pointer select-none items-center gap-2",
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                       onKeyDown={(e) => {

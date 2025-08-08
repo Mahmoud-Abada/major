@@ -209,7 +209,9 @@ class SessionManagerImpl implements SessionManager {
     if (!currentSession) return;
 
     const extensionTime = additionalTime || SESSION_CONFIG.DEFAULT_DURATION;
-    const newExpiryTime = new Date(currentSession.expiresAt.getTime() + extensionTime);
+    const newExpiryTime = new Date(
+      currentSession.expiresAt.getTime() + extensionTime,
+    );
 
     this.updateSession({
       expiresAt: newExpiryTime,
@@ -282,7 +284,14 @@ class SessionManagerImpl implements SessionManager {
     if (typeof window === "undefined") return;
 
     // Track user activity
-    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    const activityEvents = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+      "click",
+    ];
 
     const updateActivity = () => {
       const session = this.getSession();
@@ -295,25 +304,26 @@ class SessionManagerImpl implements SessionManager {
     let lastUpdate = 0;
     const throttledUpdate = () => {
       const now = Date.now();
-      if (now - lastUpdate > 60000) { // Update at most once per minute
+      if (now - lastUpdate > 60000) {
+        // Update at most once per minute
         lastUpdate = now;
         updateActivity();
       }
     };
 
-    activityEvents.forEach(event => {
+    activityEvents.forEach((event) => {
       window.addEventListener(event, throttledUpdate, { passive: true });
     });
 
     // Handle page visibility changes
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
         updateActivity();
       }
     });
 
     // Handle beforeunload to update last activity
-    window.addEventListener('beforeunload', updateActivity);
+    window.addEventListener("beforeunload", updateActivity);
   }
 
   // Cleanup on destruction
@@ -376,7 +386,10 @@ export const setupSessionAutoRefresh = () => {
 };
 
 // Session warning notification
-export const createSessionWarning = (onExtend: () => void, onLogout: () => void) => {
+export const createSessionWarning = (
+  onExtend: () => void,
+  onLogout: () => void,
+) => {
   const { shouldShowWarning, getTimeRemaining } = useSessionValidation();
 
   if (!shouldShowWarning()) return null;
@@ -385,7 +398,7 @@ export const createSessionWarning = (onExtend: () => void, onLogout: () => void)
 
   return {
     show: true,
-    message: `Your session will expire in ${minutes} minute${minutes !== 1 ? 's' : ''}. Would you like to extend it?`,
+    message: `Your session will expire in ${minutes} minute${minutes !== 1 ? "s" : ""}. Would you like to extend it?`,
     onExtend,
     onLogout,
   };

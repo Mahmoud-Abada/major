@@ -21,7 +21,7 @@ import {
   Palette,
   Settings,
   Shield,
-  User
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -43,7 +43,7 @@ const pageVariants = {
 const cardVariants = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
-  transition: { duration: 0.2 }
+  transition: { duration: 0.2 },
 };
 
 export default function ProfilePage() {
@@ -114,9 +114,7 @@ export default function ProfilePage() {
               <p className="text-muted-foreground mb-4">
                 Please sign in to view your profile.
               </p>
-              <Button onClick={() => router.push("/signin")}>
-                Sign In
-              </Button>
+              <Button onClick={() => router.push("/signin")}>Sign In</Button>
             </div>
           </CardContent>
         </Card>
@@ -146,7 +144,10 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12">
                 <div className="relative">
                   <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                    <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+                    <AvatarImage
+                      src={user.avatar}
+                      alt={`${user.firstName} ${user.lastName}`}
+                    />
                     <AvatarFallback className="text-xl font-semibold">
                       {getInitials(user.firstName, user.lastName)}
                     </AvatarFallback>
@@ -168,8 +169,12 @@ export default function ProfilePage() {
                         {user.firstName} {user.lastName}
                       </h1>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={getRoleColor(user.role)} variant="outline">
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        <Badge
+                          className={getRoleColor(user.role)}
+                          variant="outline"
+                        >
+                          {user.role.charAt(0).toUpperCase() +
+                            user.role.slice(1)}
                         </Badge>
                         <StatusBadge status={user.status} />
                       </div>
@@ -207,7 +212,10 @@ export default function ProfilePage() {
               <Clock className="h-4 w-4" />
               Activity
             </TabsTrigger>
-            <TabsTrigger value="preferences" className="flex items-center gap-2">
+            <TabsTrigger
+              value="preferences"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Preferences
             </TabsTrigger>
@@ -216,7 +224,11 @@ export default function ProfilePage() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Contact Information */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -234,7 +246,11 @@ export default function ProfilePage() {
               </motion.div>
 
               {/* Account Details */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -244,14 +260,18 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Member Since</span>
+                      <span className="text-sm text-muted-foreground">
+                        Member Since
+                      </span>
                       <span className="text-sm font-medium">
                         {formatDate(user.createdAt)}
                       </span>
                     </div>
                     <Separator />
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Last Updated</span>
+                      <span className="text-sm text-muted-foreground">
+                        Last Updated
+                      </span>
                       <span className="text-sm font-medium">
                         {formatDate(user.updatedAt)}
                       </span>
@@ -260,7 +280,9 @@ export default function ProfilePage() {
                       <>
                         <Separator />
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Last Login</span>
+                          <span className="text-sm text-muted-foreground">
+                            Last Login
+                          </span>
                           <span className="text-sm font-medium">
                             {formatDate(user.lastLogin)}
                           </span>
@@ -274,7 +296,11 @@ export default function ProfilePage() {
 
             {/* Role-specific Information */}
             {user.role === "student" && (
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle>Student Information</CardTitle>
@@ -282,16 +308,22 @@ export default function ProfilePage() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm text-muted-foreground">Student ID</span>
+                        <span className="text-sm text-muted-foreground">
+                          Student ID
+                        </span>
                         <p className="font-medium">{(user as any).studentId}</p>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Grade</span>
+                        <span className="text-sm text-muted-foreground">
+                          Grade
+                        </span>
                         <p className="font-medium">{(user as any).grade}</p>
                       </div>
                       {(user as any).dateOfBirth && (
                         <div>
-                          <span className="text-sm text-muted-foreground">Date of Birth</span>
+                          <span className="text-sm text-muted-foreground">
+                            Date of Birth
+                          </span>
                           <p className="font-medium">
                             {formatDate(new Date((user as any).dateOfBirth))}
                           </p>
@@ -299,8 +331,12 @@ export default function ProfilePage() {
                       )}
                       {(user as any).nationality && (
                         <div>
-                          <span className="text-sm text-muted-foreground">Nationality</span>
-                          <p className="font-medium">{(user as any).nationality}</p>
+                          <span className="text-sm text-muted-foreground">
+                            Nationality
+                          </span>
+                          <p className="font-medium">
+                            {(user as any).nationality}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -310,7 +346,11 @@ export default function ProfilePage() {
             )}
 
             {user.role === "teacher" && (
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle>Teacher Information</CardTitle>
@@ -318,40 +358,56 @@ export default function ProfilePage() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <span className="text-sm text-muted-foreground">Years of Experience</span>
-                        <p className="font-medium">{(user as any).yearsOfExperience} years</p>
+                        <span className="text-sm text-muted-foreground">
+                          Years of Experience
+                        </span>
+                        <p className="font-medium">
+                          {(user as any).yearsOfExperience} years
+                        </p>
                       </div>
                       <div>
-                        <span className="text-sm text-muted-foreground">Employment Date</span>
+                        <span className="text-sm text-muted-foreground">
+                          Employment Date
+                        </span>
                         <p className="font-medium">
                           {formatDate(new Date((user as any).employmentDate))}
                         </p>
                       </div>
                     </div>
-                    {(user as any).subjects && (user as any).subjects.length > 0 && (
-                      <div>
-                        <span className="text-sm text-muted-foreground">Subjects</span>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {(user as any).subjects.map((subject: string, index: number) => (
-                            <Badge key={index} variant="secondary">
-                              {subject}
-                            </Badge>
-                          ))}
+                    {(user as any).subjects &&
+                      (user as any).subjects.length > 0 && (
+                        <div>
+                          <span className="text-sm text-muted-foreground">
+                            Subjects
+                          </span>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {(user as any).subjects.map(
+                              (subject: string, index: number) => (
+                                <Badge key={index} variant="secondary">
+                                  {subject}
+                                </Badge>
+                              ),
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {(user as any).qualifications && (user as any).qualifications.length > 0 && (
-                      <div>
-                        <span className="text-sm text-muted-foreground">Qualifications</span>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {(user as any).qualifications.map((qualification: string, index: number) => (
-                            <Badge key={index} variant="outline">
-                              {qualification}
-                            </Badge>
-                          ))}
+                      )}
+                    {(user as any).qualifications &&
+                      (user as any).qualifications.length > 0 && (
+                        <div>
+                          <span className="text-sm text-muted-foreground">
+                            Qualifications
+                          </span>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {(user as any).qualifications.map(
+                              (qualification: string, index: number) => (
+                                <Badge key={index} variant="outline">
+                                  {qualification}
+                                </Badge>
+                              ),
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -361,7 +417,11 @@ export default function ProfilePage() {
           <TabsContent value="security" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Security Status */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -372,17 +432,27 @@ export default function ProfilePage() {
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Email Verified</span>
-                      <StatusBadge status={user.isEmailVerified ? "verified" : "pending"} />
+                      <StatusBadge
+                        status={user.isEmailVerified ? "verified" : "pending"}
+                      />
                     </div>
                     <Separator />
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Two-Factor Authentication</span>
-                      <StatusBadge status={user.twoFactorEnabled ? "enabled" : "disabled"} />
+                      <StatusBadge
+                        status={user.twoFactorEnabled ? "enabled" : "disabled"}
+                      />
                     </div>
                     <Separator />
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Failed Login Attempts</span>
-                      <Badge variant={user.failedLoginAttempts > 0 ? "destructive" : "secondary"}>
+                      <Badge
+                        variant={
+                          user.failedLoginAttempts > 0
+                            ? "destructive"
+                            : "secondary"
+                        }
+                      >
                         {user.failedLoginAttempts}
                       </Badge>
                     </div>
@@ -391,7 +461,11 @@ export default function ProfilePage() {
               </motion.div>
 
               {/* Password Security */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -402,7 +476,9 @@ export default function ProfilePage() {
                   <CardContent className="space-y-4">
                     {user.lastPasswordChange && (
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Last Changed</span>
+                        <span className="text-sm text-muted-foreground">
+                          Last Changed
+                        </span>
                         <span className="text-sm font-medium">
                           {formatDate(user.lastPasswordChange)}
                         </span>
@@ -419,7 +495,11 @@ export default function ProfilePage() {
           </TabsContent>
 
           <TabsContent value="activity" className="space-y-6">
-            <motion.div variants={cardVariants} initial="initial" animate="animate">
+            <motion.div
+              variants={cardVariants}
+              initial="initial"
+              animate="animate"
+            >
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -433,7 +513,9 @@ export default function ProfilePage() {
                       <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">Profile viewed</p>
-                        <p className="text-xs text-muted-foreground">Just now</p>
+                        <p className="text-xs text-muted-foreground">
+                          Just now
+                        </p>
                       </div>
                     </div>
                     {user.lastLogin && (
@@ -465,7 +547,11 @@ export default function ProfilePage() {
           <TabsContent value="preferences" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Notification Preferences */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -482,7 +568,11 @@ export default function ProfilePage() {
               </motion.div>
 
               {/* Display Preferences */}
-              <motion.div variants={cardVariants} initial="initial" animate="animate">
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">

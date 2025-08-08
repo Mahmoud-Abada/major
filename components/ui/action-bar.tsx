@@ -28,7 +28,13 @@ export interface ActionBarAction {
   label: string;
   icon?: React.ReactNode;
   onClick: () => void;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
   size?: "sm" | "default" | "lg";
   disabled?: boolean;
   loading?: boolean;
@@ -67,48 +73,48 @@ export interface ActionBarProps {
 
 const actionBarVariants = {
   hidden: { opacity: 0, y: -20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       type: "spring",
       stiffness: 300,
       damping: 30,
       staggerChildren: 0.05,
-    }
+    },
   },
 };
 
 const actionVariants = {
   hidden: { opacity: 0, scale: 0.8 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
     transition: {
       type: "spring",
       stiffness: 400,
       damping: 25,
-    }
+    },
   },
 };
 
 const selectedCountVariants = {
   hidden: { opacity: 0, scale: 0.8, x: -20 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
+  visible: {
+    opacity: 1,
+    scale: 1,
     x: 0,
     transition: {
       type: "spring",
       stiffness: 400,
       damping: 25,
-    }
+    },
   },
-  exit: { 
-    opacity: 0, 
-    scale: 0.8, 
+  exit: {
+    opacity: 0,
+    scale: 0.8,
     x: -20,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
 };
 
@@ -140,8 +146,8 @@ export function ActionBar({
   }, [actions, primaryActions, secondaryActions]);
 
   // Filter visible actions
-  const visibleActions = allActions.filter(action => !action.hidden);
-  const visibleMoreActions = moreActions.filter(action => !action.hidden);
+  const visibleActions = allActions.filter((action) => !action.hidden);
+  const visibleMoreActions = moreActions.filter((action) => !action.hidden);
 
   // Render action button
   const renderAction = (action: ActionBarAction, inDropdown = false) => {
@@ -155,7 +161,7 @@ export function ActionBar({
         className={cn(
           "gap-2 transition-all duration-200",
           action.loading && "cursor-not-allowed",
-          inDropdown && "w-full justify-start"
+          inDropdown && "w-full justify-start",
         )}
         title={action.tooltip}
       >
@@ -198,17 +204,20 @@ export function ActionBar({
         "flex items-center justify-between gap-4 p-4",
         variant === "compact" && "p-2",
         variant === "minimal" && "p-1",
-        sticky && "sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        sticky &&
+          "sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         showDivider && "border-b",
         rtl && "flex-row-reverse",
-        className
+        className,
       )}
     >
       {/* Left Section - Title and Back Button */}
-      <div className={cn(
-        "flex items-center gap-4 min-w-0 flex-1",
-        rtl && "flex-row-reverse"
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-4 min-w-0 flex-1",
+          rtl && "flex-row-reverse",
+        )}
+      >
         {/* Back Button */}
         {backButton && (
           <motion.div variants={actionVariants}>
@@ -218,10 +227,7 @@ export function ActionBar({
               onClick={backButton.onClick}
               className="gap-2 flex-shrink-0"
             >
-              <RiArrowLeftLine className={cn(
-                "h-4 w-4",
-                rtl && "rotate-180"
-              )} />
+              <RiArrowLeftLine className={cn("h-4 w-4", rtl && "rotate-180")} />
               <span className="hidden sm:inline">
                 {backButton.label || "Back"}
               </span>
@@ -231,26 +237,32 @@ export function ActionBar({
 
         {/* Title Section */}
         {(title || subtitle) && (
-          <div className={cn(
-            "min-w-0 flex-1",
-            rtl && "text-right",
-            titleClassName
-          )}>
+          <div
+            className={cn(
+              "min-w-0 flex-1",
+              rtl && "text-right",
+              titleClassName,
+            )}
+          >
             {title && (
-              <h1 className={cn(
-                "text-lg font-semibold truncate",
-                variant === "compact" && "text-base",
-                variant === "minimal" && "text-sm"
-              )}>
+              <h1
+                className={cn(
+                  "text-lg font-semibold truncate",
+                  variant === "compact" && "text-base",
+                  variant === "minimal" && "text-sm",
+                )}
+              >
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className={cn(
-                "text-sm text-muted-foreground truncate",
-                variant === "compact" && "text-xs",
-                variant === "minimal" && "text-xs"
-              )}>
+              <p
+                className={cn(
+                  "text-sm text-muted-foreground truncate",
+                  variant === "compact" && "text-xs",
+                  variant === "minimal" && "text-xs",
+                )}
+              >
                 {subtitle}
               </p>
             )}
@@ -277,11 +289,13 @@ export function ActionBar({
       </div>
 
       {/* Right Section - Actions */}
-      <div className={cn(
-        "flex items-center gap-2 flex-shrink-0",
-        rtl && "flex-row-reverse",
-        actionsClassName
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-2 flex-shrink-0",
+          rtl && "flex-row-reverse",
+          actionsClassName,
+        )}
+      >
         {/* Refresh Button */}
         {onRefresh && (
           <motion.div variants={actionVariants}>
@@ -293,10 +307,12 @@ export function ActionBar({
               className="gap-2"
               title="Refresh"
             >
-              <RiRefreshLine className={cn(
-                "h-4 w-4 transition-transform",
-                refreshing && "animate-spin"
-              )} />
+              <RiRefreshLine
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  refreshing && "animate-spin",
+                )}
+              />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
           </motion.div>
@@ -305,40 +321,55 @@ export function ActionBar({
         {/* Primary Actions */}
         {primaryActions.length > 0 && (
           <>
-            <div className={cn(
-              "hidden sm:flex items-center gap-2",
-              rtl && "flex-row-reverse"
-            )}>
-              {primaryActions.filter(action => !action.hidden).map((action, index) => renderAction(action, false))}
+            <div
+              className={cn(
+                "hidden sm:flex items-center gap-2",
+                rtl && "flex-row-reverse",
+              )}
+            >
+              {primaryActions
+                .filter((action) => !action.hidden)
+                .map((action, index) => renderAction(action, false))}
             </div>
             {primaryActions.length > 0 && secondaryActions.length > 0 && (
-              <Separator orientation="vertical" className="h-6 hidden sm:block" />
+              <Separator
+                orientation="vertical"
+                className="h-6 hidden sm:block"
+              />
             )}
           </>
         )}
 
         {/* Secondary Actions */}
         {secondaryActions.length > 0 && (
-          <div className={cn(
-            "hidden md:flex items-center gap-2",
-            rtl && "flex-row-reverse"
-          )}>
-            {secondaryActions.filter(action => !action.hidden).map((action, index) => renderAction(action, false))}
+          <div
+            className={cn(
+              "hidden md:flex items-center gap-2",
+              rtl && "flex-row-reverse",
+            )}
+          >
+            {secondaryActions
+              .filter((action) => !action.hidden)
+              .map((action, index) => renderAction(action, false))}
           </div>
         )}
 
         {/* Simple Actions (when not using primary/secondary) */}
         {actions.length > 0 && primaryActions.length === 0 && (
-          <div className={cn(
-            "hidden sm:flex items-center gap-2",
-            rtl && "flex-row-reverse"
-          )}>
-            {visibleActions.slice(0, 3).map((action, index) => renderAction(action, false))}
+          <div
+            className={cn(
+              "hidden sm:flex items-center gap-2",
+              rtl && "flex-row-reverse",
+            )}
+          >
+            {visibleActions
+              .slice(0, 3)
+              .map((action, index) => renderAction(action, false))}
           </div>
         )}
 
         {/* More Actions Dropdown */}
-        {(visibleMoreActions.length > 0 || 
+        {(visibleMoreActions.length > 0 ||
           (actions.length > 3 && primaryActions.length === 0) ||
           (variant === "compact" && visibleActions.length > 0)) && (
           <motion.div variants={actionVariants}>
@@ -352,42 +383,43 @@ export function ActionBar({
               <DropdownMenuContent align="end" className="w-48">
                 {/* Mobile-only primary actions */}
                 <div className="sm:hidden">
-                  {primaryActions.filter(action => !action.hidden).map(action => 
-                    renderAction(action, true)
-                  )}
-                  {primaryActions.length > 0 && (secondaryActions.length > 0 || visibleMoreActions.length > 0) && (
-                    <DropdownMenuSeparator />
-                  )}
+                  {primaryActions
+                    .filter((action) => !action.hidden)
+                    .map((action) => renderAction(action, true))}
+                  {primaryActions.length > 0 &&
+                    (secondaryActions.length > 0 ||
+                      visibleMoreActions.length > 0) && (
+                      <DropdownMenuSeparator />
+                    )}
                 </div>
 
                 {/* Mobile-only secondary actions */}
                 <div className="md:hidden">
-                  {secondaryActions.filter(action => !action.hidden).map(action => 
-                    renderAction(action, true)
-                  )}
-                  {secondaryActions.length > 0 && visibleMoreActions.length > 0 && (
-                    <DropdownMenuSeparator />
-                  )}
+                  {secondaryActions
+                    .filter((action) => !action.hidden)
+                    .map((action) => renderAction(action, true))}
+                  {secondaryActions.length > 0 &&
+                    visibleMoreActions.length > 0 && <DropdownMenuSeparator />}
                 </div>
 
                 {/* Overflow actions from simple actions array */}
                 {actions.length > 3 && primaryActions.length === 0 && (
                   <>
                     <div className="sm:hidden">
-                      {visibleActions.slice(0, 3).map(action => 
-                        renderAction(action, true)
-                      )}
+                      {visibleActions
+                        .slice(0, 3)
+                        .map((action) => renderAction(action, true))}
                       <DropdownMenuSeparator />
                     </div>
-                    {visibleActions.slice(3).map(action => 
-                      renderAction(action, true)
-                    )}
+                    {visibleActions
+                      .slice(3)
+                      .map((action) => renderAction(action, true))}
                     {visibleMoreActions.length > 0 && <DropdownMenuSeparator />}
                   </>
                 )}
 
                 {/* More actions */}
-                {visibleMoreActions.map(action => renderAction(action, true))}
+                {visibleMoreActions.map((action) => renderAction(action, true))}
               </DropdownMenuContent>
             </DropdownMenu>
           </motion.div>
@@ -445,14 +477,17 @@ export function useActionBar() {
   const [selectedCount, setSelectedCount] = React.useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const handleRefresh = React.useCallback(async (refreshFn?: () => Promise<void>) => {
-    setRefreshing(true);
-    try {
-      await refreshFn?.();
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
+  const handleRefresh = React.useCallback(
+    async (refreshFn?: () => Promise<void>) => {
+      setRefreshing(true);
+      try {
+        await refreshFn?.();
+      } finally {
+        setRefreshing(false);
+      }
+    },
+    [],
+  );
 
   const clearSelection = React.useCallback(() => {
     setSelectedCount(0);

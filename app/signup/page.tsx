@@ -1,14 +1,12 @@
 "use client";
 
-import Info from "@/components/auth/Info";
-
-import SignupForm from "../../components/auth/SignupForm";
+import RegisterForm from "@/components/forms/RegisterForm";
+import AuthLayout from "@/components/layouts/AuthLayout";
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen flex-row items-center justify-center lg:justify-evenly">
-      <Info />
-      <SignupForm />
-    </div>
+    <AuthLayout>
+      <RegisterForm />
+    </AuthLayout>
   );
 }

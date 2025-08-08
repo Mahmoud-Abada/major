@@ -97,9 +97,18 @@ function logErrorToService(errorInfo: ErrorInfo): void {
  * Show error message to user
  */
 function showErrorToUser(message: string): void {
-  // TODO: Integrate with toast notification system
-  // Example: toast.error(message);
-  console.warn("User notification system not implemented:", message);
+  // Import dynamically to avoid circular dependencies
+  if (typeof window !== "undefined") {
+    // Dispatch notification to Redux store
+    const event = new CustomEvent("show-notification", {
+      detail: {
+        type: "error",
+        title: "Error",
+        message: message,
+      },
+    });
+    window.dispatchEvent(event);
+  }
 }
 
 /**

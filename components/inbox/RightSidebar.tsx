@@ -115,7 +115,9 @@ const RightSidebar = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    (messagesEndRef.current as HTMLDivElement)?.scrollIntoView({ behavior: "smooth" });
+    (messagesEndRef.current as HTMLDivElement)?.scrollIntoView({
+      behavior: "smooth",
+    });
   }, [messages]);
 
   useEffect(() => {

@@ -36,8 +36,8 @@ export function DroppableCell({
   const formattedTime =
     time !== undefined
       ? `${Math.floor(time)}:${Math.round((time - Math.floor(time)) * 60)
-        .toString()
-        .padStart(2, "0")}`
+          .toString()
+          .padStart(2, "0")}`
       : null;
 
   return (

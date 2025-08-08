@@ -304,18 +304,21 @@ export const authStorage = {
   removeUser: () => storage.removeLocal(STORAGE_KEYS.CURRENT_USER),
 
   // Session management
-  setSessionData: (sessionData: any) => storage.setLocal(STORAGE_KEYS.SESSION_DATA, sessionData),
+  setSessionData: (sessionData: any) =>
+    storage.setLocal(STORAGE_KEYS.SESSION_DATA, sessionData),
   getSessionData: () => storage.getLocal<any>(STORAGE_KEYS.SESSION_DATA),
   removeSessionData: () => storage.removeLocal(STORAGE_KEYS.SESSION_DATA),
 
-  setSessionExpiry: (expiry: Date) => storage.setLocal(STORAGE_KEYS.SESSION_EXPIRY, expiry.toISOString()),
+  setSessionExpiry: (expiry: Date) =>
+    storage.setLocal(STORAGE_KEYS.SESSION_EXPIRY, expiry.toISOString()),
   getSessionExpiry: () => {
     const expiry = storage.getLocal<string>(STORAGE_KEYS.SESSION_EXPIRY);
     return expiry ? new Date(expiry) : null;
   },
   removeSessionExpiry: () => storage.removeLocal(STORAGE_KEYS.SESSION_EXPIRY),
 
-  setLastActivity: (activity: Date) => storage.setLocal(STORAGE_KEYS.LAST_ACTIVITY, activity.toISOString()),
+  setLastActivity: (activity: Date) =>
+    storage.setLocal(STORAGE_KEYS.LAST_ACTIVITY, activity.toISOString()),
   getLastActivity: () => {
     const activity = storage.getLocal<string>(STORAGE_KEYS.LAST_ACTIVITY);
     return activity ? new Date(activity) : null;
@@ -333,15 +336,20 @@ export const authStorage = {
     storage.setLocal(STORAGE_KEYS.FAILED_LOGIN_ATTEMPTS, attempts),
   getFailedLoginAttempts: () =>
     storage.getLocal<number>(STORAGE_KEYS.FAILED_LOGIN_ATTEMPTS, 0),
-  removeFailedLoginAttempts: () => storage.removeLocal(STORAGE_KEYS.FAILED_LOGIN_ATTEMPTS),
+  removeFailedLoginAttempts: () =>
+    storage.removeLocal(STORAGE_KEYS.FAILED_LOGIN_ATTEMPTS),
 
   setAccountLockedUntil: (lockedUntil: Date) =>
-    storage.setLocal(STORAGE_KEYS.ACCOUNT_LOCKED_UNTIL, lockedUntil.toISOString()),
+    storage.setLocal(
+      STORAGE_KEYS.ACCOUNT_LOCKED_UNTIL,
+      lockedUntil.toISOString(),
+    ),
   getAccountLockedUntil: () => {
     const locked = storage.getLocal<string>(STORAGE_KEYS.ACCOUNT_LOCKED_UNTIL);
     return locked ? new Date(locked) : null;
   },
-  removeAccountLockedUntil: () => storage.removeLocal(STORAGE_KEYS.ACCOUNT_LOCKED_UNTIL),
+  removeAccountLockedUntil: () =>
+    storage.removeLocal(STORAGE_KEYS.ACCOUNT_LOCKED_UNTIL),
 
   setTwoFactorEnabled: (enabled: boolean) =>
     storage.setLocal(STORAGE_KEYS.TWO_FACTOR_ENABLED, enabled),
@@ -365,12 +373,12 @@ export const authStorage = {
     storage.setLocal(STORAGE_KEYS.PASSWORD_RESET_TOKEN, token),
   getPasswordResetToken: () =>
     storage.getLocal<string>(STORAGE_KEYS.PASSWORD_RESET_TOKEN),
-  removePasswordResetToken: () => storage.removeLocal(STORAGE_KEYS.PASSWORD_RESET_TOKEN),
+  removePasswordResetToken: () =>
+    storage.removeLocal(STORAGE_KEYS.PASSWORD_RESET_TOKEN),
 
   setOtpData: (otpData: any) =>
     storage.setLocal(STORAGE_KEYS.OTP_DATA, otpData),
-  getOtpData: () =>
-    storage.getLocal<any>(STORAGE_KEYS.OTP_DATA),
+  getOtpData: () => storage.getLocal<any>(STORAGE_KEYS.OTP_DATA),
   removeOtpData: () => storage.removeLocal(STORAGE_KEYS.OTP_DATA),
 
   // Complete auth cleanup
@@ -442,7 +450,8 @@ export const uiStorage = {
     storage.getSession<string>(STORAGE_KEYS.LAST_VISITED_PAGE),
 
   addSearchHistory: (query: string) => {
-    const history = storage.getLocal<string[]>(STORAGE_KEYS.SEARCH_HISTORY, []) || [];
+    const history =
+      storage.getLocal<string[]>(STORAGE_KEYS.SEARCH_HISTORY, []) || [];
     const updatedHistory = [query, ...history.filter((h) => h !== query)].slice(
       0,
       10,

@@ -10,7 +10,7 @@ class ApiError extends Error {
 
   constructor(message: string, code: string, details?: any) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.code = code;
     this.details = details;
   }
@@ -184,7 +184,7 @@ export const responseInterceptor = async <T>(
 
 // Generate unique request ID
 export const generateRequestId = (): string => {
-  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 };
 
 // Token management utilities

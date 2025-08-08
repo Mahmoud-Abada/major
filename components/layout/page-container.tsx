@@ -103,9 +103,7 @@ function PageContainerContent({
           <div className="text-destructive text-lg font-medium">
             Something went wrong
           </div>
-          <div className="text-muted-foreground text-sm">
-            {error.message}
-          </div>
+          <div className="text-muted-foreground text-sm">{error.message}</div>
         </div>
       </div>
     );
@@ -126,36 +124,31 @@ function PageContainerContent({
       animate={variants.animate}
       exit={variants.exit}
       transition={variants.transition}
-      className={cn(
-        "min-h-screen bg-background",
-        rtl && "dir-rtl",
-        className
-      )}
+      className={cn("min-h-screen bg-background", rtl && "dir-rtl", className)}
     >
-      <div className={cn(
-        "mx-auto w-full",
-        maxWidthClasses[maxWidth],
-        paddingClasses[padding]
-      )}>
+      <div
+        className={cn(
+          "mx-auto w-full",
+          maxWidthClasses[maxWidth],
+          paddingClasses[padding],
+        )}
+      >
         {/* Header Section */}
         {(title || description || breadcrumbs || actions) && (
-          <div className={cn(
-            "mb-6 space-y-4",
-            rtl && "text-right"
-          )}>
+          <div className={cn("mb-6 space-y-4", rtl && "text-right")}>
             {/* Breadcrumbs */}
             {breadcrumbs && (
-              <div className="text-sm text-muted-foreground">
-                {breadcrumbs}
-              </div>
+              <div className="text-sm text-muted-foreground">{breadcrumbs}</div>
             )}
 
             {/* Title and Actions */}
             {(title || actions) && (
-              <div className={cn(
-                "flex items-start justify-between gap-4",
-                rtl && "flex-row-reverse"
-              )}>
+              <div
+                className={cn(
+                  "flex items-start justify-between gap-4",
+                  rtl && "flex-row-reverse",
+                )}
+              >
                 <div className="min-w-0 flex-1">
                   {title && (
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -163,57 +156,50 @@ function PageContainerContent({
                     </h1>
                   )}
                   {description && (
-                    <p className="mt-2 text-muted-foreground">
-                      {description}
-                    </p>
+                    <p className="mt-2 text-muted-foreground">{description}</p>
                   )}
                 </div>
-                
-                {actions && (
-                  <div className="flex-shrink-0">
-                    {actions}
-                  </div>
-                )}
+
+                {actions && <div className="flex-shrink-0">{actions}</div>}
               </div>
             )}
           </div>
         )}
 
         {/* Main Content */}
-        <div className={cn(
-          "flex gap-6",
-          rtl && "flex-row-reverse",
-          sidebar && "items-start"
-        )}>
+        <div
+          className={cn(
+            "flex gap-6",
+            rtl && "flex-row-reverse",
+            sidebar && "items-start",
+          )}
+        >
           {/* Sidebar */}
           {sidebar && sidebarPosition === "left" && (
-            <aside className={cn(
-              "flex-shrink-0 hidden lg:block",
-              sidebarWidthClasses[sidebarWidth]
-            )}>
-              <div className="sticky top-6">
-                {sidebar}
-              </div>
+            <aside
+              className={cn(
+                "flex-shrink-0 hidden lg:block",
+                sidebarWidthClasses[sidebarWidth],
+              )}
+            >
+              <div className="sticky top-6">{sidebar}</div>
             </aside>
           )}
 
           {/* Content */}
-          <main className={cn(
-            "flex-1 min-w-0",
-            contentClassName
-          )}>
+          <main className={cn("flex-1 min-w-0", contentClassName)}>
             {children}
           </main>
 
           {/* Right Sidebar */}
           {sidebar && sidebarPosition === "right" && (
-            <aside className={cn(
-              "flex-shrink-0 hidden lg:block",
-              sidebarWidthClasses[sidebarWidth]
-            )}>
-              <div className="sticky top-6">
-                {sidebar}
-              </div>
+            <aside
+              className={cn(
+                "flex-shrink-0 hidden lg:block",
+                sidebarWidthClasses[sidebarWidth],
+              )}
+            >
+              <div className="sticky top-6">{sidebar}</div>
             </aside>
           )}
         </div>
@@ -255,21 +241,12 @@ export const PageContainers = {
 
   // Dashboard layout
   Dashboard: (props: PageContainerProps) => (
-    <PageContainer
-      maxWidth="full"
-      padding="lg"
-      animation="slide"
-      {...props}
-    />
+    <PageContainer maxWidth="full" padding="lg" animation="slide" {...props} />
   ),
 
   // Form page layout
   Form: (props: Omit<PageContainerProps, "maxWidth">) => (
-    <PageContainer
-      maxWidth="md"
-      animation="scale"
-      {...props}
-    />
+    <PageContainer maxWidth="md" animation="scale" {...props} />
   ),
 
   // Detail page with sidebar
@@ -306,16 +283,21 @@ export function usePageContainer() {
     setError(null);
   }, []);
 
-  const withAsyncAction = React.useCallback(async (action: () => Promise<void>) => {
-    startLoading();
-    try {
-      await action();
-    } catch (err) {
-      setPageError(err instanceof Error ? err : new Error("An error occurred"));
-    } finally {
-      stopLoading();
-    }
-  }, [startLoading, setPageError, stopLoading]);
+  const withAsyncAction = React.useCallback(
+    async (action: () => Promise<void>) => {
+      startLoading();
+      try {
+        await action();
+      } catch (err) {
+        setPageError(
+          err instanceof Error ? err : new Error("An error occurred"),
+        );
+      } finally {
+        stopLoading();
+      }
+    },
+    [startLoading, setPageError, stopLoading],
+  );
 
   return {
     loading,
@@ -348,22 +330,21 @@ export function PageProvider({ children }: { children: React.ReactNode }) {
   const [breadcrumbs, setBreadcrumbs] = React.useState<React.ReactNode>();
   const [actions, setActions] = React.useState<React.ReactNode>();
 
-  const value = React.useMemo(() => ({
-    title,
-    setTitle,
-    description,
-    setDescription,
-    breadcrumbs,
-    setBreadcrumbs,
-    actions,
-    setActions,
-  }), [title, description, breadcrumbs, actions]);
-
-  return (
-    <PageContext.Provider value={value}>
-      {children}
-    </PageContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      title,
+      setTitle,
+      description,
+      setDescription,
+      breadcrumbs,
+      setBreadcrumbs,
+      actions,
+      setActions,
+    }),
+    [title, description, breadcrumbs, actions],
   );
+
+  return <PageContext.Provider value={value}>{children}</PageContext.Provider>;
 }
 
 export function usePage() {

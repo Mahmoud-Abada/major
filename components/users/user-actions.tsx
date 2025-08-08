@@ -156,13 +156,17 @@ export function UserActions({
             <DropdownMenuSeparator />
 
             {/* Communication Actions */}
-            <DropdownMenuItem onClick={() => window.open(`mailto:${user.email}`)}>
+            <DropdownMenuItem
+              onClick={() => window.open(`mailto:${user.email}`)}
+            >
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>
 
             {user.phoneNumber && (
-              <DropdownMenuItem onClick={() => window.open(`tel:${user.phoneNumber}`)}>
+              <DropdownMenuItem
+                onClick={() => window.open(`tel:${user.phoneNumber}`)}
+              >
                 <Phone className="h-4 w-4 mr-2" />
                 Call
               </DropdownMenuItem>
@@ -231,8 +235,9 @@ export function UserActions({
             <AlertDialogHeader>
               <AlertDialogTitle>Delete User</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete {user.firstName} {user.lastName}?
-                This action cannot be undone and will permanently remove all user data.
+                Are you sure you want to delete {user.firstName} {user.lastName}
+                ? This action cannot be undone and will permanently remove all
+                user data.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -285,7 +290,9 @@ export function UserActions({
         </DropdownMenuItem>
 
         {user.phoneNumber && (
-          <DropdownMenuItem onClick={() => window.open(`tel:${user.phoneNumber}`)}>
+          <DropdownMenuItem
+            onClick={() => window.open(`tel:${user.phoneNumber}`)}
+          >
             <Phone className="h-4 w-4 mr-2" />
             Call
           </DropdownMenuItem>
@@ -354,7 +361,8 @@ export function UserActions({
             <AlertDialogTitle>Delete User</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete {user.firstName} {user.lastName}?
-              This action cannot be undone and will permanently remove all user data.
+              This action cannot be undone and will permanently remove all user
+              data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

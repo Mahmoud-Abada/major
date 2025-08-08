@@ -3,10 +3,24 @@
  * Central export for all API services
  */
 
-export { authApi } from './auth';
-export { filesApi } from './files';
-export { notificationsApi } from './notifications';
-export { usersApi } from './users';
+// Core API services
+export { authService } from '../auth';
+export { ClassroomApiError, classroomApi, handleApiError, withRetry } from '../classroom-api';
 
-// Re-export classroom API from existing service
-export { classroomApi } from '../classroom-api';
+// Enhanced service classes
+export { ClassroomService, classroomService, createClassroomService } from './ClassroomService';
+export { GroupService, createGroupService, groupService } from './GroupService';
+
+// API utilities
+export * from '../../lib/api-utils';
+
+// Types
+export type {
+    ApiError, ApiResponse, Attendance, Classroom, CreateClassroomParams, GetClassroomsParams, Group,
+    Mark, PaginatedResponse, Post, UpdateClassroomParams
+} from '../classroom-api';
+
+export type {
+    ClassroomServiceOptions,
+    GroupServiceOptions
+} from './ClassroomService';

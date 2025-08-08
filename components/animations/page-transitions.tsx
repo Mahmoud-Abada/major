@@ -6,7 +6,16 @@ import * as React from "react";
 export interface PageTransitionProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "fade" | "slide" | "scale" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" | "zoom" | "flip";
+  variant?:
+    | "fade"
+    | "slide"
+    | "scale"
+    | "slideUp"
+    | "slideDown"
+    | "slideLeft"
+    | "slideRight"
+    | "zoom"
+    | "flip";
   duration?: number;
   delay?: number;
   rtl?: boolean;
@@ -70,18 +79,18 @@ export function PageTransition({
   rtl = false,
 }: PageTransitionProps) {
   const variants = transitionVariants[variant];
-  
+
   // Adjust slide directions for RTL
   const adjustedVariants = React.useMemo(() => {
     if (!rtl || !variant.includes("slide")) return variants;
-    
+
     if (variant === "slideLeft") {
       return transitionVariants.slideRight;
     }
     if (variant === "slideRight") {
       return transitionVariants.slideLeft;
     }
-    
+
     return variants;
   }, [variants, variant, rtl]);
 
@@ -222,11 +231,7 @@ export function ConditionalAnimation({
   }
 
   return (
-    <PageTransition
-      variant={variant}
-      duration={duration}
-      className={className}
-    >
+    <PageTransition variant={variant} duration={duration} className={className}>
       {children}
     </PageTransition>
   );
@@ -239,31 +244,31 @@ export const transitionPresets = {
     variant: "fade" as const,
     duration: 0.2,
   },
-  
+
   // Standard page transition
   standard: {
     variant: "slideUp" as const,
     duration: 0.3,
   },
-  
+
   // Smooth and elegant
   smooth: {
     variant: "scale" as const,
     duration: 0.4,
   },
-  
+
   // Dynamic and energetic
   dynamic: {
     variant: "zoom" as const,
     duration: 0.25,
   },
-  
+
   // Slide transitions for navigation
   slideNext: {
     variant: "slideLeft" as const,
     duration: 0.3,
   },
-  
+
   slidePrev: {
     variant: "slideRight" as const,
     duration: 0.3,
@@ -271,14 +276,19 @@ export const transitionPresets = {
 };
 
 // Hook for managing page transitions
-export function usePageTransition(initialVariant: PageTransitionProps["variant"] = "fade") {
+export function usePageTransition(
+  initialVariant: PageTransitionProps["variant"] = "fade",
+) {
   const [variant, setVariant] = React.useState(initialVariant);
   const [isAnimating, setIsAnimating] = React.useState(false);
 
-  const startTransition = React.useCallback((newVariant?: PageTransitionProps["variant"]) => {
-    if (newVariant) setVariant(newVariant);
-    setIsAnimating(true);
-  }, []);
+  const startTransition = React.useCallback(
+    (newVariant?: PageTransitionProps["variant"]) => {
+      if (newVariant) setVariant(newVariant);
+      setIsAnimating(true);
+    },
+    [],
+  );
 
   const endTransition = React.useCallback(() => {
     setIsAnimating(false);
@@ -303,9 +313,10 @@ interface PageTransitionContextType {
   setDisabled: (disabled: boolean) => void;
 }
 
-const PageTransitionContext = React.createContext<PageTransitionContextType | null>(null);
+const PageTransitionContext =
+  React.createContext<PageTransitionContextType | null>(null);
 
-export function PageTransitionProvider({ 
+export function PageTransitionProvider({
   children,
   defaultVariant = "fade",
   defaultDuration = 0.3,
@@ -318,14 +329,17 @@ export function PageTransitionProvider({
   const [duration, setDuration] = React.useState(defaultDuration);
   const [disabled, setDisabled] = React.useState(false);
 
-  const value = React.useMemo(() => ({
-    variant,
-    setVariant,
-    duration,
-    setDuration,
-    disabled,
-    setDisabled,
-  }), [variant, duration, disabled]);
+  const value = React.useMemo(
+    () => ({
+      variant,
+      setVariant,
+      duration,
+      setDuration,
+      disabled,
+      setDisabled,
+    }),
+    [variant, duration, disabled],
+  );
 
   return (
     <PageTransitionContext.Provider value={value}>
@@ -337,7 +351,9 @@ export function PageTransitionProvider({
 export function usePageTransitionContext() {
   const context = React.useContext(PageTransitionContext);
   if (!context) {
-    throw new Error("usePageTransitionContext must be used within a PageTransitionProvider");
+    throw new Error(
+      "usePageTransitionContext must be used within a PageTransitionProvider",
+    );
   }
   return context;
 }
@@ -345,7 +361,7 @@ export function usePageTransitionContext() {
 // Higher-order component for automatic page transitions
 export function withPageTransition<P extends object>(
   Component: React.ComponentType<P>,
-  transitionProps?: Partial<PageTransitionProps>
+  transitionProps?: Partial<PageTransitionProps>,
 ) {
   const WrappedComponent = (props: P) => (
     <PageTransition {...transitionProps}>

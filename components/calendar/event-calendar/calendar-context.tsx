@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+} from "react";
 import { getEtiquettes } from "@/components/calendar/big-calendar";
 import { useTranslations } from "next-intl";
 
@@ -35,7 +41,7 @@ interface CalendarProviderProps {
 
 export function CalendarProvider({ children }: CalendarProviderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const t = useTranslations('calendar'); // Move this to the top level
+  const t = useTranslations("calendar"); // Move this to the top level
 
   // Calculate initial visible colors
   const initialVisibleColors = useMemo(() => {
@@ -45,7 +51,8 @@ export function CalendarProvider({ children }: CalendarProviderProps) {
       .map((etiquette) => etiquette.color);
   }, [t]); // Recalculate when translations change
 
-  const [visibleColors, setVisibleColors] = useState<string[]>(initialVisibleColors);
+  const [visibleColors, setVisibleColors] =
+    useState<string[]>(initialVisibleColors);
 
   // Toggle visibility of a color
   const toggleColorVisibility = (color: string) => {

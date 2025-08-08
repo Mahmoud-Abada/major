@@ -1,581 +1,695 @@
+/**
+ * Groups List Page
+ * Main page for viewing and managing all groups with proper API integration
+ */
+
 "use client";
 
+import { GroupCard } from "@/components/classroom/GroupCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useGroupApi } from "@/hooks/useGroupApi";
+import { Group } from "@/store/types/api";
+import {
+  Archive,
+  Grid3X3,
+  List,
+  MoreHorizontal,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  Users,
+} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-// Empty groups array - will be populated from API
-const mockGroups: any[] = [];
-image: "/images/science-club.png",
-  name: "Science Club",
-    status: "Active",
-      location: "Science Lab 2",
-        verified: true,
-          referral: {
-  name: "John Smith",
-    image: "/avatars/john-smith.jpg",
-    },
-value: 95,
-  joinDate: "2024-01-15",
-    groupId: "GRP2024001",
-      type: "Academic Club",
-        description:
-"A club for students interested in science and scientific exploration.",
-  coordinator: {
-  name: "David Johnson",
-    id: "teacher-003",
-      role: "Teacher",
-    },
-memberCount: 25,
-  meetingSchedule: "Every Tuesday, 3:30 PM - 5:00 PM",
-    activityCount: 3,
-  },
-{
-  id: "group-002",
-    image: "/images/debate-team.png",
-      name: "Debate Team",
-        status: "Active",
-          location: "Room 201",
-            verified: true,
-              referral: {
-    name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
-    },
-  value: 92,
-    joinDate: "2024-01-20",
-      groupId: "GRP2024002",
-        type: "Academic Team",
-          description:
-  "A team that participates in debate competitions and tournaments.",
-    coordinator: {
-    name: "Emily Davis",
-      id: "teacher-002",
-        role: "Teacher",
-    },
-  memberCount: 15,
-    meetingSchedule: "Every Wednesday, 3:30 PM - 5:00 PM",
-      activityCount: 4,
-  },
-{
-  id: "group-003",
-    image: "/images/basketball-team.png",
-      name: "Basketball Team",
-        status: "Active",
-          location: "Gymnasium",
-            verified: true,
-              referral: {
-    name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
-    },
-  value: 90,
-    joinDate: "2024-01-25",
-      groupId: "GRP2024003",
-        type: "Sports Team",
-          description:
-  "The school's basketball team that competes in regional tournaments.",
-    coordinator: {
-    name: "James Thompson",
-      id: "teacher-005",
-        role: "Teacher",
-    },
-  memberCount: 12,
-    meetingSchedule: "Monday, Wednesday, Friday, 4:00 PM - 6:00 PM",
-      activityCount: 5,
-  },
-{
-  id: "group-004",
-    image: "/images/art-club.png",
-      name: "Art Club",
-        status: "Active",
-          location: "Art Studio",
-            verified: true,
-              referral: {
-    name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
-    },
-  value: 88,
-    joinDate: "2024-02-01",
-      groupId: "GRP2024004",
-        type: "Creative Club",
-          description:
-  "A club for students interested in various forms of visual arts.",
-    coordinator: {
-    name: "Olivia Martinez",
-      id: "teacher-006",
-        role: "Teacher",
-    },
-  memberCount: 20,
-    meetingSchedule: "Every Thursday, 3:30 PM - 5:00 PM",
-      activityCount: 3,
-  },
-{
-  id: "group-005",
-    image: "/images/chess-club.png",
-      name: "Chess Club",
-        status: "Inactive",
-          location: "Library",
-            verified: false,
-              referral: {
-    name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
-    },
-  value: 75,
-    joinDate: "2024-02-05",
-      groupId: "GRP2024005",
-        type: "Academic Club",
-          description: "A club for chess enthusiasts to play and learn strategies.",
-            coordinator: {
-    name: "Noah Lee",
-      id: "teacher-009",
-        role: "Teacher",
-    },
-  memberCount: 0,
-    meetingSchedule: "Every Friday, 3:30 PM - 5:00 PM",
-      activityCount: 0,
-  },
-{
-  id: "group-006",
-    image: "/images/choir.png",
-      name: "School Choir",
-        status: "Active",
-          location: "Music Room",
-            verified: true,
-              referral: {
-    name: "John Smith",
-      image: "/avatars/john-smith.jpg",
-    },
-  value: 92,
-    joinDate: "2024-02-10",
-      groupId: "GRP2024006",
-        type: "Music Group",
-          description:
-  "The school choir that performs at school events and competitions.",
-    coordinator: {
-    name: "William Garcia",
-      id: "teacher-007",
-        role: "Teacher",
-    },
-  memberCount: 30,
-    meetingSchedule: "Tuesday and Thursday, 3:30 PM - 5:00 PM",
-      activityCount: 4,
-  },
-{
-  id: "group-007",
-    image: "/images/robotics-club.png",
-      name: "Robotics Club",
-        status: "Active",
-          location: "Computer Lab",
-            verified: true,
-              referral: {
-    name: "Sarah Johnson",
-      image: "/avatars/sarah-johnson.jpg",
-    },
-  value: 90,
-    joinDate: "2024-02-15",
-      groupId: "GRP2024007",
-        type: "STEM Club",
-          description:
-  "A club focused on building and programming robots for competitions.",
-    coordinator: {
-    name: "Noah Lee",
-      id: "teacher-009",
-        role: "Teacher",
-    },
-  memberCount: 18,
-    meetingSchedule: "Every Monday, 3:30 PM - 5:30 PM",
-      activityCount: 3,
-  },
-{
-  id: "group-008",
-    image: "/images/environmental-club.png",
-      name: "Environmental Club",
-        status: "Active",
-          location: "Room 105",
-            verified: true,
-              referral: {
-    name: "Michael Brown",
-      image: "/avatars/michael-brown.jpg",
-    },
-  value: 94,
-    joinDate: "2024-02-20",
-      groupId: "GRP2024008",
-        type: "Service Club",
-          description:
-  "A club dedicated to environmental awareness and conservation projects.",
-    coordinator: {
-    name: "Sophia Wilson",
-      id: "teacher-004",
-        role: "Teacher",
-    },
-  memberCount: 22,
-    meetingSchedule: "Every Wednesday, 3:30 PM - 4:30 PM",
-      activityCount: 5,
-  },
-{
-  id: "group-009",
-    image: "/images/drama-club.png",
-      name: "Drama Club",
-        status: "Inactive",
-          location: "Auditorium",
-            verified: false,
-              referral: {
-    name: "Emily Davis",
-      image: "/avatars/emily-davis.jpg",
-    },
-  value: 80,
-    joinDate: "2024-02-25",
-      groupId: "GRP2024009",
-        type: "Creative Club",
-          description:
-  "A club for students interested in theater and performing arts.",
-    coordinator: {
-    name: "Emma Taylor",
-      id: "teacher-010",
-        role: "Teacher",
-    },
-  memberCount: 0,
-    meetingSchedule: "Every Tuesday and Thursday, 4:00 PM - 6:00 PM",
-      activityCount: 0,
-  },
-{
-  id: "group-010",
-    image: "/images/student-council.png",
-      name: "Student Council",
-        status: "Active",
-          location: "Conference Room",
-            verified: true,
-              referral: {
-    name: "David Johnson",
-      image: "/avatars/david-johnson.jpg",
-    },
-  value: 93,
-    joinDate: "2024-03-01",
-      groupId: "GRP2024010",
-        type: "Leadership Group",
-          description:
-  "The student government body that represents the student body.",
-    coordinator: {
-    name: "Michael Brown",
-      id: "teacher-001",
-        role: "Teacher",
-    },
-  memberCount: 10,
-    meetingSchedule: "Every Monday, 3:30 PM - 4:30 PM",
-      activityCount: 6,
-  },
-];
+interface GroupFilters {
+  status?: "active" | "archived";
+  field?: string;
+  level?: string;
+  isSemestral?: boolean;
+}
 
-// Custom columns for groups
-const getGroupColumns = () => [
-  {
-    id: "select",
-    header: "Select",
-  },
-  {
-    header: "Name",
-    accessorKey: "name",
-  },
-  {
-    header: "ID",
-    accessorKey: "groupId",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-  },
-  {
-    header: "Type",
-    accessorKey: "type",
-  },
-  {
-    header: "Coordinator",
-    accessorKey: "coordinator",
-    cell: (value) => value.name,
-  },
-  {
-    header: "Members",
-    accessorKey: "memberCount",
-  },
-  {
-    header: "Activities",
-    accessorKey: "activityCount",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-  },
-];
+interface GroupsPageState {
+  selectedGroups: Set<string>;
+  view: "grid" | "list";
+  filters: GroupFilters;
+  searchQuery: string;
+  groups: Group[];
+  loading: boolean;
+  error: string | null;
+}
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { updateGroup, deleteGroup, isUpdating, isDeleting } = useGroupApi();
 
+  const [state, setState] = useState<GroupsPageState>({
+    selectedGroups: new Set(),
+    view: "grid",
+    filters: {
+      status: "active",
+    },
+    searchQuery: "",
+    groups: [],
+    loading: false,
+    error: null,
+  });
+
+  // Initialize state from URL params
   useEffect(() => {
-    // Simulate API call
-    const fetchGroups = async () => {
-      try {
-        // In a real app, you would fetch data from an API
-        // const response = await fetch('/api/groups');
-        // const data = await response.json();
-        // setGroups(data);
+    const status =
+      (searchParams.get("status") as "active" | "archived") || "active";
+    const view = (searchParams.get("view") as "grid" | "list") || "grid";
+    const search = searchParams.get("search") || "";
 
-        // For now, we'll just use the mock data
-        setGroups(mockGroups);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching groups data:", error);
-        setLoading(false);
-      }
-    };
+    setState((prev) => ({
+      ...prev,
+      filters: { ...prev.filters, status },
+      view,
+      searchQuery: search,
+    }));
+  }, [searchParams]);
 
-    fetchGroups();
+  // Mock data for demonstration - replace with actual API call
+  useEffect(() => {
+    // This would be replaced with actual API call to get groups
+    const mockGroups: Group[] = [
+      {
+        id: "1",
+        school: "school_123",
+        schoolName: "Al-Azhar School",
+        title: "Advanced Mathematics Study Group",
+        frontPicture: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400",
+        backPicture: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400",
+        isArchived: false,
+        description: "Group for advanced students in mathematics",
+        field: "Mathematics",
+        level: "High School",
+        color: "#3498db",
+        isSemestral: true,
+        startDate: Date.now(),
+        endDate: Date.now() + 90 * 24 * 60 * 60 * 1000,
+        memberCount: 15,
+        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+        updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
+      },
+      {
+        id: "2",
+        school: "school_456",
+        schoolName: "Modern Science Institute",
+        title: "Physics Lab Group",
+        frontPicture: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400",
+        backPicture: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400",
+        isArchived: false,
+        description: "Hands-on physics experiments and discussions",
+        field: "Physics",
+        level: "University",
+        color: "#e74c3c",
+        isSemestral: false,
+        memberCount: 8,
+        createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
+        updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+      },
+    ];
+
+    setState((prev) => ({ ...prev, groups: mockGroups }));
   }, []);
 
-  // Import the DataView component dynamically to avoid SSR issues with window
-  const DataView = dynamic(
-    () => import("@/components/classroom/contacts-table"),
-    {
-      ssr: false,
-      loading: () => <p>Loading table...</p>,
-    },
-  );
+  // Handle search input with debouncing
+  const handleSearchChange = useCallback((value: string) => {
+    setState((prev) => ({ ...prev, searchQuery: value }));
+  }, []);
+
+  // Handle filter changes
+  const handleFilterChange = (key: keyof GroupFilters, value: any) => {
+    setState((prev) => ({
+      ...prev,
+      filters: { ...prev.filters, [key]: value },
+    }));
+
+    // Update URL
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== "all") {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`?${params.toString()}`);
+  };
+
+  // Handle view change
+  const handleViewChange = (view: "grid" | "list") => {
+    setState((prev) => ({ ...prev, view }));
+
+    const params = new URLSearchParams(searchParams);
+    params.set("view", view);
+    router.push(`?${params.toString()}`);
+  };
+
+  // Handle group selection
+  const handleGroupSelect = (groupId: string, selected: boolean) => {
+    setState((prev) => {
+      const newSelected = new Set(prev.selectedGroups);
+      if (selected) {
+        newSelected.add(groupId);
+      } else {
+        newSelected.delete(groupId);
+      }
+      return { ...prev, selectedGroups: newSelected };
+    });
+  };
+
+  // Handle select all
+  const handleSelectAll = (selected: boolean) => {
+    setState((prev) => ({
+      ...prev,
+      selectedGroups: selected
+        ? new Set(filteredGroups.map((g) => g.id))
+        : new Set(),
+    }));
+  };
+
+  // Handle bulk actions
+  const handleBulkAction = async (action: "archive" | "delete") => {
+    if (state.selectedGroups.size === 0) return;
+
+    const actionText = action === "archive" ? "archive" : "delete";
+    const confirmMessage = `Are you sure you want to ${actionText} ${state.selectedGroups.size} group${state.selectedGroups.size > 1 ? 's' : ''}? ${action === "delete" ? "This action cannot be undone." : ""}`;
+
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      const promises = Array.from(state.selectedGroups).map((id) => {
+        if (action === "archive") {
+          return updateGroup(id, { isArchived: true });
+        } else {
+          return deleteGroup(id);
+        }
+      });
+
+      await Promise.all(promises);
+
+      // Success notifications will be handled by the service
+      setState((prev) => ({ ...prev, selectedGroups: new Set() }));
+    } catch (error: any) {
+      // Error notifications will be handled by the error handling utility
+      console.error(`Failed to ${action} groups:`, error);
+    }
+  };
+
+  // Handle group actions
+  const handleGroupView = (id: string) => {
+    router.push(`/classroom/groups/${id}`);
+  };
+
+  const handleGroupEdit = (id: string) => {
+    router.push(`/classroom/groups/${id}/edit`);
+  };
+
+  const handleGroupDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await deleteGroup(id);
+      // Success notification will be handled by the API service
+
+      // Remove from local state
+      setState((prev) => ({
+        ...prev,
+        groups: prev.groups.filter((g) => g.id !== id),
+      }));
+    } catch (error: any) {
+      // Error notification will be handled by the error handling utility
+      console.error("Failed to delete group:", error);
+    }
+  };
+
+  const handleGroupArchive = async (id: string) => {
+    if (!confirm("Are you sure you want to archive this group?")) {
+      return;
+    }
+
+    try {
+      await updateGroup(id, { isArchived: true });
+      // Success notification will be handled by the API service
+
+      // Update local state
+      setState((prev) => ({
+        ...prev,
+        groups: prev.groups.map((g) =>
+          g.id === id ? { ...g, isArchived: true } : g
+        ),
+      }));
+    } catch (error: any) {
+      // Error notification will be handled by the error handling utility
+      console.error("Failed to archive group:", error);
+    }
+  };
+
+  const handleGroupUnarchive = async (id: string) => {
+    try {
+      await updateGroup(id, { isArchived: false });
+      // Success notification will be handled by the API service
+
+      // Update local state
+      setState((prev) => ({
+        ...prev,
+        groups: prev.groups.map((g) =>
+          g.id === id ? { ...g, isArchived: false } : g
+        ),
+      }));
+    } catch (error: any) {
+      // Error notification will be handled by the error handling utility
+      console.error("Failed to unarchive group:", error);
+    }
+  };
+
+  // Filter groups based on search and filters
+  const filteredGroups = useMemo(() => {
+    return state.groups.filter((group) => {
+      // Status filter
+      if (state.filters.status === "active" && group.isArchived)
+        return false;
+      if (state.filters.status === "archived" && !group.isArchived)
+        return false;
+
+      // Field filter
+      if (state.filters.field && group.field !== state.filters.field)
+        return false;
+
+      // Level filter
+      if (state.filters.level && group.level !== state.filters.level)
+        return false;
+
+      // Semestral filter
+      if (state.filters.isSemestral !== undefined && group.isSemestral !== state.filters.isSemestral)
+        return false;
+
+      // Search filter
+      if (state.searchQuery) {
+        const query = state.searchQuery.toLowerCase();
+        return (
+          group.title.toLowerCase().includes(query) ||
+          group.field.toLowerCase().includes(query) ||
+          group.level.toLowerCase().includes(query) ||
+          group.schoolName?.toLowerCase().includes(query) ||
+          group.description?.toLowerCase().includes(query)
+        );
+      }
+
+      return true;
+    });
+  }, [state.groups, state.filters, state.searchQuery]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const activeGroups = state.groups.filter((g) => !g.isArchived);
+    const archivedGroups = state.groups.filter((g) => g.isArchived);
+    const totalMembers = state.groups.reduce(
+      (sum, g) => sum + (g.memberCount || 0),
+      0,
+    );
+    const semestralGroups = state.groups.filter((g) => g.isSemestral);
+
+    return {
+      total: state.groups.length,
+      active: activeGroups.length,
+      archived: archivedGroups.length,
+      totalMembers,
+      semestral: semestralGroups.length,
+    };
+  }, [state.groups]);
 
   return (
-    <div className="flex flex-col space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Groups</h1>
-        <Button>
-          <Users className="mr-2 h-4 w-4" />
-          Add Group
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Groups</h1>
+          <p className="text-muted-foreground">
+            Manage your study groups and collaborate with students
+          </p>
+        </div>
+        <Button onClick={() => router.push("/classroom/groups/create")}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Group
         </Button>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Groups</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Active</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Archived</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-600">
+              {stats.archived}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.totalMembers}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Semestral</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {stats.semestral}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-2 flex-1">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search groups..."
+              value={state.searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-10 w-full sm:w-64"
+            />
+          </div>
+
+          {/* Filters */}
+          <Select
+            value={state.filters.field || "all"}
+            onValueChange={(value) =>
+              handleFilterChange("field", value === "all" ? undefined : value)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Field" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Fields</SelectItem>
+              <SelectItem value="Mathematics">Mathematics</SelectItem>
+              <SelectItem value="Physics">Physics</SelectItem>
+              <SelectItem value="Chemistry">Chemistry</SelectItem>
+              <SelectItem value="Biology">Biology</SelectItem>
+              <SelectItem value="Computer Science">Computer Science</SelectItem>
+              <SelectItem value="Languages">Languages</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={state.filters.level || "all"}
+            onValueChange={(value) =>
+              handleFilterChange("level", value === "all" ? undefined : value)
+            }
+          >
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="Elementary">Elementary</SelectItem>
+              <SelectItem value="Middle School">Middle School</SelectItem>
+              <SelectItem value="High School">High School</SelectItem>
+              <SelectItem value="University">University</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={
+              state.filters.isSemestral === undefined
+                ? "all"
+                : state.filters.isSemestral
+                  ? "semestral"
+                  : "regular"
+            }
+            onValueChange={(value) =>
+              handleFilterChange(
+                "isSemestral",
+                value === "all" ? undefined : value === "semestral"
+              )
+            }
+          >
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="semestral">Semestral</SelectItem>
+              <SelectItem value="regular">Regular</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Bulk Actions */}
+          {state.selectedGroups.size > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreHorizontal className="h-4 w-4 mr-2" />
+                  Actions ({state.selectedGroups.size})
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleBulkAction("archive")}>
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive Selected
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleBulkAction("delete")}
+                  className="text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={state.view === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => handleViewChange("grid")}
+              className="rounded-r-none"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={state.view === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => handleViewChange("list")}
+              className="rounded-l-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Refresh */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Refresh groups - replace with actual API call
+              console.log("Refreshing groups...");
+            }}
+            disabled={state.loading}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${state.loading ? "animate-spin" : ""}`}
+            />
+          </Button>
+        </div>
+      </div>
+
+      {/* Status Tabs */}
+      <Tabs
+        value={state.filters.status || "active"}
+        onValueChange={(value) =>
+          handleFilterChange("status", value as "active" | "archived")
+        }
+      >
         <TabsList>
-          <TabsTrigger value="all">All Groups</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="inactive">Inactive</TabsTrigger>
-          <TabsTrigger value="academic">Academic</TabsTrigger>
-          <TabsTrigger value="sports">Sports</TabsTrigger>
-          <TabsTrigger value="creative">Creative</TabsTrigger>
-          <TabsTrigger value="other">Other</TabsTrigger>
+          <TabsTrigger value="active">
+            Active
+            <Badge variant="secondary" className="ml-2">
+              {stats.active}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="archived">
+            Archived
+            <Badge variant="secondary" className="ml-2">
+              {stats.archived}
+            </Badge>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Groups</CardTitle>
-              <CardDescription>
-                Manage all groups in the system. Click on a group to view its
-                profile.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
+        <TabsContent value="active" className="mt-6">
+          {/* Select All */}
+          {filteredGroups.length > 0 && (
+            <div className="flex items-center gap-2 mb-4">
+              <Checkbox
+                checked={
+                  state.selectedGroups.size === filteredGroups.length
+                }
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-muted-foreground">
+                Select all ({filteredGroups.length})
+              </span>
+            </div>
+          )}
+
+          {/* Groups Grid/List */}
+          {state.loading ? (
+            <div className="text-center py-8">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p>Loading groups...</p>
+            </div>
+          ) : filteredGroups.length > 0 ? (
+            <div
+              className={`grid gap-4 ${state.view === "grid"
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1"
+                }`}
+            >
+              {filteredGroups.map((group) => (
+                <div key={group.id} className="relative">
+                  <Checkbox
+                    className="absolute top-2 left-2 z-10"
+                    checked={state.selectedGroups.has(group.id)}
+                    onCheckedChange={(checked) =>
+                      handleGroupSelect(group.id, checked as boolean)
+                    }
+                  />
+                  <GroupCard
+                    group={group}
+                    onView={handleGroupView}
+                    onEdit={handleGroupEdit}
+                    onDelete={handleGroupDelete}
+                    onArchive={handleGroupArchive}
+                    onUnarchive={handleGroupUnarchive}
+                    viewMode={state.view}
+                    className="ml-8"
+                  />
                 </div>
-              ) : (
-                <DataView
-                  initialData={groups}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <div className="text-muted-foreground mb-4">
+                {state.searchQuery
+                  ? "No groups found matching your search"
+                  : "No active groups"}
+              </div>
+              <Button
+                onClick={() => router.push("/classroom/groups/create")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Group
+              </Button>
+            </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="active" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Groups</CardTitle>
-              <CardDescription>
-                View and manage currently active groups.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter(
-                    (group) => group.status === "Active",
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
+        <TabsContent value="archived" className="mt-6">
+          {/* Similar content for archived groups */}
+          {filteredGroups.length > 0 ? (
+            <div
+              className={`grid gap-4 ${state.view === "grid"
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1"
+                }`}
+            >
+              {filteredGroups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  onView={handleGroupView}
+                  onEdit={handleGroupEdit}
+                  onDelete={handleGroupDelete}
+                  onUnarchive={handleGroupUnarchive}
+                  viewMode={state.view}
                 />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="inactive" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Inactive Groups</CardTitle>
-              <CardDescription>
-                View and manage inactive groups.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter(
-                    (group) => group.status === "Inactive",
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="academic" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Academic Groups</CardTitle>
-              <CardDescription>
-                View and manage academic clubs and teams.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter(
-                    (group) =>
-                      group.type.includes("Academic") ||
-                      group.type.includes("STEM"),
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sports" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Sports Groups</CardTitle>
-              <CardDescription>
-                View and manage sports teams and clubs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter((group) =>
-                    group.type.includes("Sports"),
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="creative" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Creative Groups</CardTitle>
-              <CardDescription>
-                View and manage creative and arts-focused groups.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter(
-                    (group) =>
-                      group.type.includes("Creative") ||
-                      group.type.includes("Music"),
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="other" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Other Groups</CardTitle>
-              <CardDescription>
-                View and manage other types of groups.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>Loading groups...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={groups.filter(
-                    (group) =>
-                      !group.type.includes("Academic") &&
-                      !group.type.includes("STEM") &&
-                      !group.type.includes("Sports") &&
-                      !group.type.includes("Creative") &&
-                      !group.type.includes("Music"),
-                  )}
-                  columns={getGroupColumns()}
-                  onRowClick={(group) => {
-                    window.location.href = `/classroom/groups/${group.id}`;
-                  }}
-                />
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <Archive className="h-12 w-12 mx-auto mb-4" />
+              No archived groups
+            </div>
+          )}
         </TabsContent>
       </Tabs>
+
+      {/* Error State */}
+      {state.error && (
+        <div className="text-center py-8">
+          <div className="text-destructive mb-2">{state.error}</div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              // Retry loading groups
+              setState((prev) => ({ ...prev, error: null }));
+            }}
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
-
-// Import dynamic at the end to avoid hoisting issues
-import dynamic from "next/dynamic";

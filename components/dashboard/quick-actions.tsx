@@ -17,7 +17,7 @@ import {
   Plus,
   Settings,
   Upload,
-  Users
+  Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -62,7 +62,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/users/create",
           color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
           shortcut: "Ctrl+N",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "create-classroom",
@@ -71,7 +71,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: BookOpen,
           href: "/classroom/classrooms/create",
           color: "text-green-600 bg-green-50 hover:bg-green-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "view-reports",
@@ -81,7 +81,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/reports",
           color: "text-purple-600 bg-purple-50 hover:bg-purple-100",
           badge: { text: "New", variant: "destructive" },
-          category: "primary"
+          category: "primary",
         },
         {
           id: "system-settings",
@@ -90,7 +90,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Settings,
           href: "/settings",
           color: "text-gray-600 bg-gray-50 hover:bg-gray-100",
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "bulk-import",
@@ -99,7 +99,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Upload,
           href: "/users/import",
           color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "export-data",
@@ -108,8 +108,8 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Download,
           href: "/export",
           color: "text-indigo-600 bg-indigo-50 hover:bg-indigo-100",
-          category: "secondary"
-        }
+          category: "secondary",
+        },
       ];
 
     case "teacher":
@@ -122,7 +122,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/classroom/posts/create",
           color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
           shortcut: "Ctrl+P",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "grade-assignments",
@@ -132,7 +132,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/classroom/marks/entry",
           color: "text-green-600 bg-green-50 hover:bg-green-100",
           badge: { text: "23 Pending", variant: "destructive" },
-          category: "primary"
+          category: "primary",
         },
         {
           id: "take-attendance",
@@ -141,7 +141,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Calendar,
           href: "/classroom/attendance/entry",
           color: "text-purple-600 bg-purple-50 hover:bg-purple-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "view-classrooms",
@@ -150,7 +150,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: BookOpen,
           href: "/classroom/classrooms",
           color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "messages",
@@ -160,7 +160,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/messages",
           color: "text-pink-600 bg-pink-50 hover:bg-pink-100",
           badge: { text: "5 New", variant: "outline" },
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "class-reports",
@@ -169,8 +169,8 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: BarChart3,
           href: "/reports/classroom",
           color: "text-indigo-600 bg-indigo-50 hover:bg-indigo-100",
-          category: "secondary"
-        }
+          category: "secondary",
+        },
       ];
 
     case "student":
@@ -183,7 +183,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/classroom/posts?type=homework",
           color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
           badge: { text: "4 Due", variant: "destructive" },
-          category: "primary"
+          category: "primary",
         },
         {
           id: "view-grades",
@@ -192,7 +192,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: GraduationCap,
           href: "/classroom/marks",
           color: "text-green-600 bg-green-50 hover:bg-green-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "view-schedule",
@@ -201,7 +201,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Calendar,
           href: "/schedule",
           color: "text-purple-600 bg-purple-50 hover:bg-purple-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "join-classroom",
@@ -210,7 +210,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Plus,
           href: "/classroom/join",
           color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "messages",
@@ -220,7 +220,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/messages",
           color: "text-pink-600 bg-pink-50 hover:bg-pink-100",
           badge: { text: "2 New", variant: "outline" },
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "study-groups",
@@ -229,8 +229,8 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Users,
           href: "/classroom/groups",
           color: "text-indigo-600 bg-indigo-50 hover:bg-indigo-100",
-          category: "secondary"
-        }
+          category: "secondary",
+        },
       ];
 
     case "parent":
@@ -242,7 +242,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: BarChart3,
           href: "/reports/children",
           color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "attendance-report",
@@ -251,7 +251,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Calendar,
           href: "/reports/attendance",
           color: "text-green-600 bg-green-50 hover:bg-green-100",
-          category: "primary"
+          category: "primary",
         },
         {
           id: "teacher-messages",
@@ -261,7 +261,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/messages",
           color: "text-purple-600 bg-purple-50 hover:bg-purple-100",
           badge: { text: "3 New", variant: "outline" },
-          category: "primary"
+          category: "primary",
         },
         {
           id: "upcoming-events",
@@ -270,7 +270,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: Calendar,
           href: "/events",
           color: "text-orange-600 bg-orange-50 hover:bg-orange-100",
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "notifications",
@@ -280,7 +280,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           href: "/notifications",
           color: "text-pink-600 bg-pink-50 hover:bg-pink-100",
           badge: { text: "7 New", variant: "destructive" },
-          category: "secondary"
+          category: "secondary",
         },
         {
           id: "payment-history",
@@ -289,8 +289,8 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           icon: FileText,
           href: "/payments",
           color: "text-indigo-600 bg-indigo-50 hover:bg-indigo-100",
-          category: "secondary"
-        }
+          category: "secondary",
+        },
       ];
 
     default:
@@ -306,32 +306,36 @@ const cardVariants = {
     transition: {
       delay: index * 0.1,
       duration: 0.3,
-      ease: "easeOut"
-    }
+      ease: "easeOut",
+    },
   }),
   hover: {
     scale: 1.02,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
   tap: {
     scale: 0.98,
-    transition: { duration: 0.1 }
-  }
+    transition: { duration: 0.1 },
+  },
 };
 
 const iconVariants = {
   initial: { rotate: 0 },
   hover: {
     rotate: 5,
-    transition: { duration: 0.2 }
-  }
+    transition: { duration: 0.2 },
+  },
 };
 
 export function QuickActions({ user, className = "" }: QuickActionsProps) {
-  const t = useTranslations('dashboard');
+  const t = useTranslations("dashboard");
   const actions = getActionsForRole(user, t);
-  const primaryActions = actions.filter(action => action.category === "primary");
-  const secondaryActions = actions.filter(action => action.category === "secondary");
+  const primaryActions = actions.filter(
+    (action) => action.category === "primary",
+  );
+  const secondaryActions = actions.filter(
+    (action) => action.category === "secondary",
+  );
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -339,9 +343,9 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center">
-            {t('quickActions')}
+            {t("quickActions")}
             <Badge variant="outline" className="ml-2 text-xs">
-              {primaryActions.length} {t('available')}
+              {primaryActions.length} {t("available")}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -375,7 +379,10 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
                               {action.title}
                             </h3>
                             {action.badge && (
-                              <Badge variant={action.badge.variant} className="text-xs">
+                              <Badge
+                                variant={action.badge.variant}
+                                className="text-xs"
+                              >
                                 {action.badge.text}
                               </Badge>
                             )}
@@ -407,9 +414,9 @@ export function QuickActions({ user, className = "" }: QuickActionsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center">
-              {t('moreActions')}
+              {t("moreActions")}
               <Badge variant="secondary" className="ml-2 text-xs">
-                {secondaryActions.length} {t('available')}
+                {secondaryActions.length} {t("available")}
               </Badge>
             </CardTitle>
           </CardHeader>

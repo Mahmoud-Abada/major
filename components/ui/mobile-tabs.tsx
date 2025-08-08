@@ -3,14 +3,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { RiArrowLeftSLine, RiArrowRightSLine, RiMoreLine } from "@remixicon/react";
+import {
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiMoreLine,
+} from "@remixicon/react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 
@@ -78,15 +82,15 @@ const tabVariants = {
   },
   scale: {
     initial: { scale: 0.95, opacity: 0 },
-    animate: { 
-      scale: 1, 
-      opacity: 1, 
-      transition: { type: "spring", stiffness: 300, damping: 30 } 
+    animate: {
+      scale: 1,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 30 },
     },
-    exit: { 
-      scale: 0.95, 
-      opacity: 0, 
-      transition: { duration: 0.2 } 
+    exit: {
+      scale: 0.95,
+      opacity: 0,
+      transition: { duration: 0.2 },
     },
   },
 };
@@ -117,7 +121,7 @@ export function MobileTabs({
   swipeEnabled = true,
 }: MobileTabsProps) {
   const [internalValue, setInternalValue] = React.useState(
-    defaultValue || tabs[0]?.id || ""
+    defaultValue || tabs[0]?.id || "",
   );
   const [direction, setDirection] = React.useState(0);
   const [touchStart, setTouchStart] = React.useState<number | null>(null);
@@ -130,9 +134,9 @@ export function MobileTabs({
   const handleValueChange = (newValue: string) => {
     const newIndex = tabs.findIndex((tab) => tab.id === newValue);
     const oldIndex = currentIndex;
-    
+
     setDirection(newIndex > oldIndex ? 1 : -1);
-    
+
     if (controlledValue === undefined) {
       setInternalValue(newValue);
     }
@@ -153,7 +157,7 @@ export function MobileTabs({
 
   const handleTouchEnd = () => {
     if (!swipeEnabled || !touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
@@ -169,11 +173,11 @@ export function MobileTabs({
   // Scroll active tab into view
   const scrollToActiveTab = React.useCallback(() => {
     if (!scrollRef.current) return;
-    
+
     const activeTab = scrollRef.current.querySelector(
-      `[data-tab-id="${currentValue}"]`
+      `[data-tab-id="${currentValue}"]`,
     ) as HTMLElement;
-    
+
     if (activeTab) {
       activeTab.scrollIntoView({
         behavior: "smooth",
@@ -194,16 +198,20 @@ export function MobileTabs({
   // Render tab trigger
   const renderTabTrigger = (tab: MobileTab, isInDropdown = false) => {
     const isActive = currentValue === tab.id;
-    
+
     return (
       <Button
         key={tab.id}
         variant={
-          variant === "pills" 
-            ? (isActive ? "default" : "ghost")
+          variant === "pills"
+            ? isActive
+              ? "default"
+              : "ghost"
             : variant === "cards"
-            ? (isActive ? "default" : "outline")
-            : "ghost"
+              ? isActive
+                ? "default"
+                : "outline"
+              : "ghost"
         }
         size={size}
         disabled={tab.disabled}
@@ -220,24 +228,24 @@ export function MobileTabs({
           isActive && variant === "default" && "bg-muted",
           rtl && "flex-row-reverse",
           !isInDropdown && "min-w-0",
-          tabsTriggerClassName
+          tabsTriggerClassName,
         )}
         aria-selected={isActive}
         role="tab"
       >
         <div className="flex items-center gap-2 min-w-0">
-          {tab.icon && (
-            <span className="flex-shrink-0">{tab.icon}</span>
-          )}
-          <span className={cn(
-            "truncate",
-            !isInDropdown && "max-w-[120px] sm:max-w-none"
-          )}>
+          {tab.icon && <span className="flex-shrink-0">{tab.icon}</span>}
+          <span
+            className={cn(
+              "truncate",
+              !isInDropdown && "max-w-[120px] sm:max-w-none",
+            )}
+          >
             {tab.label}
           </span>
           {tab.badge && (
-            <Badge 
-              variant={tab.badge.variant} 
+            <Badge
+              variant={tab.badge.variant}
               className="ml-1 h-4 px-1 text-xs"
             >
               {tab.badge.text}
@@ -256,10 +264,10 @@ export function MobileTabs({
       <div
         className={cn(
           "relative",
-          orientation === "horizontal" 
-            ? "border-b" 
+          orientation === "horizontal"
+            ? "border-b"
             : "border-r flex-col h-full",
-          tabsListClassName
+          tabsListClassName,
         )}
       >
         {orientation === "horizontal" ? (
@@ -271,10 +279,12 @@ export function MobileTabs({
                 className="w-full"
                 orientation="horizontal"
               >
-                <div className={cn(
-                  "flex items-center gap-1 p-1",
-                  rtl && "flex-row-reverse"
-                )}>
+                <div
+                  className={cn(
+                    "flex items-center gap-1 p-1",
+                    rtl && "flex-row-reverse",
+                  )}
+                >
                   {visibleTabs.map((tab) => renderTabTrigger(tab))}
                 </div>
               </ScrollArea>
@@ -352,7 +362,7 @@ export function MobileTabs({
         className={cn(
           "relative overflow-hidden",
           orientation === "horizontal" ? "mt-4" : "ml-4 flex-1",
-          tabsContentClassName
+          tabsContentClassName,
         )}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -384,7 +394,7 @@ export function MobileTabs({
                 key={index}
                 className={cn(
                   "h-1 w-6 rounded-full transition-colors",
-                  index === currentIndex ? "bg-primary" : "bg-muted"
+                  index === currentIndex ? "bg-primary" : "bg-muted",
                 )}
               />
             ))}
@@ -422,26 +432,26 @@ export const mobileTabsPresets = {
 // Hook for managing tab state
 export function useMobileTabs(tabs: MobileTab[], defaultValue?: string) {
   const [value, setValue] = React.useState(defaultValue || tabs[0]?.id || "");
-  
+
   const currentTab = tabs.find((tab) => tab.id === value);
   const currentIndex = tabs.findIndex((tab) => tab.id === value);
-  
+
   const goToNext = () => {
     if (currentIndex < tabs.length - 1) {
       setValue(tabs[currentIndex + 1].id);
     }
   };
-  
+
   const goToPrevious = () => {
     if (currentIndex > 0) {
       setValue(tabs[currentIndex - 1].id);
     }
   };
-  
+
   const goToTab = (tabId: string) => {
     setValue(tabId);
   };
-  
+
   return {
     value,
     setValue,

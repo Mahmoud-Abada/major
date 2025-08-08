@@ -21,26 +21,26 @@ export const classroomApi = baseApi.injectEndpoints({
       GetClassroomsParams
     >({
       query: (params) => ({
-        url: "/get-classrooms",
+        url: "http://127.0.0.1:5000/classroom/get-classrooms",
         method: "POST",
         body: params,
       }),
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ id }) => ({
-                type: "Classroom" as const,
-                id,
-              })),
-              { type: "Classroom", id: "LIST" },
-            ]
+            ...result.data.map(({ id }) => ({
+              type: "Classroom" as const,
+              id,
+            })),
+            { type: "Classroom", id: "LIST" },
+          ]
           : [{ type: "Classroom", id: "LIST" }],
     }),
 
     // Get single classroom by ID
     getClassroom: builder.query<ApiResponse<Classroom>, string>({
       query: (classroomId) => ({
-        url: "/get-classrooms",
+        url: "http://127.0.0.1:5000/classroom/get-classrooms",
         method: "POST",
         body: {
           classroomId,
@@ -174,6 +174,88 @@ export const classroomApi = baseApi.injectEndpoints({
         { type: "Classroom", id: `${classroomId}_STATS` },
       ],
     }),
+
+    // Group Management Endpoints
+    // Create new groups
+    createGroups: builder.mutation<
+      ApiResponse<any[]>,
+      { groups: any[] }
+    >({
+      query: ({ groups }) => ({
+        url: "/create-group",
+        method: "POST",
+        body: groups,
+      }),
+      invalidatesTags: [{ type: "Group", id: "LIST" }],
+    }),
+
+    // Update group
+    updateGroup: builder.mutation<
+      ApiResponse<any>,
+      { groupId: string; groupData: any }
+    >({
+      query: (params) => ({
+        url: "/update-group",
+        method: "POST",
+        body: params,
+      }),
+      invalidatesTags: (result, error, { groupId }) => [
+        { type: "Group", id: groupId },
+        { type: "Group", id: "LIST" },
+      ],
+    }),
+
+    // Delete group
+    deleteGroup: builder.mutation<ApiResponse<void>, string>({
+      query: (groupId) => ({
+        url: "/delete-group",
+        method: "DELETE",
+        body: { groupId },
+      }),
+      invalidatesTags: (result, error, groupId) => [
+        { type: "Group", id: groupId },
+        { type: "Group", id: "LIST" },
+      ],
+    }),
+
+    // Add student to group
+    addStudentToGroup: builder.mutation<
+      ApiResponse<void>,
+      Array<{ student: string; group: string }>
+    >({
+      query: (assignments) => ({
+        url: "/add-group-student",
+        method: "POST",
+        body: assignments,
+      }),
+      invalidatesTags: (result, error, assignments) => [
+        ...assignments.map(({ group }) => ({
+          type: "Group" as const,
+          id: group,
+        })),
+        { type: "Group", id: "LIST" },
+      ],
+    }),
+
+    // Add group to classroom
+    addGroupToClassroom: builder.mutation<
+      ApiResponse<void>,
+      Array<{ classroom: string; group: string }>
+    >({
+      query: (assignments) => ({
+        url: "/add-group-classroom",
+        method: "POST",
+        body: assignments,
+      }),
+      invalidatesTags: (result, error, assignments) => [
+        ...assignments.map(({ classroom, group }) => [
+          { type: "Classroom" as const, id: classroom },
+          { type: "Group" as const, id: group },
+        ]).flat(),
+        { type: "Classroom", id: "LIST" },
+        { type: "Group", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -188,4 +270,10 @@ export const {
   useRemoveStudentFromClassroomMutation,
   useArchiveClassroomMutation,
   useGetClassroomStatsQuery,
+  // Group hooks
+  useCreateGroupsMutation,
+  useUpdateGroupMutation,
+  useDeleteGroupMutation,
+  useAddStudentToGroupMutation,
+  useAddGroupToClassroomMutation,
 } = classroomApi;

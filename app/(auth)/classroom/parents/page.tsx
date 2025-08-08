@@ -33,98 +33,106 @@ import { useDispatch, useSelector } from "react-redux";
 const getParentColumns = (
   onEdit: (parent: Parent) => void,
   onDelete: (id: string) => void,
-  onView: (id: string) => void
+  onView: (id: string) => void,
 ) => [
-    {
-      id: "select",
-      header: "Select",
-    },
-    {
-      header: "Name",
-      accessorKey: "name",
-    },
-    {
-      header: "ID",
-      accessorKey: "parentId",
-    },
-    {
-      header: "Status",
-      accessorKey: "status",
-    },
-    {
-      header: "Relationship",
-      accessorKey: "relationship",
-      cell: ({ row }: { row: { original: Parent } }) => (
-        <span>
-          {row.original.relationship === "Father" ? "والد" :
-            row.original.relationship === "Mother" ? "والدة" :
-              row.original.relationship === "Guardian" ? "وصي" : "آخر"}
-        </span>
-      ),
-    },
-    {
-      header: "Children",
-      accessorKey: "studentIds",
-      cell: ({ row }: { row: { original: Parent } }) => (
-        <span>{row.original.studentIds.length} طفل</span>
-      ),
-    },
-    {
-      header: "Wilaya",
-      accessorKey: "wilaya",
-    },
-    {
-      header: "Occupation",
-      accessorKey: "occupation",
-    },
-    {
-      header: "Pending Amount",
-      accessorKey: "pendingAmount",
-      cell: ({ row }: { row: { original: Parent } }) => (
-        <span className={row.original.pendingAmount > 0 ? "text-red-600" : "text-green-600"}>
-          {row.original.pendingAmount.toLocaleString()} دج
-        </span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }: { row: { original: Parent } }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(row.original.id);
-            }}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(row.original);
-            }}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(row.original.id);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ];
+  {
+    id: "select",
+    header: "Select",
+  },
+  {
+    header: "Name",
+    accessorKey: "name",
+  },
+  {
+    header: "ID",
+    accessorKey: "parentId",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Relationship",
+    accessorKey: "relationship",
+    cell: ({ row }: { row: { original: Parent } }) => (
+      <span>
+        {row.original.relationship === "Father"
+          ? "والد"
+          : row.original.relationship === "Mother"
+            ? "والدة"
+            : row.original.relationship === "Guardian"
+              ? "وصي"
+              : "آخر"}
+      </span>
+    ),
+  },
+  {
+    header: "Children",
+    accessorKey: "studentIds",
+    cell: ({ row }: { row: { original: Parent } }) => (
+      <span>{row.original.studentIds.length} طفل</span>
+    ),
+  },
+  {
+    header: "Wilaya",
+    accessorKey: "wilaya",
+  },
+  {
+    header: "Occupation",
+    accessorKey: "occupation",
+  },
+  {
+    header: "Pending Amount",
+    accessorKey: "pendingAmount",
+    cell: ({ row }: { row: { original: Parent } }) => (
+      <span
+        className={
+          row.original.pendingAmount > 0 ? "text-red-600" : "text-green-600"
+        }
+      >
+        {row.original.pendingAmount.toLocaleString()} دج
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }: { row: { original: Parent } }) => (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onView(row.original.id);
+          }}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(row.original);
+          }}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(row.original.id);
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
+  },
+];
 
 export default function ParentsPage() {
   const dispatch = useDispatch();
@@ -142,7 +150,7 @@ export default function ParentsPage() {
     {
       ssr: false,
       loading: () => <p>Loading table...</p>,
-    }
+    },
   );
 
   const handleAddParent = () => {
@@ -203,7 +211,11 @@ export default function ParentsPage() {
     }
   };
 
-  const columns = getParentColumns(handleEditParent, handleDeleteParent, handleViewParent);
+  const columns = getParentColumns(
+    handleEditParent,
+    handleDeleteParent,
+    handleViewParent,
+  );
 
   return (
     <div className="flex flex-col space-y-6 p-6">
@@ -232,7 +244,8 @@ export default function ParentsPage() {
             <CardHeader>
               <CardTitle>جميع أولياء الأمور</CardTitle>
               <CardDescription>
-                إدارة جميع أولياء الأمور في النظام. انقر على ولي أمر لعرض ملفه الشخصي.
+                إدارة جميع أولياء الأمور في النظام. انقر على ولي أمر لعرض ملفه
+                الشخصي.
               </CardDescription>
             </CardHeader>
             <CardContent>

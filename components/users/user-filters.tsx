@@ -7,9 +7,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { motion } from "framer-motion";
 import { Filter, Search, X } from "lucide-react";
@@ -158,7 +158,9 @@ export function UserFilters({
                     <div key={status} className="flex items-center space-x-2">
                       <Checkbox
                         id={`status-${status}`}
-                        checked={localFilters.statuses?.includes(status) || false}
+                        checked={
+                          localFilters.statuses?.includes(status) || false
+                        }
                         onCheckedChange={(checked) => {
                           const currentStatuses = localFilters.statuses || [];
                           const newStatuses = checked
@@ -184,11 +186,15 @@ export function UserFilters({
                   <Label className="text-sm font-medium">Departments</Label>
                   <div className="space-y-2 mt-2">
                     {filterOptions.departments.map((department) => (
-                      <div key={department} className="flex items-center space-x-2">
+                      <div
+                        key={department}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={`dept-${department}`}
                           checked={
-                            localFilters.departments?.includes(department) || false
+                            localFilters.departments?.includes(department) ||
+                            false
                           }
                           onCheckedChange={(checked) => {
                             const currentDepts = localFilters.departments || [];
@@ -216,7 +222,10 @@ export function UserFilters({
                   <Label className="text-sm font-medium">Subjects</Label>
                   <div className="space-y-2 mt-2 max-h-32 overflow-y-auto">
                     {filterOptions.subjects.map((subject) => (
-                      <div key={subject} className="flex items-center space-x-2">
+                      <div
+                        key={subject}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={`subject-${subject}`}
                           checked={
@@ -251,7 +260,9 @@ export function UserFilters({
                       <div key={grade} className="flex items-center space-x-2">
                         <Checkbox
                           id={`grade-${grade}`}
-                          checked={localFilters.grades?.includes(grade) || false}
+                          checked={
+                            localFilters.grades?.includes(grade) || false
+                          }
                           onCheckedChange={(checked) => {
                             const currentGrades = localFilters.grades || [];
                             const newGrades = checked
@@ -260,10 +271,7 @@ export function UserFilters({
                             handleFilterChange("grades", newGrades);
                           }}
                         />
-                        <Label
-                          htmlFor={`grade-${grade}`}
-                          className="text-sm"
-                        >
+                        <Label htmlFor={`grade-${grade}`} className="text-sm">
                           {grade}
                         </Label>
                       </div>
@@ -300,7 +308,9 @@ export function UserFilters({
                 {role}
                 <button
                   onClick={() => {
-                    const newRoles = localFilters.roles.filter((r: string) => r !== role);
+                    const newRoles = localFilters.roles.filter(
+                      (r: string) => r !== role,
+                    );
                     handleFilterChange("roles", newRoles);
                     onFiltersChange({ ...localFilters, roles: newRoles });
                   }}
@@ -315,7 +325,9 @@ export function UserFilters({
                 {status}
                 <button
                   onClick={() => {
-                    const newStatuses = localFilters.statuses.filter((s: string) => s !== status);
+                    const newStatuses = localFilters.statuses.filter(
+                      (s: string) => s !== status,
+                    );
                     handleFilterChange("statuses", newStatuses);
                     onFiltersChange({ ...localFilters, statuses: newStatuses });
                   }}

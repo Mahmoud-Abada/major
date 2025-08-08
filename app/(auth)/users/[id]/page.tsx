@@ -113,18 +113,28 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Department</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Department
+                </label>
                 <p className="text-sm">{admin.department || "Not specified"}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Position</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Position
+                </label>
                 <p className="text-sm">{admin.position || "Not specified"}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Permissions</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Permissions
+                </label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {admin.permissions.map((permission) => (
-                    <Badge key={permission} variant="secondary" className="text-xs">
+                    <Badge
+                      key={permission}
+                      variant="secondary"
+                      className="text-xs"
+                    >
                       {permission}
                     </Badge>
                   ))}
@@ -144,22 +154,34 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Subjects</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Subjects
+                  </label>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {teacher.subjects.map((subject) => (
-                      <Badge key={subject} variant="outline" className="text-xs">
+                      <Badge
+                        key={subject}
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {subject}
                       </Badge>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Years of Experience</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Years of Experience
+                  </label>
                   <p className="text-sm">{teacher.yearsOfExperience} years</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Employment Date</label>
-                  <p className="text-sm">{teacher.employmentDate.toLocaleDateString()}</p>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Employment Date
+                  </label>
+                  <p className="text-sm">
+                    {teacher.employmentDate.toLocaleDateString()}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -170,28 +192,41 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Qualifications</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Qualifications
+                  </label>
                   <div className="space-y-1 mt-1">
                     {teacher.qualifications.map((qualification, index) => (
-                      <p key={index} className="text-sm">• {qualification}</p>
+                      <p key={index} className="text-sm">
+                        • {qualification}
+                      </p>
                     ))}
                   </div>
                 </div>
-                {teacher.specializations && teacher.specializations.length > 0 && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Specializations</label>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {teacher.specializations.map((spec) => (
-                        <Badge key={spec} variant="secondary" className="text-xs">
-                          {spec}
-                        </Badge>
-                      ))}
+                {teacher.specializations &&
+                  teacher.specializations.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Specializations
+                      </label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {teacher.specializations.map((spec) => (
+                          <Badge
+                            key={spec}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {spec}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 {teacher.bio && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Bio</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Bio
+                    </label>
                     <p className="text-sm mt-1">{teacher.bio}</p>
                   </div>
                 )}
@@ -211,31 +246,47 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Student ID</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Student ID
+                    </label>
                     <p className="text-sm font-mono">{student.studentId}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Grade</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Grade
+                    </label>
                     <p className="text-sm">{student.grade}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                    <p className="text-sm">{student.dateOfBirth.toLocaleDateString()}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Date of Birth
+                    </label>
+                    <p className="text-sm">
+                      {student.dateOfBirth.toLocaleDateString()}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Enrollment Date</label>
-                    <p className="text-sm">{student.enrollmentDate.toLocaleDateString()}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Enrollment Date
+                    </label>
+                    <p className="text-sm">
+                      {student.enrollmentDate.toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
                 {student.nationality && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Nationality</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Nationality
+                    </label>
                     <p className="text-sm">{student.nationality}</p>
                   </div>
                 )}
                 {student.bloodGroup && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Blood Group</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Blood Group
+                    </label>
                     <p className="text-sm">{student.bloodGroup}</p>
                   </div>
                 )}
@@ -249,19 +300,25 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               <CardContent className="space-y-4">
                 {student.parentName && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Parent/Guardian Name</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Parent/Guardian Name
+                    </label>
                     <p className="text-sm">{student.parentName}</p>
                   </div>
                 )}
                 {student.parentEmail && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Parent Email</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Parent Email
+                    </label>
                     <p className="text-sm">{student.parentEmail}</p>
                   </div>
                 )}
                 {student.parentPhone && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Parent Phone</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Parent Phone
+                    </label>
                     <p className="text-sm">{student.parentPhone}</p>
                   </div>
                 )}
@@ -279,17 +336,23 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Relationship</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Relationship
+                </label>
                 <p className="text-sm capitalize">{parent.relationship}</p>
               </div>
               {parent.occupation && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Occupation</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Occupation
+                  </label>
                   <p className="text-sm">{parent.occupation}</p>
                 </div>
               )}
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Children</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Children
+                </label>
                 <p className="text-sm">{parent.children.length} child(ren)</p>
               </div>
             </CardContent>
@@ -322,7 +385,11 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={isLoading}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isLoading}
+          >
             <Trash2 className="h-4 w-4 mr-2" />
             Delete
           </Button>
@@ -339,9 +406,13 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+                <AvatarImage
+                  src={user.avatar}
+                  alt={`${user.firstName} ${user.lastName}`}
+                />
                 <AvatarFallback className="text-lg">
-                  {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                  {user.firstName.charAt(0)}
+                  {user.lastName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
 
@@ -352,7 +423,10 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                   </h1>
                   <div className="flex gap-2">
                     <RoleBadge role={user.role} />
-                    <Badge className={getStatusColor(user.status)} variant="outline">
+                    <Badge
+                      className={getStatusColor(user.status)}
+                      variant="outline"
+                    >
                       {user.status}
                     </Badge>
                   </div>
@@ -402,36 +476,53 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                    <p className="text-sm">{user.firstName} {user.lastName}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Full Name
+                    </label>
+                    <p className="text-sm">
+                      {user.firstName} {user.lastName}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Email
+                    </label>
                     <p className="text-sm">{user.email}</p>
                   </div>
                   {user.phoneNumber && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Phone
+                      </label>
                       <p className="text-sm">{user.phoneNumber}</p>
                     </div>
                   )}
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Role</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Role
+                    </label>
                     <div className="mt-1">
                       <RoleBadge role={user.role} />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Status</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Status
+                    </label>
                     <div className="mt-1">
-                      <Badge className={getStatusColor(user.status)} variant="outline">
+                      <Badge
+                        className={getStatusColor(user.status)}
+                        variant="outline"
+                      >
                         {user.status}
                       </Badge>
                     </div>
                   </div>
                   {(user as StudentUser).address && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Address</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Address
+                      </label>
                       <p className="text-sm">{(user as StudentUser).address}</p>
                     </div>
                   )}
@@ -451,22 +542,46 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email Verified</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Email Verified
+                    </label>
                     <p className="text-sm">
                       {user.isEmailVerified ? (
-                        <Badge className="bg-green-100 text-green-800" variant="outline">Verified</Badge>
+                        <Badge
+                          className="bg-green-100 text-green-800"
+                          variant="outline"
+                        >
+                          Verified
+                        </Badge>
                       ) : (
-                        <Badge className="bg-red-100 text-red-800" variant="outline">Not Verified</Badge>
+                        <Badge
+                          className="bg-red-100 text-red-800"
+                          variant="outline"
+                        >
+                          Not Verified
+                        </Badge>
                       )}
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Two-Factor Auth</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Two-Factor Auth
+                    </label>
                     <p className="text-sm">
                       {user.twoFactorEnabled ? (
-                        <Badge className="bg-green-100 text-green-800" variant="outline">Enabled</Badge>
+                        <Badge
+                          className="bg-green-100 text-green-800"
+                          variant="outline"
+                        >
+                          Enabled
+                        </Badge>
                       ) : (
-                        <Badge className="bg-yellow-100 text-yellow-800" variant="outline">Disabled</Badge>
+                        <Badge
+                          className="bg-yellow-100 text-yellow-800"
+                          variant="outline"
+                        >
+                          Disabled
+                        </Badge>
                       )}
                     </p>
                   </div>
@@ -474,20 +589,30 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
 
                 {user.lastPasswordChange && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Last Password Change</label>
-                    <p className="text-sm">{user.lastPasswordChange.toLocaleDateString()}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Last Password Change
+                    </label>
+                    <p className="text-sm">
+                      {user.lastPasswordChange.toLocaleDateString()}
+                    </p>
                   </div>
                 )}
 
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Failed Login Attempts</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Failed Login Attempts
+                  </label>
                   <p className="text-sm">{user.failedLoginAttempts}</p>
                 </div>
 
                 {user.lockedUntil && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Account Locked Until</label>
-                    <p className="text-sm text-red-600">{user.lockedUntil.toLocaleString()}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Account Locked Until
+                    </label>
+                    <p className="text-sm text-red-600">
+                      {user.lockedUntil.toLocaleString()}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -501,17 +626,23 @@ export default function UserProfilePage({ params }: UserProfilePageProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Last Login</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Last Login
+                  </label>
                   <p className="text-sm">
                     {user.lastLogin ? user.lastLogin.toLocaleString() : "Never"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Account Created</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Account Created
+                  </label>
                   <p className="text-sm">{user.createdAt.toLocaleString()}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Last Updated
+                  </label>
                   <p className="text-sm">{user.updatedAt.toLocaleString()}</p>
                 </div>
               </CardContent>

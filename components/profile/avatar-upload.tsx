@@ -4,25 +4,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import {
-    Camera,
-    Check,
-    Move,
-    RotateCcw,
-    Trash2,
-    Upload,
-    X,
-    ZoomIn,
-    ZoomOut
+  Camera,
+  Check,
+  Move,
+  RotateCcw,
+  Trash2,
+  Upload,
+  X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -65,7 +65,7 @@ export function AvatarUpload({
 
   const getInitials = (name: string) => {
     const names = name.split(" ");
-    return names.length >= 2 
+    return names.length >= 2
       ? `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase()
       : name.charAt(0).toUpperCase();
   };
@@ -106,17 +106,17 @@ export function AvatarUpload({
     setIsUploading(true);
     try {
       // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       // In a real app, you would upload to a server here
       // For now, we'll just use the preview URL
       onAvatarChange(previewUrl);
-      
+
       toast({
         title: "Avatar Updated",
         description: "Your profile picture has been successfully updated.",
       });
-      
+
       setIsDialogOpen(false);
       setPreviewUrl(null);
     } catch (error) {
@@ -183,7 +183,8 @@ export function AvatarUpload({
               <DialogHeader>
                 <DialogTitle>Update Profile Picture</DialogTitle>
                 <DialogDescription>
-                  Preview your new profile picture and make adjustments if needed.
+                  Preview your new profile picture and make adjustments if
+                  needed.
                 </DialogDescription>
               </DialogHeader>
 
@@ -192,7 +193,10 @@ export function AvatarUpload({
                 <div className="flex justify-center">
                   <div className="relative">
                     <Avatar className="h-32 w-32">
-                      <AvatarImage src={previewUrl || currentAvatar} alt={userName} />
+                      <AvatarImage
+                        src={previewUrl || currentAvatar}
+                        alt={userName}
+                      />
                       <AvatarFallback className="text-2xl font-semibold">
                         {getInitials(userName)}
                       </AvatarFallback>
@@ -212,7 +216,7 @@ export function AvatarUpload({
                       <Upload className="h-4 w-4 mr-2" />
                       Choose Different Image
                     </Button>
-                    
+
                     {currentAvatar && (
                       <Button
                         variant="outline"

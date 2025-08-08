@@ -4,13 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { RiAddLine, RiCheckLine, RiExpandUpDownLine } from "@remixicon/react";
@@ -67,21 +67,21 @@ const sizeClasses = {
 
 const dropdownVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -10 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
+  visible: {
+    opacity: 1,
+    scale: 1,
     y: 0,
     transition: {
       type: "spring",
       duration: 0.2,
       staggerChildren: 0.02,
-    }
+    },
   },
-  exit: { 
-    opacity: 0, 
-    scale: 0.95, 
+  exit: {
+    opacity: 0,
+    scale: 0.95,
     y: -10,
-    transition: { duration: 0.15 }
+    transition: { duration: 0.15 },
   },
 };
 
@@ -129,9 +129,10 @@ export function DropdownSelector({
   // Filter options based on search
   const filteredOptions = React.useMemo(() => {
     if (!searchQuery) return options;
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      option.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    return options.filter(
+      (option) =>
+        option.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        option.description?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [options, searchQuery]);
 
@@ -172,18 +173,14 @@ export function DropdownSelector({
   const renderTriggerContent = () => {
     if (selectedOptions.length === 0) {
       return (
-        <span className="text-muted-foreground truncate">
-          {placeholder}
-        </span>
+        <span className="text-muted-foreground truncate">{placeholder}</span>
       );
     }
 
     if (multiple && selectedOptions.length > 1) {
       return (
         <div className="flex items-center gap-1">
-          <span className="truncate">
-            {selectedOptions[0].label}
-          </span>
+          <span className="truncate">{selectedOptions[0].label}</span>
           <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
             +{selectedOptions.length - 1}
           </Badge>
@@ -227,19 +224,17 @@ export function DropdownSelector({
               "justify-between font-normal",
               sizeClasses[size],
               rtl && "flex-row-reverse",
-              triggerClassName
+              triggerClassName,
             )}
             aria-expanded={open}
             aria-haspopup="listbox"
           >
-            <div className="flex-1 min-w-0">
-              {renderTriggerContent()}
-            </div>
+            <div className="flex-1 min-w-0">{renderTriggerContent()}</div>
             <RiExpandUpDownLine
               className={cn(
                 "h-4 w-4 opacity-50 transition-transform duration-200",
                 open && "rotate-180",
-                rtl ? "mr-2" : "ml-2"
+                rtl ? "mr-2" : "ml-2",
               )}
             />
           </Button>
@@ -252,7 +247,7 @@ export function DropdownSelector({
               side={side}
               className={cn(
                 "w-[--radix-dropdown-menu-trigger-width] min-w-56 p-0",
-                contentClassName
+                contentClassName,
               )}
               asChild
             >
@@ -285,7 +280,9 @@ export function DropdownSelector({
                   {loading && (
                     <div className="p-4 text-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mx-auto"></div>
-                      <span className="text-sm text-muted-foreground mt-2">Loading...</span>
+                      <span className="text-sm text-muted-foreground mt-2">
+                        Loading...
+                      </span>
                     </div>
                   )}
 
@@ -303,37 +300,49 @@ export function DropdownSelector({
                               Select multiple options
                             </DropdownMenuLabel>
                           )}
-                          
+
                           {filteredOptions.map((option, index) => {
-                            const isSelected = selectedValues.includes(option.value);
-                            
+                            const isSelected = selectedValues.includes(
+                              option.value,
+                            );
+
                             return (
-                              <motion.div key={option.id} variants={itemVariants}>
+                              <motion.div
+                                key={option.id}
+                                variants={itemVariants}
+                              >
                                 <DropdownMenuItem
                                   onClick={() => handleSelect(option.value)}
                                   disabled={option.disabled}
                                   className={cn(
                                     "flex items-center gap-2 px-2 py-1.5 cursor-pointer",
                                     isSelected && "bg-accent",
-                                    rtl && "flex-row-reverse"
+                                    rtl && "flex-row-reverse",
                                   )}
                                 >
                                   {/* Selection Indicator */}
                                   {multiple && (
-                                    <div className={cn(
-                                      "flex h-4 w-4 items-center justify-center rounded-sm border",
-                                      isSelected 
-                                        ? "bg-primary border-primary text-primary-foreground" 
-                                        : "border-muted-foreground/30"
-                                    )}>
-                                      {isSelected && <RiCheckLine className="h-3 w-3" />}
+                                    <div
+                                      className={cn(
+                                        "flex h-4 w-4 items-center justify-center rounded-sm border",
+                                        isSelected
+                                          ? "bg-primary border-primary text-primary-foreground"
+                                          : "border-muted-foreground/30",
+                                      )}
+                                    >
+                                      {isSelected && (
+                                        <RiCheckLine className="h-3 w-3" />
+                                      )}
                                     </div>
                                   )}
 
                                   {/* Image */}
                                   {showImages && option.image && (
                                     <Avatar className="h-6 w-6">
-                                      <AvatarImage src={option.image} alt={option.label} />
+                                      <AvatarImage
+                                        src={option.image}
+                                        alt={option.label}
+                                      />
                                       <AvatarFallback className="text-xs">
                                         {option.label.charAt(0)}
                                       </AvatarFallback>
@@ -342,7 +351,9 @@ export function DropdownSelector({
 
                                   {/* Icon */}
                                   {showIcons && option.icon && (
-                                    <span className="flex-shrink-0">{option.icon}</span>
+                                    <span className="flex-shrink-0">
+                                      {option.icon}
+                                    </span>
                                   )}
 
                                   {/* Content */}
@@ -359,7 +370,10 @@ export function DropdownSelector({
 
                                   {/* Badge */}
                                   {showBadges && option.badge && (
-                                    <Badge variant={option.badge.variant} className="ml-auto">
+                                    <Badge
+                                      variant={option.badge.variant}
+                                      className="ml-auto"
+                                    >
                                       {option.badge.text}
                                     </Badge>
                                   )}
@@ -383,22 +397,26 @@ export function DropdownSelector({
                       )}
 
                       {/* Create New Option */}
-                      {creatable && searchQuery && !filteredOptions.some(opt => 
-                        opt.label.toLowerCase() === searchQuery.toLowerCase()
-                      ) && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <motion.div variants={itemVariants}>
-                            <DropdownMenuItem
-                              onClick={handleCreate}
-                              className="flex items-center gap-2 px-2 py-1.5 cursor-pointer"
-                            >
-                              <RiAddLine className="h-4 w-4" />
-                              <span>Create "{searchQuery}"</span>
-                            </DropdownMenuItem>
-                          </motion.div>
-                        </>
-                      )}
+                      {creatable &&
+                        searchQuery &&
+                        !filteredOptions.some(
+                          (opt) =>
+                            opt.label.toLowerCase() ===
+                            searchQuery.toLowerCase(),
+                        ) && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <motion.div variants={itemVariants}>
+                              <DropdownMenuItem
+                                onClick={handleCreate}
+                                className="flex items-center gap-2 px-2 py-1.5 cursor-pointer"
+                              >
+                                <RiAddLine className="h-4 w-4" />
+                                <span>Create "{searchQuery}"</span>
+                              </DropdownMenuItem>
+                            </motion.div>
+                          </>
+                        )}
                     </motion.div>
                   )}
                 </div>
@@ -441,7 +459,7 @@ export const presets = {
 
 // Helper function to create options from simple arrays
 export function createOptions(
-  items: string[] | Array<{ label: string; value: string; [key: string]: any }>
+  items: string[] | Array<{ label: string; value: string; [key: string]: any }>,
 ): DropdownOption[] {
   return items.map((item, index) => {
     if (typeof item === "string") {

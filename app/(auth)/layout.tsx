@@ -2,17 +2,14 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('navigation');
+  const t = await getTranslations("navigation");
   return {
-    title: `${t('dashboard')} - MAJOR Academy`,
+    title: `${t("dashboard")} - MAJOR Academy`,
   };
 }
 
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AuthLayoutContent } from "./auth-layout-content";
 
 interface Props {

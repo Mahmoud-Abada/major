@@ -6,29 +6,29 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
-    RiArrowDownSLine,
-    RiCalendarLine,
-    RiCloseLine,
-    RiFilter3Line,
-    RiMapPinLine,
-    RiSearch2Line,
-    RiTagLine,
-    RiUserLine,
+  RiArrowDownSLine,
+  RiCalendarLine,
+  RiCloseLine,
+  RiFilter3Line,
+  RiMapPinLine,
+  RiSearch2Line,
+  RiTagLine,
+  RiUserLine,
 } from "@remixicon/react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
@@ -78,31 +78,31 @@ const sizeClasses = {
 
 const filterVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -10 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
+  visible: {
+    opacity: 1,
+    scale: 1,
     y: 0,
-    transition: { type: "spring", duration: 0.2 }
+    transition: { type: "spring", duration: 0.2 },
   },
-  exit: { 
-    opacity: 0, 
-    scale: 0.95, 
+  exit: {
+    opacity: 0,
+    scale: 0.95,
     y: -10,
-    transition: { duration: 0.15 }
+    transition: { duration: 0.15 },
   },
 };
 
 const badgeVariants = {
   hidden: { opacity: 0, scale: 0.8 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
-    transition: { type: "spring", stiffness: 500, damping: 30 }
+    transition: { type: "spring", stiffness: 500, damping: 30 },
   },
-  exit: { 
-    opacity: 0, 
+  exit: {
+    opacity: 0,
     scale: 0.8,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
 };
 
@@ -158,17 +158,17 @@ export function SearchFilter({
   // Get filter display value
   const getFilterDisplayValue = (filter: FilterGroup, value: any) => {
     if (!value) return null;
-    
+
     if (Array.isArray(value)) {
       if (value.length === 0) return null;
       if (value.length === 1) {
-        const option = filter.options?.find(opt => opt.value === value[0]);
+        const option = filter.options?.find((opt) => opt.value === value[0]);
         return option?.label || value[0];
       }
       return `${value.length} selected`;
     }
-    
-    const option = filter.options?.find(opt => opt.value === value);
+
+    const option = filter.options?.find((opt) => opt.value === value);
     return option?.label || value;
   };
 
@@ -183,24 +183,32 @@ export function SearchFilter({
             <Label className="text-sm font-medium">{filter.label}</Label>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {filter.options?.map((option) => {
-                const isChecked = Array.isArray(value) 
+                const isChecked = Array.isArray(value)
                   ? value.includes(option.value)
                   : value === option.value;
-                
+
                 return (
-                  <div key={option.value} className="flex items-center space-x-2">
+                  <div
+                    key={option.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={`${filter.id}-${option.value}`}
                       checked={isChecked}
                       onCheckedChange={(checked) => {
                         if (filter.multiple) {
-                          const currentValues = Array.isArray(value) ? value : [];
+                          const currentValues = Array.isArray(value)
+                            ? value
+                            : [];
                           const newValues = checked
                             ? [...currentValues, option.value]
-                            : currentValues.filter(v => v !== option.value);
+                            : currentValues.filter((v) => v !== option.value);
                           handleFilterChange(filter.id, newValues);
                         } else {
-                          handleFilterChange(filter.id, checked ? option.value : null);
+                          handleFilterChange(
+                            filter.id,
+                            checked ? option.value : null,
+                          );
                         }
                       }}
                       disabled={option.disabled}
@@ -231,7 +239,9 @@ export function SearchFilter({
             <Label className="text-sm font-medium">{filter.label}</Label>
             <RadioGroup
               value={value || ""}
-              onValueChange={(newValue) => handleFilterChange(filter.id, newValue)}
+              onValueChange={(newValue) =>
+                handleFilterChange(filter.id, newValue)
+              }
             >
               {filter.options?.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
@@ -265,7 +275,9 @@ export function SearchFilter({
             <Label className="text-sm font-medium">{filter.label}</Label>
             <Select
               value={value || ""}
-              onValueChange={(newValue) => handleFilterChange(filter.id, newValue)}
+              onValueChange={(newValue) =>
+                handleFilterChange(filter.id, newValue)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder={filter.placeholder || "Select..."} />
@@ -314,20 +326,24 @@ export function SearchFilter({
                 type="number"
                 placeholder="Min"
                 value={value?.min || ""}
-                onChange={(e) => handleFilterChange(filter.id, {
-                  ...value,
-                  min: e.target.value
-                })}
+                onChange={(e) =>
+                  handleFilterChange(filter.id, {
+                    ...value,
+                    min: e.target.value,
+                  })
+                }
               />
               <span className="text-muted-foreground">to</span>
               <Input
                 type="number"
                 placeholder="Max"
                 value={value?.max || ""}
-                onChange={(e) => handleFilterChange(filter.id, {
-                  ...value,
-                  max: e.target.value
-                })}
+                onChange={(e) =>
+                  handleFilterChange(filter.id, {
+                    ...value,
+                    max: e.target.value,
+                  })
+                }
               />
             </div>
           </div>
@@ -356,16 +372,18 @@ export function SearchFilter({
             sizeClasses[size],
             searchFocused && "ring-2 ring-primary/20",
             rtl && "text-right",
-            searchClassName
+            searchClassName,
           )}
           dir={rtl ? "rtl" : "ltr"}
         />
-        
+
         {/* Search Icon */}
-        <div className={cn(
-          "absolute inset-y-0 flex items-center pointer-events-none",
-          rtl ? "right-3" : "left-3"
-        )}>
+        <div
+          className={cn(
+            "absolute inset-y-0 flex items-center pointer-events-none",
+            rtl ? "right-3" : "left-3",
+          )}
+        >
           <RiSearch2Line className="h-4 w-4 text-muted-foreground" />
         </div>
 
@@ -377,7 +395,7 @@ export function SearchFilter({
             exit={{ opacity: 0, scale: 0.8 }}
             className={cn(
               "absolute inset-y-0 flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-colors",
-              rtl ? "left-1" : "right-1"
+              rtl ? "left-1" : "right-1",
             )}
             onClick={() => onSearchChange?.("")}
             disabled={disabled}
@@ -395,10 +413,7 @@ export function SearchFilter({
               variant="outline"
               size={size}
               disabled={disabled || loading}
-              className={cn(
-                "gap-2 relative",
-                filterButtonClassName
-              )}
+              className={cn("gap-2 relative", filterButtonClassName)}
             >
               <RiFilter3Line className="h-4 w-4" />
               <span>Filter</span>
@@ -413,11 +428,7 @@ export function SearchFilter({
 
           <AnimatePresence>
             {isFilterOpen && (
-              <PopoverContent
-                className="w-80 p-0"
-                align="end"
-                asChild
-              >
+              <PopoverContent className="w-80 p-0" align="end" asChild>
                 <motion.div
                   variants={filterVariants}
                   initial="hidden"
@@ -445,7 +456,9 @@ export function SearchFilter({
                       {filters.map((filter, index) => (
                         <div key={filter.id}>
                           {renderFilterControl(filter)}
-                          {index < filters.length - 1 && <Separator className="mt-4" />}
+                          {index < filters.length - 1 && (
+                            <Separator className="mt-4" />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -462,7 +475,7 @@ export function SearchFilter({
         {variant === "expanded" && (
           <div className="flex items-center gap-2 flex-wrap">
             {Object.entries(activeFilters).map(([filterId, value]) => {
-              const filter = filters.find(f => f.id === filterId);
+              const filter = filters.find((f) => f.id === filterId);
               if (!filter || !value) return null;
 
               const displayValue = getFilterDisplayValue(filter, value);
@@ -542,7 +555,7 @@ export const filterPresets = {
 
 // Helper function to create filter options
 export function createFilterOptions(
-  items: string[] | Array<{ label: string; value: string; count?: number }>
+  items: string[] | Array<{ label: string; value: string; count?: number }>,
 ): FilterOption[] {
   return items.map((item) => {
     if (typeof item === "string") {

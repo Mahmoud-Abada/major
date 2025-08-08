@@ -52,21 +52,23 @@ export default function TeachersPage() {
           teacher.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           teacher.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
           teacher.subjects.some((subject) =>
-            subject.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+            subject.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       );
     }
 
     // Filter by subject
     if (selectedSubject !== "all") {
       filtered = filtered.filter((teacher) =>
-        teacher.subjects.includes(selectedSubject)
+        teacher.subjects.includes(selectedSubject),
       );
     }
 
     // Filter by status
     if (selectedStatus !== "all") {
-      filtered = filtered.filter((teacher) => teacher.status === selectedStatus);
+      filtered = filtered.filter(
+        (teacher) => teacher.status === selectedStatus,
+      );
     }
 
     // Sort teachers
@@ -74,7 +76,7 @@ export default function TeachersPage() {
       switch (sortBy) {
         case "name":
           return `${a.firstName} ${a.lastName}`.localeCompare(
-            `${b.firstName} ${b.lastName}`
+            `${b.firstName} ${b.lastName}`,
           );
         case "experience":
           return b.yearsOfExperience - a.yearsOfExperience;
@@ -93,17 +95,20 @@ export default function TeachersPage() {
   // Get teacher statistics
   const teacherStats = useMemo(() => {
     const allSubjects = mockTeachers.flatMap((t) => t.subjects);
-    const subjectCounts = allSubjects.reduce((acc, subject) => {
-      acc[subject] = (acc[subject] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const subjectCounts = allSubjects.reduce(
+      (acc, subject) => {
+        acc[subject] = (acc[subject] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const stats = {
       total: mockTeachers.length,
       active: mockTeachers.filter((t) => t.status === "active").length,
       avgExperience: Math.round(
         mockTeachers.reduce((sum, t) => sum + t.yearsOfExperience, 0) /
-        mockTeachers.length
+          mockTeachers.length,
       ),
       totalSubjects: Object.keys(subjectCounts).length,
       subjectCounts,
@@ -115,7 +120,7 @@ export default function TeachersPage() {
     setSelectedTeachers((prev) =>
       prev.includes(teacherId)
         ? prev.filter((id) => id !== teacherId)
-        : [...prev, teacherId]
+        : [...prev, teacherId],
     );
   };
 
@@ -125,7 +130,7 @@ export default function TeachersPage() {
   };
 
   const allSubjects = Array.from(
-    new Set(mockTeachers.flatMap((t) => t.subjects))
+    new Set(mockTeachers.flatMap((t) => t.subjects)),
   ).sort();
 
   return (
@@ -194,7 +199,9 @@ export default function TeachersPage() {
               <div className="text-2xl font-bold text-blue-600">
                 {teacherStats.avgExperience}
               </div>
-              <p className="text-xs text-muted-foreground">Avg. Experience (years)</p>
+              <p className="text-xs text-muted-foreground">
+                Avg. Experience (years)
+              </p>
             </CardContent>
           </Card>
         </motion.div>

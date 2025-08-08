@@ -13,7 +13,7 @@ import {
   MessageSquare,
   MoreHorizontal,
   Phone,
-  User
+  User,
 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 // User type - will be replaced with actual API types
@@ -39,7 +39,7 @@ const cardVariants = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
   hover: { scale: 1.02 },
-  transition: { duration: 0.2 }
+  transition: { duration: 0.2 },
 };
 
 export function ProfileCard({
@@ -91,7 +91,10 @@ export function ProfileCard({
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+                <AvatarImage
+                  src={user.avatar}
+                  alt={`${user.firstName} ${user.lastName}`}
+                />
                 <AvatarFallback className="text-sm font-semibold">
                   {getInitials(user.firstName, user.lastName)}
                 </AvatarFallback>
@@ -112,17 +115,25 @@ export function ProfileCard({
               {showActions && (
                 <div className="flex items-center gap-1">
                   {onMessage && (
-                    <Button size="sm" variant="ghost" onClick={(e) => {
-                      e.stopPropagation();
-                      onMessage();
-                    }}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMessage();
+                      }}
+                    >
                       <MessageSquare className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button size="sm" variant="ghost" onClick={(e) => {
-                    e.stopPropagation();
-                    // Handle more actions
-                  }}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Handle more actions
+                    }}
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </div>
@@ -147,7 +158,10 @@ export function ProfileCard({
         <CardContent className="relative pt-0 pb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12">
             <Avatar className="h-20 w-20 border-4 border-background shadow-lg">
-              <AvatarImage src={user.avatar} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarImage
+                src={user.avatar}
+                alt={`${user.firstName} ${user.lastName}`}
+              />
               <AvatarFallback className="text-lg font-semibold">
                 {getInitials(user.firstName, user.lastName)}
               </AvatarFallback>
@@ -160,7 +174,10 @@ export function ProfileCard({
                     {user.firstName} {user.lastName}
                   </h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className={getRoleColor(user.role)} variant="outline">
+                    <Badge
+                      className={getRoleColor(user.role)}
+                      variant="outline"
+                    >
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                     <StatusBadge status={user.status} />
@@ -240,26 +257,35 @@ export function ProfileCard({
             <div className="mt-4 pt-4 border-t">
               <div className="space-y-2">
                 <div>
-                  <span className="text-sm text-muted-foreground">Experience:</span>
-                  <p className="text-sm font-medium">{(user as any).yearsOfExperience} years</p>
+                  <span className="text-sm text-muted-foreground">
+                    Experience:
+                  </span>
+                  <p className="text-sm font-medium">
+                    {(user as any).yearsOfExperience} years
+                  </p>
                 </div>
-                {(user as any).subjects && (user as any).subjects.length > 0 && (
-                  <div>
-                    <span className="text-sm text-muted-foreground">Subjects:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {(user as any).subjects.slice(0, 3).map((subject: string, index: number) => (
-                        <Badge key={index} variant="secondary">
-                          {subject}
-                        </Badge>
-                      ))}
-                      {(user as any).subjects.length > 3 && (
-                        <Badge variant="outline">
-                          +{(user as any).subjects.length - 3} more
-                        </Badge>
-                      )}
+                {(user as any).subjects &&
+                  (user as any).subjects.length > 0 && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">
+                        Subjects:
+                      </span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {(user as any).subjects
+                          .slice(0, 3)
+                          .map((subject: string, index: number) => (
+                            <Badge key={index} variant="secondary">
+                              {subject}
+                            </Badge>
+                          ))}
+                        {(user as any).subjects.length > 3 && (
+                          <Badge variant="outline">
+                            +{(user as any).subjects.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           )}
@@ -268,19 +294,31 @@ export function ProfileCard({
             <div className="mt-4 pt-4 border-t">
               <div className="space-y-2">
                 <div>
-                  <span className="text-sm text-muted-foreground">Relationship:</span>
-                  <p className="text-sm font-medium capitalize">{(user as any).relationship}</p>
+                  <span className="text-sm text-muted-foreground">
+                    Relationship:
+                  </span>
+                  <p className="text-sm font-medium capitalize">
+                    {(user as any).relationship}
+                  </p>
                 </div>
                 {(user as any).occupation && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Occupation:</span>
-                    <p className="text-sm font-medium">{(user as any).occupation}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Occupation:
+                    </span>
+                    <p className="text-sm font-medium">
+                      {(user as any).occupation}
+                    </p>
                   </div>
                 )}
                 {(user as any).children && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Children:</span>
-                    <p className="text-sm font-medium">{(user as any).children.length} child(ren)</p>
+                    <span className="text-sm text-muted-foreground">
+                      Children:
+                    </span>
+                    <p className="text-sm font-medium">
+                      {(user as any).children.length} child(ren)
+                    </p>
                   </div>
                 )}
               </div>
@@ -292,14 +330,22 @@ export function ProfileCard({
               <div className="space-y-2">
                 {(user as any).department && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Department:</span>
-                    <p className="text-sm font-medium">{(user as any).department}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Department:
+                    </span>
+                    <p className="text-sm font-medium">
+                      {(user as any).department}
+                    </p>
                   </div>
                 )}
                 {(user as any).position && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Position:</span>
-                    <p className="text-sm font-medium">{(user as any).position}</p>
+                    <span className="text-sm text-muted-foreground">
+                      Position:
+                    </span>
+                    <p className="text-sm font-medium">
+                      {(user as any).position}
+                    </p>
                   </div>
                 )}
               </div>

@@ -20,13 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { authService } from "@/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Camera,
-  Mail,
-  Save,
-  User
-} from "lucide-react";
+import { ArrowLeft, Camera, Mail, Save, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -49,7 +43,7 @@ const pageVariants = {
 const cardVariants = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
-  transition: { duration: 0.2 }
+  transition: { duration: 0.2 },
 };
 
 // Form validation schema
@@ -206,9 +200,7 @@ export default function EditProfilePage() {
               <p className="text-muted-foreground mb-4">
                 Please sign in to edit your profile.
               </p>
-              <Button onClick={() => router.push("/signin")}>
-                Sign In
-              </Button>
+              <Button onClick={() => router.push("/signin")}>Sign In</Button>
             </div>
           </CardContent>
         </Card>
@@ -274,7 +266,10 @@ export default function EditProfilePage() {
                     Edit Profile
                   </h1>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge className={getRoleColor(user.role)} variant="outline">
+                    <Badge
+                      className={getRoleColor(user.role)}
+                      variant="outline"
+                    >
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                   </div>
@@ -285,11 +280,7 @@ export default function EditProfilePage() {
         </motion.div>
 
         {/* Edit Form */}
-        <motion.div
-          variants={cardVariants}
-          initial="initial"
-          animate="animate"
-        >
+        <motion.div variants={cardVariants} initial="initial" animate="animate">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -299,7 +290,10 @@ export default function EditProfilePage() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Basic Information */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
@@ -309,7 +303,10 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter your first name" {...field} />
+                            <Input
+                              placeholder="Enter your first name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -323,7 +320,10 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter your last name" {...field} />
+                            <Input
+                              placeholder="Enter your last name"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -361,7 +361,10 @@ export default function EditProfilePage() {
                           <FormItem>
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter your phone number" {...field} />
+                              <Input
+                                placeholder="Enter your phone number"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -394,7 +397,9 @@ export default function EditProfilePage() {
                     <>
                       <Separator />
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Professional Information</h3>
+                        <h3 className="text-lg font-semibold">
+                          Professional Information
+                        </h3>
 
                         <FormField
                           control={form.control}
@@ -422,7 +427,9 @@ export default function EditProfilePage() {
                     <>
                       <Separator />
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Student Information</h3>
+                        <h3 className="text-lg font-semibold">
+                          Student Information
+                        </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <FormField
@@ -432,7 +439,10 @@ export default function EditProfilePage() {
                               <FormItem>
                                 <FormLabel>Nationality</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter your nationality" {...field} />
+                                  <Input
+                                    placeholder="Enter your nationality"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -446,7 +456,10 @@ export default function EditProfilePage() {
                               <FormItem>
                                 <FormLabel>Blood Group</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter your blood group" {...field} />
+                                  <Input
+                                    placeholder="Enter your blood group"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -461,7 +474,9 @@ export default function EditProfilePage() {
                     <>
                       <Separator />
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Parent Information</h3>
+                        <h3 className="text-lg font-semibold">
+                          Parent Information
+                        </h3>
 
                         <FormField
                           control={form.control}
@@ -470,7 +485,10 @@ export default function EditProfilePage() {
                             <FormItem>
                               <FormLabel>Occupation</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter your occupation" {...field} />
+                                <Input
+                                  placeholder="Enter your occupation"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>

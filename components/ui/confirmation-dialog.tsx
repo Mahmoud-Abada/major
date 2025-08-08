@@ -101,19 +101,19 @@ const sizeConfig = {
 
 const dialogVariants = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
     transition: {
       type: "spring",
       duration: 0.3,
       staggerChildren: 0.1,
-    }
+    },
   },
-  exit: { 
-    opacity: 0, 
+  exit: {
+    opacity: 0,
     scale: 0.95,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
 };
 
@@ -175,7 +175,13 @@ export function ConfirmationDialog({
       return false;
     }
     return true;
-  }, [requireConfirmation, confirmationInput, confirmationText, showCheckbox, checkboxChecked]);
+  }, [
+    requireConfirmation,
+    confirmationInput,
+    confirmationText,
+    showCheckbox,
+    checkboxChecked,
+  ]);
 
   const handleConfirm = async () => {
     if (!isConfirmationValid || disabled || isLoading) return;
@@ -204,10 +210,7 @@ export function ConfirmationDialog({
   };
 
   const dialogContent = (
-    <AlertDialogContent 
-      className={cn("max-w-md", className)}
-      asChild
-    >
+    <AlertDialogContent className={cn("max-w-md", className)} asChild>
       <motion.div
         variants={dialogVariants}
         initial="hidden"
@@ -222,10 +225,12 @@ export function ConfirmationDialog({
             className={cn(
               "flex items-center justify-center rounded-full flex-shrink-0",
               sizeConf.iconContainer,
-              config.iconBg
+              config.iconBg,
             )}
           >
-            <IconComponent className={cn(sizeConf.iconSize, config.iconColor)} />
+            <IconComponent
+              className={cn(sizeConf.iconSize, config.iconColor)}
+            />
           </motion.div>
 
           {/* Content */}
@@ -236,7 +241,7 @@ export function ConfirmationDialog({
                   {title}
                 </AlertDialogTitle>
               </motion.div>
-              
+
               {description && (
                 <motion.div variants={itemVariants}>
                   <AlertDialogDescription className={sizeConf.description}>
@@ -248,15 +253,16 @@ export function ConfirmationDialog({
 
             {/* Additional content */}
             {children && (
-              <motion.div variants={itemVariants}>
-                {children}
-              </motion.div>
+              <motion.div variants={itemVariants}>{children}</motion.div>
             )}
 
             {/* Confirmation input */}
             {requireConfirmation && (
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="confirmation-input" className="text-sm font-medium">
+                <Label
+                  htmlFor="confirmation-input"
+                  className="text-sm font-medium"
+                >
                   Type "{confirmationText}" to confirm:
                 </Label>
                 <Input
@@ -266,9 +272,11 @@ export function ConfirmationDialog({
                   placeholder={confirmationPlaceholder}
                   className={cn(
                     "transition-colors",
-                    requireConfirmation && confirmationInput !== confirmationText && confirmationInput.length > 0
+                    requireConfirmation &&
+                      confirmationInput !== confirmationText &&
+                      confirmationInput.length > 0
                       ? "border-destructive focus:border-destructive"
-                      : ""
+                      : "",
                   )}
                   autoComplete="off"
                 />
@@ -277,11 +285,16 @@ export function ConfirmationDialog({
 
             {/* Checkbox */}
             {showCheckbox && (
-              <motion.div variants={itemVariants} className="flex items-center space-x-2">
+              <motion.div
+                variants={itemVariants}
+                className="flex items-center space-x-2"
+              >
                 <Checkbox
                   id="confirmation-checkbox"
                   checked={checkboxChecked}
-                  onCheckedChange={(checked) => setCheckboxChecked(checked === true)}
+                  onCheckedChange={(checked) =>
+                    setCheckboxChecked(checked === true)
+                  }
                 />
                 <Label
                   htmlFor="confirmation-checkbox"
@@ -305,7 +318,7 @@ export function ConfirmationDialog({
                     {cancelText}
                   </Button>
                 </AlertDialogCancel>
-                
+
                 <AlertDialogAction asChild>
                   <Button
                     variant={config.confirmVariant}
@@ -320,8 +333,12 @@ export function ConfirmationDialog({
                       </>
                     ) : (
                       <>
-                        {variant === "destructive" && <RiDeleteBinLine className="h-4 w-4" />}
-                        {variant === "default" && <RiCheckLine className="h-4 w-4" />}
+                        {variant === "destructive" && (
+                          <RiDeleteBinLine className="h-4 w-4" />
+                        )}
+                        {variant === "default" && (
+                          <RiCheckLine className="h-4 w-4" />
+                        )}
                         <span>{confirmText}</span>
                       </>
                     )}
@@ -338,21 +355,15 @@ export function ConfirmationDialog({
   if (trigger) {
     return (
       <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-        <AlertDialogTrigger asChild>
-          {trigger}
-        </AlertDialogTrigger>
-        <AnimatePresence>
-          {isOpen && dialogContent}
-        </AnimatePresence>
+        <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+        <AnimatePresence>{isOpen && dialogContent}</AnimatePresence>
       </AlertDialog>
     );
   }
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AnimatePresence>
-        {isOpen && dialogContent}
-      </AnimatePresence>
+      <AnimatePresence>{isOpen && dialogContent}</AnimatePresence>
     </AlertDialog>
   );
 }
@@ -360,7 +371,9 @@ export function ConfirmationDialog({
 // Preset confirmation dialogs
 export const ConfirmationDialogs = {
   // Delete confirmation
-  Delete: (props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">) => (
+  Delete: (
+    props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">,
+  ) => (
     <ConfirmationDialog
       variant="destructive"
       title="Delete Item"
@@ -370,7 +383,9 @@ export const ConfirmationDialogs = {
   ),
 
   // Destructive action with text confirmation
-  DestructiveWithConfirmation: (props: Omit<ConfirmationDialogProps, "variant" | "requireConfirmation">) => (
+  DestructiveWithConfirmation: (
+    props: Omit<ConfirmationDialogProps, "variant" | "requireConfirmation">,
+  ) => (
     <ConfirmationDialog
       variant="destructive"
       requireConfirmation={true}
@@ -380,7 +395,9 @@ export const ConfirmationDialogs = {
   ),
 
   // Save changes confirmation
-  SaveChanges: (props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">) => (
+  SaveChanges: (
+    props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">,
+  ) => (
     <ConfirmationDialog
       variant="default"
       title="Save Changes"
@@ -390,7 +407,9 @@ export const ConfirmationDialogs = {
   ),
 
   // Discard changes warning
-  DiscardChanges: (props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">) => (
+  DiscardChanges: (
+    props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">,
+  ) => (
     <ConfirmationDialog
       variant="warning"
       title="Discard Changes"
@@ -401,7 +420,9 @@ export const ConfirmationDialogs = {
   ),
 
   // Logout confirmation
-  Logout: (props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">) => (
+  Logout: (
+    props: Omit<ConfirmationDialogProps, "variant" | "title" | "confirmText">,
+  ) => (
     <ConfirmationDialog
       variant="warning"
       title="Sign Out"
@@ -415,36 +436,44 @@ export const ConfirmationDialogs = {
 // Hook for managing confirmation dialog state
 export function useConfirmationDialog() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [config, setConfig] = React.useState<Partial<ConfirmationDialogProps>>({});
+  const [config, setConfig] = React.useState<Partial<ConfirmationDialogProps>>(
+    {},
+  );
 
-  const openDialog = React.useCallback((dialogConfig: Partial<ConfirmationDialogProps>) => {
-    setConfig(dialogConfig);
-    setIsOpen(true);
-  }, []);
+  const openDialog = React.useCallback(
+    (dialogConfig: Partial<ConfirmationDialogProps>) => {
+      setConfig(dialogConfig);
+      setIsOpen(true);
+    },
+    [],
+  );
 
   const closeDialog = React.useCallback(() => {
     setIsOpen(false);
     setConfig({});
   }, []);
 
-  const confirmDialog = React.useCallback((dialogConfig: Partial<ConfirmationDialogProps>) => {
-    return new Promise<boolean>((resolve) => {
-      setConfig({
-        ...dialogConfig,
-        onConfirm: async () => {
-          await dialogConfig.onConfirm?.();
-          resolve(true);
-          closeDialog();
-        },
-        onCancel: () => {
-          dialogConfig.onCancel?.();
-          resolve(false);
-          closeDialog();
-        },
+  const confirmDialog = React.useCallback(
+    (dialogConfig: Partial<ConfirmationDialogProps>) => {
+      return new Promise<boolean>((resolve) => {
+        setConfig({
+          ...dialogConfig,
+          onConfirm: async () => {
+            await dialogConfig.onConfirm?.();
+            resolve(true);
+            closeDialog();
+          },
+          onCancel: () => {
+            dialogConfig.onCancel?.();
+            resolve(false);
+            closeDialog();
+          },
+        });
+        setIsOpen(true);
       });
-      setIsOpen(true);
-    });
-  }, [closeDialog]);
+    },
+    [closeDialog],
+  );
 
   return {
     isOpen,
@@ -460,16 +489,23 @@ interface ConfirmationContextType {
   confirm: (config: Partial<ConfirmationDialogProps>) => Promise<boolean>;
 }
 
-const ConfirmationContext = React.createContext<ConfirmationContextType | null>(null);
+const ConfirmationContext = React.createContext<ConfirmationContextType | null>(
+  null,
+);
 
-export function ConfirmationProvider({ children }: { children: React.ReactNode }) {
-  const { isOpen, config, confirmDialog, closeDialog } = useConfirmationDialog();
+export function ConfirmationProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { isOpen, config, confirmDialog, closeDialog } =
+    useConfirmationDialog();
 
   const confirm = React.useCallback(
     (dialogConfig: Partial<ConfirmationDialogProps>) => {
       return confirmDialog(dialogConfig);
     },
-    [confirmDialog]
+    [confirmDialog],
   );
 
   return (
@@ -489,7 +525,9 @@ export function ConfirmationProvider({ children }: { children: React.ReactNode }
 export function useConfirmation() {
   const context = React.useContext(ConfirmationContext);
   if (!context) {
-    throw new Error("useConfirmation must be used within a ConfirmationProvider");
+    throw new Error(
+      "useConfirmation must be used within a ConfirmationProvider",
+    );
   }
   return context;
 }

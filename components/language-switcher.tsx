@@ -10,15 +10,15 @@ import {
 import { Locale } from "@/i18n/config";
 import { Check, Globe } from "lucide-react";
 // Mock i18n functions since the module doesn't exist
-const useI18n = () => ({ 
-  locale: 'en',
-  setLocale: (locale: string) => console.log('Setting locale:', locale),
-  t: (key: string) => key
+const useI18n = () => ({
+  locale: "en",
+  setLocale: (locale: string) => console.log("Setting locale:", locale),
+  t: (key: string) => key,
 });
 const getAvailableLocales = () => [
-  { value: 'en', label: 'English', nativeName: 'English' },
-  { value: 'fr', label: 'Français', nativeName: 'Français' },
-  { value: 'ar', label: 'العربية', nativeName: 'العربية' }
+  { value: "en", label: "English", nativeName: "English" },
+  { value: "fr", label: "Français", nativeName: "Français" },
+  { value: "ar", label: "العربية", nativeName: "العربية" },
 ];
 
 export default function LanguageSwitcher() {
@@ -46,11 +46,7 @@ export default function LanguageSwitcher() {
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-48"
-        sideOffset={4}
-      >
+      <DropdownMenuContent align="end" className="w-48" sideOffset={4}>
         <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border">
           {t("language.selectLanguage")}
         </div>

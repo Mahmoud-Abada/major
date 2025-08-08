@@ -2,80 +2,80 @@
 
 import { ClassroomCard } from "@/components/classroom/ClassroomCard";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { useClassroomManager, useClassroomOperations } from "@/hooks/useClassroom";
-import { AnimatePresence, motion } from "framer-motion";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
-  BookOpen,
-  Grid3X3,
-  List,
-  Plus,
-  RefreshCw,
-  Search
-} from "lucide-react";
+  useClassroomManager,
+  useClassroomOperations,
+} from "@/hooks/useClassroom";
+import { AnimatePresence, motion } from "framer-motion";
+import { BookOpen, Grid3X3, List, Plus, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 
 export default function ClassesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState("all");
   const { toast } = useToast();
+  const { user } = useAuthContext();
 
-  // Fetch classrooms using the API
-  const {
-    classrooms,
-    loading,
-    error,
-    refresh
-  } = useClassroomManager({
-    status: activeTab === 'archived' ? 'archived' : 'active',
+  // Fetch classrooms using the API with current user
+  const { classrooms, loading, error, refresh } = useClassroomManager({
+    status: activeTab === "archived" ? "archived" : "active",
     pagination: { numItems: 50 },
-    fetchBy: { userType: 'teacher', userId: 'current_user' }
+    fetchBy: { userType: user?.userType || "teacher", userId: user?.id || "current_user" },
   });
 
   const {
-    updateClassroom,
     deleteClassroom,
     archiveClassroom,
     unarchiveClassroom,
-    loading: operationsLoading
   } = useClassroomOperations();
 
   // Filter classrooms based on search and active tab
-  const filteredClassrooms = classrooms.filter(classroom => {
-    const matchesSearch = classroom.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredClassrooms = classrooms.filter((classroom) => {
+    const matchesSearch =
+      classroom.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       classroom.field.toLowerCase().includes(searchQuery.toLowerCase()) ||
       classroom.level.toLowerCase().includes(searchQuery.toLowerCase());
 
     let matchesTab = true;
     switch (activeTab) {
-      case 'all':
+      case "all":
         matchesTab = true;
         break;
-      case 'active':
+      case "active":
         matchesTab = !classroom.isArchived;
         break;
-      case 'archived':
+      case "archived":
         matchesTab = classroom.isArchived;
         break;
-      case 'sciences':
-        matchesTab = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science'].includes(classroom.field);
+      case "sciences":
+        matchesTab = [
+          "Mathematics",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Computer Science",
+        ].includes(classroom.field);
         break;
-      case 'languages':
-        matchesTab = ['Arabic', 'French', 'English', 'Languages', 'Literature'].includes(classroom.field);
+      case "languages":
+        matchesTab = [
+          "Arabic",
+          "French",
+          "English",
+          "Languages",
+          "Literature",
+        ].includes(classroom.field);
         break;
-      case 'high-school':
-        matchesTab = classroom.level === 'High School';
+      case "high-school":
+        matchesTab = classroom.level === "High School";
         break;
-      case 'university':
-        matchesTab = classroom.level === 'University';
+      case "university":
+        matchesTab = classroom.level === "University";
         break;
     }
 
@@ -92,66 +92,78 @@ export default function ClassesPage() {
   };
 
   const handleDeleteClassroom = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this classroom?')) return;
+    if (!confirm("Are you sure you want to delete this classroom?")) return;
 
     try {
       await deleteClassroom(id);
       toast({
-        title: 'Success',
-        description: 'Classroom deleted successfully',
+        title: "Success",
+        description: "Classroom deleted successfully",
       });
       refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to delete classroom',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete classroom",
+        variant: "destructive",
       });
     }
   };
 
   const handleArchiveClassroom = async (id: string) => {
     try {
-      const classroom = classrooms.find(c => c.id === id);
+      const classroom = classrooms.find((c) => c.id === id);
       if (classroom?.isArchived) {
         await unarchiveClassroom(id);
         toast({
-          title: 'Success',
-          description: 'Classroom unarchived successfully',
+          title: "Success",
+          description: "Classroom unarchived successfully",
         });
       } else {
         await archiveClassroom(id);
         toast({
-          title: 'Success',
-          description: 'Classroom archived successfully',
+          title: "Success",
+          description: "Classroom archived successfully",
         });
       }
       refresh();
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update classroom',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to update classroom",
+        variant: "destructive",
       });
     }
   };
 
   const getTabCount = (tab: string) => {
     switch (tab) {
-      case 'all':
+      case "all":
         return classrooms.length;
-      case 'active':
-        return classrooms.filter(c => !c.isArchived).length;
-      case 'archived':
-        return classrooms.filter(c => c.isArchived).length;
-      case 'sciences':
-        return classrooms.filter(c => ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science'].includes(c.field)).length;
-      case 'languages':
-        return classrooms.filter(c => ['Arabic', 'French', 'English', 'Languages', 'Literature'].includes(c.field)).length;
-      case 'high-school':
-        return classrooms.filter(c => c.level === 'High School').length;
-      case 'university':
-        return classrooms.filter(c => c.level === 'University').length;
+      case "active":
+        return classrooms.filter((c) => !c.isArchived).length;
+      case "archived":
+        return classrooms.filter((c) => c.isArchived).length;
+      case "sciences":
+        return classrooms.filter((c) =>
+          [
+            "Mathematics",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Computer Science",
+          ].includes(c.field),
+        ).length;
+      case "languages":
+        return classrooms.filter((c) =>
+          ["Arabic", "French", "English", "Languages", "Literature"].includes(
+            c.field,
+          ),
+        ).length;
+      case "high-school":
+        return classrooms.filter((c) => c.level === "High School").length;
+      case "university":
+        return classrooms.filter((c) => c.level === "University").length;
       default:
         return 0;
     }
@@ -163,7 +175,9 @@ export default function ClassesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Classes</h1>
-          <p className="text-muted-foreground">Manage your classroom sessions</p>
+          <p className="text-muted-foreground">
+            Manage your classroom sessions
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -173,11 +187,15 @@ export default function ClassesPage() {
             onClick={refresh}
             disabled={loading}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
 
-          <Button onClick={() => window.location.href = '/classroom/classes/create'}>
+          <Button
+            onClick={() => (window.location.href = "/classroom/classrooms/create")}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Class
           </Button>
@@ -198,16 +216,16 @@ export default function ClassesPage() {
 
         <div className="flex items-center gap-2">
           <Button
-            variant={viewMode === 'grid' ? 'default' : 'outline'}
+            variant={viewMode === "grid" ? "default" : "outline"}
             size="sm"
-            onClick={() => setViewMode('grid')}
+            onClick={() => setViewMode("grid")}
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>
           <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
+            variant={viewMode === "list" ? "default" : "outline"}
             size="sm"
-            onClick={() => setViewMode('list')}
+            onClick={() => setViewMode("list")}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -217,17 +235,37 @@ export default function ClassesPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="all">All ({getTabCount('all')})</TabsTrigger>
-          <TabsTrigger value="active">Active ({getTabCount('active')})</TabsTrigger>
-          <TabsTrigger value="archived">Archived ({getTabCount('archived')})</TabsTrigger>
-          <TabsTrigger value="sciences">Sciences ({getTabCount('sciences')})</TabsTrigger>
-          <TabsTrigger value="languages">Languages ({getTabCount('languages')})</TabsTrigger>
-          <TabsTrigger value="high-school">High School ({getTabCount('high-school')})</TabsTrigger>
-          <TabsTrigger value="university">University ({getTabCount('university')})</TabsTrigger>
+          <TabsTrigger value="all">All ({getTabCount("all")})</TabsTrigger>
+          <TabsTrigger value="active">
+            Active ({getTabCount("active")})
+          </TabsTrigger>
+          <TabsTrigger value="archived">
+            Archived ({getTabCount("archived")})
+          </TabsTrigger>
+          <TabsTrigger value="sciences">
+            Sciences ({getTabCount("sciences")})
+          </TabsTrigger>
+          <TabsTrigger value="languages">
+            Languages ({getTabCount("languages")})
+          </TabsTrigger>
+          <TabsTrigger value="high-school">
+            High School ({getTabCount("high-school")})
+          </TabsTrigger>
+          <TabsTrigger value="university">
+            University ({getTabCount("university")})
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Contents */}
-        {['all', 'active', 'archived', 'sciences', 'languages', 'high-school', 'university'].map(tab => (
+        {[
+          "all",
+          "active",
+          "archived",
+          "sciences",
+          "languages",
+          "high-school",
+          "university",
+        ].map((tab) => (
           <TabsContent key={tab} value={tab} className="mt-6">
             {error && (
               <Card className="border-destructive mb-6">
@@ -241,11 +279,13 @@ export default function ClassesPage() {
             )}
 
             {/* Classrooms Grid/List */}
-            <div className={
-              viewMode === 'grid'
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                : "space-y-4"
-            }>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-4"
+              }
+            >
               <AnimatePresence>
                 {filteredClassrooms.map((classroom) => (
                   <motion.div
@@ -298,15 +338,20 @@ export default function ClassesPage() {
                   <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
                     <BookOpen className="h-12 w-12 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">No classrooms found</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No classrooms found
+                  </h3>
                   <p className="text-muted-foreground mb-4">
                     {searchQuery
-                      ? 'Try adjusting your search criteria'
-                      : `No ${tab === 'all' ? '' : tab + ' '}classrooms available`
-                    }
+                      ? "Try adjusting your search criteria"
+                      : `No ${tab === "all" ? "" : tab + " "}classrooms available`}
                   </p>
-                  {!searchQuery && tab === 'all' && (
-                    <Button onClick={() => window.location.href = '/classroom/classes/create'}>
+                  {!searchQuery && tab === "all" && (
+                    <Button
+                      onClick={() =>
+                        (window.location.href = "/classroom/classrooms/create")
+                      }
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Create First Classroom
                     </Button>

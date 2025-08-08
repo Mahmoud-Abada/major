@@ -51,14 +51,20 @@ export default function AdminsPage() {
           admin.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           admin.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           admin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (admin.department && admin.department.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (admin.position && admin.position.toLowerCase().includes(searchQuery.toLowerCase()))
+          (admin.department &&
+            admin.department
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
+          (admin.position &&
+            admin.position.toLowerCase().includes(searchQuery.toLowerCase())),
       );
     }
 
     // Filter by department
     if (selectedDepartment !== "all") {
-      filtered = filtered.filter((admin) => admin.department === selectedDepartment);
+      filtered = filtered.filter(
+        (admin) => admin.department === selectedDepartment,
+      );
     }
 
     // Filter by status
@@ -71,7 +77,7 @@ export default function AdminsPage() {
       switch (sortBy) {
         case "name":
           return `${a.firstName} ${a.lastName}`.localeCompare(
-            `${b.firstName} ${b.lastName}`
+            `${b.firstName} ${b.lastName}`,
           );
         case "department":
           return (a.department || "").localeCompare(b.department || "");
@@ -92,17 +98,24 @@ export default function AdminsPage() {
   // Get admin statistics
   const adminStats = useMemo(() => {
     const allDepartments = mockAdmins.map((a) => a.department).filter(Boolean);
-    const departmentCounts = allDepartments.reduce((acc, dept) => {
-      acc[dept!] = (acc[dept!] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const departmentCounts = allDepartments.reduce(
+      (acc, dept) => {
+        acc[dept!] = (acc[dept!] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const stats = {
       total: mockAdmins.length,
       active: mockAdmins.filter((a) => a.status === "active").length,
-      totalPermissions: mockAdmins.reduce((sum, a) => sum + a.permissions.length, 0),
+      totalPermissions: mockAdmins.reduce(
+        (sum, a) => sum + a.permissions.length,
+        0,
+      ),
       avgPermissions: Math.round(
-        mockAdmins.reduce((sum, a) => sum + a.permissions.length, 0) / mockAdmins.length
+        mockAdmins.reduce((sum, a) => sum + a.permissions.length, 0) /
+          mockAdmins.length,
       ),
       departmentCounts,
     };
@@ -113,7 +126,7 @@ export default function AdminsPage() {
     setSelectedAdmins((prev) =>
       prev.includes(adminId)
         ? prev.filter((id) => id !== adminId)
-        : [...prev, adminId]
+        : [...prev, adminId],
     );
   };
 
@@ -123,7 +136,7 @@ export default function AdminsPage() {
   };
 
   const departments = Array.from(
-    new Set(mockAdmins.map((a) => a.department).filter(Boolean))
+    new Set(mockAdmins.map((a) => a.department).filter(Boolean)),
   ).sort();
 
   return (
@@ -220,7 +233,9 @@ export default function AdminsPage() {
             <motion.div key={dept} variants={itemVariants}>
               <Card>
                 <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-orange-600">{count}</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {count}
+                  </div>
                   <p className="text-xs text-muted-foreground">{dept}</p>
                 </CardContent>
               </Card>
@@ -245,7 +260,10 @@ export default function AdminsPage() {
             className="pl-10"
           />
         </div>
-        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+        <Select
+          value={selectedDepartment}
+          onValueChange={setSelectedDepartment}
+        >
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Department" />
           </SelectTrigger>

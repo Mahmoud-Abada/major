@@ -5,41 +5,43 @@ import { getDay } from "date-fns";
 import { useMemo, useState } from "react";
 
 import { EventCalendar } from "@/components/calendar/event-calendar/event-calendar";
-import type { CalendarEvent, EventColor } from "@/components/calendar/event-calendar/types";
+import type {
+  CalendarEvent,
+  EventColor,
+} from "@/components/calendar/event-calendar/types";
 
 import { useTranslations } from "next-intl";
 
 // Etiquettes data for calendar filtering - will be translated
 export const getEtiquettes = (t: (key: string) => string) => {
-
   return [
     {
       id: "my-events",
-      name: t('myEvents') || "My Events",
+      name: t("myEvents") || "My Events",
       color: "emerald" as EventColor,
       isActive: true,
     },
     {
       id: "marketing-team",
-      name: t('marketingTeam') || "Marketing Team",
+      name: t("marketingTeam") || "Marketing Team",
       color: "orange" as EventColor,
       isActive: true,
     },
     {
       id: "interviews",
-      name: t('interviews') || "Interviews",
+      name: t("interviews") || "Interviews",
       color: "violet" as EventColor,
       isActive: true,
     },
     {
       id: "events-planning",
-      name: t('eventsPlanning') || "Events Planning",
+      name: t("eventsPlanning") || "Events Planning",
       color: "blue" as EventColor,
       isActive: true,
     },
     {
       id: "holidays",
-      name: t('holidays') || "Holidays",
+      name: t("holidays") || "Holidays",
       color: "rose" as EventColor,
       isActive: true,
     },
@@ -64,7 +66,7 @@ const sampleEvents: CalendarEvent[] = [];
 export default function Component() {
   const [events, setEvents] = useState<CalendarEvent[]>(sampleEvents);
   const { isColorVisible } = useCalendarContext();
-  const t = useTranslations('calendar');
+  const t = useTranslations("calendar");
 
   // Use the regular function with translations
   const etiquettes = useMemo(() => getEtiquettes(t), [t]);

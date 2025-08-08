@@ -29,7 +29,7 @@ import {
   Shield,
   Smartphone,
   Sun,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -78,12 +78,15 @@ interface PreferenceSettingsProps {
 const cardVariants = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.3 }
+  transition: { duration: 0.3 },
 };
 
-export function PreferenceSettings({ onSave, className = "" }: PreferenceSettingsProps) {
+export function PreferenceSettings({
+  onSave,
+  className = "",
+}: PreferenceSettingsProps) {
   const { toast } = useToast();
-  
+
   const [notifications, setNotifications] = useState<NotificationPreferences>({
     email: true,
     push: true,
@@ -125,28 +128,37 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
     // Load saved preferences
     const savedTheme = themeStorage.getTheme();
     const savedLanguage = themeStorage.getLanguage();
-    
-    setDisplay(prev => ({
+
+    setDisplay((prev) => ({
       ...prev,
       theme: savedTheme as "light" | "dark" | "system",
       language: savedLanguage,
     }));
 
     // Load other preferences from storage
-    const savedNotifications = storage.getLocal<NotificationPreferences>("notification_preferences");
-    const savedPrivacy = storage.getLocal<PrivacyPreferences>("privacy_preferences");
-    const savedDisplay = storage.getLocal<DisplayPreferences>("display_preferences");
+    const savedNotifications = storage.getLocal<NotificationPreferences>(
+      "notification_preferences",
+    );
+    const savedPrivacy = storage.getLocal<PrivacyPreferences>(
+      "privacy_preferences",
+    );
+    const savedDisplay = storage.getLocal<DisplayPreferences>(
+      "display_preferences",
+    );
 
     if (savedNotifications) setNotifications(savedNotifications);
     if (savedPrivacy) setPrivacy(savedPrivacy);
-    if (savedDisplay) setDisplay(prev => ({ ...prev, ...savedDisplay }));
+    if (savedDisplay) setDisplay((prev) => ({ ...prev, ...savedDisplay }));
   }, []);
 
-  const handleNotificationChange = (key: keyof NotificationPreferences, value: boolean) => {
+  const handleNotificationChange = (
+    key: keyof NotificationPreferences,
+    value: boolean,
+  ) => {
     const updated = { ...notifications, [key]: value };
     setNotifications(updated);
     storage.setLocal("notification_preferences", updated);
-    
+
     toast({
       title: "Notification Settings Updated",
       description: "Your notification preferences have been saved.",
@@ -165,18 +177,21 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
     if (key === "language") {
       themeStorage.setLanguage(value);
     }
-    
+
     toast({
       title: "Display Settings Updated",
       description: "Your display preferences have been saved.",
     });
   };
 
-  const handlePrivacyChange = (key: keyof PrivacyPreferences, value: boolean | string) => {
+  const handlePrivacyChange = (
+    key: keyof PrivacyPreferences,
+    value: boolean | string,
+  ) => {
     const updated = { ...privacy, [key]: value };
     setPrivacy(updated);
     storage.setLocal("privacy_preferences", updated);
-    
+
     toast({
       title: "Privacy Settings Updated",
       description: "Your privacy preferences have been saved.",
@@ -226,7 +241,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
             {/* Notification Channels */}
             <div className="space-y-4">
               <h4 className="font-medium">Notification Channels</h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -236,7 +251,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <Switch
                     id="email-notifications"
                     checked={notifications.email}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("email", checked)
                     }
                   />
@@ -250,7 +265,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <Switch
                     id="push-notifications"
                     checked={notifications.push}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("push", checked)
                     }
                   />
@@ -264,7 +279,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <Switch
                     id="sms-notifications"
                     checked={notifications.sms}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("sms", checked)
                     }
                   />
@@ -278,7 +293,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <Switch
                     id="in-app-notifications"
                     checked={notifications.inApp}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("inApp", checked)
                     }
                   />
@@ -291,20 +306,24 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
             {/* Notification Types */}
             <div className="space-y-4">
               <h4 className="font-medium">Notification Types</h4>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="classroom-updates">Classroom Updates</Label>
-                      <p className="text-xs text-muted-foreground">New posts, assignments, and announcements</p>
+                      <Label htmlFor="classroom-updates">
+                        Classroom Updates
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        New posts, assignments, and announcements
+                      </p>
                     </div>
                   </div>
                   <Switch
                     id="classroom-updates"
                     checked={notifications.classroomUpdates}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("classroomUpdates", checked)
                     }
                   />
@@ -315,13 +334,15 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <Label htmlFor="grade-updates">Grade Updates</Label>
-                      <p className="text-xs text-muted-foreground">New grades and feedback</p>
+                      <p className="text-xs text-muted-foreground">
+                        New grades and feedback
+                      </p>
                     </div>
                   </div>
                   <Switch
                     id="grade-updates"
                     checked={notifications.gradeUpdates}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("gradeUpdates", checked)
                     }
                   />
@@ -331,14 +352,18 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <Label htmlFor="attendance-alerts">Attendance Alerts</Label>
-                      <p className="text-xs text-muted-foreground">Attendance reminders and updates</p>
+                      <Label htmlFor="attendance-alerts">
+                        Attendance Alerts
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Attendance reminders and updates
+                      </p>
                     </div>
                   </div>
                   <Switch
                     id="attendance-alerts"
                     checked={notifications.attendanceAlerts}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleNotificationChange("attendanceAlerts", checked)
                     }
                   />
@@ -402,16 +427,22 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 <Label htmlFor="language">Language</Label>
                 <Select
                   value={display.language}
-                  onValueChange={(value) => handleDisplayChange("language", value)}
+                  onValueChange={(value) =>
+                    handleDisplayChange("language", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue>
                       <div className="flex items-center gap-2">
                         <Languages className="h-4 w-4" />
                         <span>
-                          {display.language === "en" ? "English" :
-                           display.language === "ar" ? "العربية" :
-                           display.language === "fr" ? "Français" : "English"}
+                          {display.language === "en"
+                            ? "English"
+                            : display.language === "ar"
+                              ? "العربية"
+                              : display.language === "fr"
+                                ? "Français"
+                                : "English"}
                         </span>
                       </div>
                     </SelectValue>
@@ -436,7 +467,9 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 max={20}
                 step={1}
                 value={[display.fontSize]}
-                onValueChange={(value) => handleDisplayChange("fontSize", value[0])}
+                onValueChange={(value) =>
+                  handleDisplayChange("fontSize", value[0])
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -450,17 +483,19 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
             {/* Display Options */}
             <div className="space-y-4">
               <h4 className="font-medium">Display Options</h4>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="compact-mode">Compact Mode</Label>
-                    <p className="text-xs text-muted-foreground">Reduce spacing and padding</p>
+                    <p className="text-xs text-muted-foreground">
+                      Reduce spacing and padding
+                    </p>
                   </div>
                   <Switch
                     id="compact-mode"
                     checked={display.compactMode}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleDisplayChange("compactMode", checked)
                     }
                   />
@@ -469,12 +504,14 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="animations-enabled">Animations</Label>
-                    <p className="text-xs text-muted-foreground">Enable smooth transitions</p>
+                    <p className="text-xs text-muted-foreground">
+                      Enable smooth transitions
+                    </p>
                   </div>
                   <Switch
                     id="animations-enabled"
                     checked={display.animationsEnabled}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleDisplayChange("animationsEnabled", checked)
                     }
                   />
@@ -483,12 +520,14 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="sound-enabled">Sound Effects</Label>
-                    <p className="text-xs text-muted-foreground">Play notification sounds</p>
+                    <p className="text-xs text-muted-foreground">
+                      Play notification sounds
+                    </p>
                   </div>
                   <Switch
                     id="sound-enabled"
                     checked={display.soundEnabled}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleDisplayChange("soundEnabled", checked)
                     }
                   />
@@ -497,12 +536,14 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="high-contrast">High Contrast</Label>
-                    <p className="text-xs text-muted-foreground">Improve visibility</p>
+                    <p className="text-xs text-muted-foreground">
+                      Improve visibility
+                    </p>
                   </div>
                   <Switch
                     id="high-contrast"
                     checked={display.highContrast}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handleDisplayChange("highContrast", checked)
                     }
                   />
@@ -527,7 +568,7 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
               <Label htmlFor="profile-visibility">Profile Visibility</Label>
               <Select
                 value={privacy.profileVisibility}
-                onValueChange={(value) => 
+                onValueChange={(value) =>
                   handlePrivacyChange("profileVisibility", value)
                 }
               >
@@ -535,7 +576,9 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="public">Public - Anyone can see</SelectItem>
+                  <SelectItem value="public">
+                    Public - Anyone can see
+                  </SelectItem>
                   <SelectItem value="contacts">Contacts Only</SelectItem>
                   <SelectItem value="private">Private - Only me</SelectItem>
                 </SelectContent>
@@ -546,17 +589,19 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
 
             <div className="space-y-4">
               <h4 className="font-medium">Contact Information</h4>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="show-email">Show Email Address</Label>
-                    <p className="text-xs text-muted-foreground">Allow others to see your email</p>
+                    <p className="text-xs text-muted-foreground">
+                      Allow others to see your email
+                    </p>
                   </div>
                   <Switch
                     id="show-email"
                     checked={privacy.showEmail}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePrivacyChange("showEmail", checked)
                     }
                   />
@@ -565,12 +610,14 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="show-phone">Show Phone Number</Label>
-                    <p className="text-xs text-muted-foreground">Allow others to see your phone</p>
+                    <p className="text-xs text-muted-foreground">
+                      Allow others to see your phone
+                    </p>
                   </div>
                   <Switch
                     id="show-phone"
                     checked={privacy.showPhone}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePrivacyChange("showPhone", checked)
                     }
                   />
@@ -578,13 +625,17 @@ export function PreferenceSettings({ onSave, className = "" }: PreferenceSetting
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="show-online-status">Show Online Status</Label>
-                    <p className="text-xs text-muted-foreground">Let others see when you're online</p>
+                    <Label htmlFor="show-online-status">
+                      Show Online Status
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Let others see when you're online
+                    </p>
                   </div>
                   <Switch
                     id="show-online-status"
                     checked={privacy.showOnlineStatus}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePrivacyChange("showOnlineStatus", checked)
                     }
                   />

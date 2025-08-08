@@ -270,7 +270,7 @@ export interface MarkStats {
   passingRate: number;
   byType: Record<string, { count: number; average: number }>;
   bySubject: Record<string, { count: number; average: number }>;
-  recentTrend: 'up' | 'down' | 'stable';
+  recentTrend: "up" | "down" | "stable";
 }
 
 // Attendance types
@@ -315,7 +315,19 @@ export interface AttendanceStats {
   excusedCount: number;
   attendanceRate: number;
   punctualityRate: number;
-  byDate: Record<string, { present: number; absent: number; late: number; excused: number }>;
-  byStudent: Record<string, { present: number; absent: number; late: number; excused: number; rate: number }>;
-  recentTrend: 'improving' | 'declining' | 'stable';
+  byDate: Record<
+    string,
+    { present: number; absent: number; late: number; excused: number }
+  >;
+  byStudent: Record<
+    string,
+    {
+      present: number;
+      absent: number;
+      late: number;
+      excused: number;
+      rate: number;
+    }
+  >;
+  recentTrend: "improving" | "declining" | "stable";
 }

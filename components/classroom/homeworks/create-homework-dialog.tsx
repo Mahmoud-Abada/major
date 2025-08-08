@@ -3,26 +3,26 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -32,412 +32,464 @@ import { useState } from "react";
 import type { Homework } from "./types";
 
 interface CreateHomeworkDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSubmit: (homework: Omit<Homework, "id">) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (homework: Omit<Homework, "id">) => void;
 }
 
 const algerianClasses = [
-    { id: "class_1", name: "1ère AS Sciences" },
-    { id: "class_2", name: "1ère AS Lettres" },
-    { id: "class_3", name: "2ème AS Sciences" },
-    { id: "class_4", name: "2ème AS Lettres" },
-    { id: "class_5", name: "3ème AS Sciences" },
-    { id: "class_6", name: "3ème AS Lettres" },
-    { id: "class_7", name: "Terminal Sciences" },
-    { id: "class_8", name: "Terminal Lettres" },
-    { id: "class_9", name: "1ère AM" },
-    { id: "class_10", name: "2ème AM" },
-    { id: "class_11", name: "3ème AM" },
-    { id: "class_12", name: "4ème AM" }
+  { id: "class_1", name: "1ère AS Sciences" },
+  { id: "class_2", name: "1ère AS Lettres" },
+  { id: "class_3", name: "2ème AS Sciences" },
+  { id: "class_4", name: "2ème AS Lettres" },
+  { id: "class_5", name: "3ème AS Sciences" },
+  { id: "class_6", name: "3ème AS Lettres" },
+  { id: "class_7", name: "Terminal Sciences" },
+  { id: "class_8", name: "Terminal Lettres" },
+  { id: "class_9", name: "1ère AM" },
+  { id: "class_10", name: "2ème AM" },
+  { id: "class_11", name: "3ème AM" },
+  { id: "class_12", name: "4ème AM" },
 ];
 
 const algerianSubjects = [
-    "Mathematics", "Physics", "Chemistry", "Biology", "Arabic", "French",
-    "English", "History", "Geography", "Islamic Studies", "Philosophy"
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Arabic",
+  "French",
+  "English",
+  "History",
+  "Geography",
+  "Islamic Studies",
+  "Philosophy",
 ];
 
 const algerianTeachers = [
-    { id: "teacher_1", name: "Prof. Benali Ahmed" },
-    { id: "teacher_2", name: "Prof. Khelifi Fatima" },
-    { id: "teacher_3", name: "Prof. Meziane Omar" },
-    { id: "teacher_4", name: "Prof. Boumediene Aicha" },
-    { id: "teacher_5", name: "Prof. Hamidi Youcef" },
-    { id: "teacher_6", name: "Prof. Cherif Samira" },
-    { id: "teacher_7", name: "Prof. Belkacem Omar" },
-    { id: "teacher_8", name: "Prof. Boukhalfa Karim" },
+  { id: "teacher_1", name: "Prof. Benali Ahmed" },
+  { id: "teacher_2", name: "Prof. Khelifi Fatima" },
+  { id: "teacher_3", name: "Prof. Meziane Omar" },
+  { id: "teacher_4", name: "Prof. Boumediene Aicha" },
+  { id: "teacher_5", name: "Prof. Hamidi Youcef" },
+  { id: "teacher_6", name: "Prof. Cherif Samira" },
+  { id: "teacher_7", name: "Prof. Belkacem Omar" },
+  { id: "teacher_8", name: "Prof. Boukhalfa Karim" },
 ];
 
 const homeworkTypes = [
-    { value: "assignment", label: "Assignment" },
-    { value: "project", label: "Project" },
-    { value: "reading", label: "Reading" },
-    { value: "exercise", label: "Exercise" },
-    { value: "research", label: "Research" },
+  { value: "assignment", label: "Assignment" },
+  { value: "project", label: "Project" },
+  { value: "reading", label: "Reading" },
+  { value: "exercise", label: "Exercise" },
+  { value: "research", label: "Research" },
 ];
 
 const priorities = [
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
-    { value: "urgent", label: "Urgent" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
 ];
 
 const difficulties = [
-    { value: "easy", label: "Easy" },
-    { value: "medium", label: "Medium" },
-    { value: "hard", label: "Hard" },
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
 ];
 
-export function CreateHomeworkDialog({ open, onOpenChange, onSubmit }: CreateHomeworkDialogProps) {
-    const [formData, setFormData] = useState({
+export function CreateHomeworkDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+}: CreateHomeworkDialogProps) {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    subject: "",
+    classId: "",
+    teacherId: "",
+    dueDate: undefined as Date | undefined,
+    dueTime: "",
+    type: "" as
+      | "assignment"
+      | "project"
+      | "reading"
+      | "exercise"
+      | "research"
+      | "",
+    priority: "" as "low" | "medium" | "high" | "urgent" | "",
+    totalMarks: "",
+    instructions: "",
+    estimatedDuration: "",
+    difficulty: "" as "easy" | "medium" | "hard" | "",
+    tags: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.subject ||
+      !formData.classId ||
+      !formData.teacherId ||
+      !formData.dueDate ||
+      !formData.type ||
+      !formData.priority ||
+      !formData.difficulty
+    ) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const selectedClass = algerianClasses.find(
+        (c) => c.id === formData.classId,
+      );
+      const selectedTeacher = algerianTeachers.find(
+        (t) => t.id === formData.teacherId,
+      );
+
+      if (!selectedClass || !selectedTeacher) {
+        return;
+      }
+
+      const homework: Omit<Homework, "id"> = {
+        title: formData.title,
+        description: formData.description,
+        subject: formData.subject,
+        classId: formData.classId,
+        className: selectedClass.name,
+        teacherId: formData.teacherId,
+        teacherName: selectedTeacher.name,
+        assignedDate: new Date().toISOString().split("T")[0],
+        dueDate: formData.dueDate.toISOString().split("T")[0],
+        dueTime: formData.dueTime || undefined,
+        type: formData.type,
+        priority: formData.priority,
+        status: "draft",
+        totalMarks: formData.totalMarks
+          ? parseInt(formData.totalMarks)
+          : undefined,
+        instructions: formData.instructions || undefined,
+        estimatedDuration: formData.estimatedDuration
+          ? parseInt(formData.estimatedDuration)
+          : undefined,
+        difficulty: formData.difficulty,
+        tags: formData.tags
+          ? formData.tags.split(",").map((tag) => tag.trim())
+          : undefined,
+        createdBy: selectedTeacher.name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      onSubmit(homework);
+
+      // Reset form
+      setFormData({
         title: "",
         description: "",
         subject: "",
         classId: "",
         teacherId: "",
-        dueDate: undefined as Date | undefined,
+        dueDate: undefined,
         dueTime: "",
-        type: "" as "assignment" | "project" | "reading" | "exercise" | "research" | "",
-        priority: "" as "low" | "medium" | "high" | "urgent" | "",
+        type: "",
+        priority: "",
         totalMarks: "",
         instructions: "",
         estimatedDuration: "",
-        difficulty: "" as "easy" | "medium" | "hard" | "",
+        difficulty: "",
         tags: "",
-    });
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleInputChange = (
+    field: string,
+    value: string | Date | undefined,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create New Homework</DialogTitle>
+          <DialogDescription>
+            Create a new homework assignment for your students.
+          </DialogDescription>
+        </DialogHeader>
 
-        if (!formData.title || !formData.description || !formData.subject ||
-            !formData.classId || !formData.teacherId || !formData.dueDate ||
-            !formData.type || !formData.priority || !formData.difficulty) {
-            return;
-        }
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              placeholder="e.g., Exercices sur les fonctions logarithmiques"
+              required
+            />
+          </div>
 
-        setIsSubmitting(true);
+          <div className="space-y-2">
+            <Label htmlFor="description">Description *</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Detailed description of the homework assignment..."
+              rows={3}
+              required
+            />
+          </div>
 
-        try {
-            const selectedClass = algerianClasses.find(c => c.id === formData.classId);
-            const selectedTeacher = algerianTeachers.find(t => t.id === formData.teacherId);
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject *</Label>
+              <Select
+                value={formData.subject}
+                onValueChange={(value) => handleInputChange("subject", value)}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {algerianSubjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            if (!selectedClass || !selectedTeacher) {
-                return;
-            }
+            <div className="space-y-2">
+              <Label htmlFor="classId">Class *</Label>
+              <Select
+                value={formData.classId}
+                onValueChange={(value) => handleInputChange("classId", value)}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {algerianClasses.map((classItem) => (
+                    <SelectItem key={classItem.id} value={classItem.id}>
+                      {classItem.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-            const homework: Omit<Homework, "id"> = {
-                title: formData.title,
-                description: formData.description,
-                subject: formData.subject,
-                classId: formData.classId,
-                className: selectedClass.name,
-                teacherId: formData.teacherId,
-                teacherName: selectedTeacher.name,
-                assignedDate: new Date().toISOString().split('T')[0],
-                dueDate: formData.dueDate.toISOString().split('T')[0],
-                dueTime: formData.dueTime || undefined,
-                type: formData.type,
-                priority: formData.priority,
-                status: "draft",
-                totalMarks: formData.totalMarks ? parseInt(formData.totalMarks) : undefined,
-                instructions: formData.instructions || undefined,
-                estimatedDuration: formData.estimatedDuration ? parseInt(formData.estimatedDuration) : undefined,
-                difficulty: formData.difficulty,
-                tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : undefined,
-                createdBy: selectedTeacher.name,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
+          <div className="space-y-2">
+            <Label htmlFor="teacherId">Teacher *</Label>
+            <Select
+              value={formData.teacherId}
+              onValueChange={(value) => handleInputChange("teacherId", value)}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select teacher" />
+              </SelectTrigger>
+              <SelectContent>
+                {algerianTeachers.map((teacher) => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {teacher.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            onSubmit(homework);
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="type">Type *</Label>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => handleInputChange("type", value)}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {homeworkTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            // Reset form
-            setFormData({
-                title: "",
-                description: "",
-                subject: "",
-                classId: "",
-                teacherId: "",
-                dueDate: undefined,
-                dueTime: "",
-                type: "",
-                priority: "",
-                totalMarks: "",
-                instructions: "",
-                estimatedDuration: "",
-                difficulty: "",
-                tags: "",
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority *</Label>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) => handleInputChange("priority", value)}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  {priorities.map((priority) => (
+                    <SelectItem key={priority.value} value={priority.value}>
+                      {priority.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-    const handleInputChange = (field: string, value: string | Date | undefined) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">Difficulty *</Label>
+              <Select
+                value={formData.difficulty}
+                onValueChange={(value) =>
+                  handleInputChange("difficulty", value)
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {difficulties.map((difficulty) => (
+                    <SelectItem key={difficulty.value} value={difficulty.value}>
+                      {difficulty.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Create New Homework</DialogTitle>
-                    <DialogDescription>
-                        Create a new homework assignment for your students.
-                    </DialogDescription>
-                </DialogHeader>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Due Date *</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.dueDate && "text-muted-foreground",
+                    )}
+                  >
+                    <RiCalendarLine className="mr-2 h-4 w-4" />
+                    {formData.dueDate
+                      ? format(formData.dueDate, "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.dueDate}
+                    onSelect={(date) => handleInputChange("dueDate", date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Title *</Label>
-                        <Input
-                            id="title"
-                            value={formData.title}
-                            onChange={(e) => handleInputChange("title", e.target.value)}
-                            placeholder="e.g., Exercices sur les fonctions logarithmiques"
-                            required
-                        />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="dueTime">Due Time</Label>
+              <Input
+                id="dueTime"
+                type="time"
+                value={formData.dueTime}
+                onChange={(e) => handleInputChange("dueTime", e.target.value)}
+              />
+            </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="description">Description *</Label>
-                        <Textarea
-                            id="description"
-                            value={formData.description}
-                            onChange={(e) => handleInputChange("description", e.target.value)}
-                            placeholder="Detailed description of the homework assignment..."
-                            rows={3}
-                            required
-                        />
-                    </div>
+            <div className="space-y-2">
+              <Label htmlFor="totalMarks">Total Marks</Label>
+              <Input
+                id="totalMarks"
+                type="number"
+                min="1"
+                max="100"
+                value={formData.totalMarks}
+                onChange={(e) =>
+                  handleInputChange("totalMarks", e.target.value)
+                }
+                placeholder="20"
+              />
+            </div>
+          </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="subject">Subject *</Label>
-                            <Select
-                                value={formData.subject}
-                                onValueChange={(value) => handleInputChange("subject", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select subject" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {algerianSubjects.map((subject) => (
-                                        <SelectItem key={subject} value={subject}>
-                                            {subject}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+          <div className="space-y-2">
+            <Label htmlFor="estimatedDuration">
+              Estimated Duration (minutes)
+            </Label>
+            <Input
+              id="estimatedDuration"
+              type="number"
+              min="15"
+              max="600"
+              value={formData.estimatedDuration}
+              onChange={(e) =>
+                handleInputChange("estimatedDuration", e.target.value)
+              }
+              placeholder="120"
+            />
+          </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="classId">Class *</Label>
-                            <Select
-                                value={formData.classId}
-                                onValueChange={(value) => handleInputChange("classId", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select class" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {algerianClasses.map((classItem) => (
-                                        <SelectItem key={classItem.id} value={classItem.id}>
-                                            {classItem.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
+          <div className="space-y-2">
+            <Label htmlFor="instructions">Instructions</Label>
+            <Textarea
+              id="instructions"
+              value={formData.instructions}
+              onChange={(e) =>
+                handleInputChange("instructions", e.target.value)
+              }
+              placeholder="Detailed instructions for students..."
+              rows={3}
+            />
+          </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="teacherId">Teacher *</Label>
-                        <Select
-                            value={formData.teacherId}
-                            onValueChange={(value) => handleInputChange("teacherId", value)}
-                            required
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select teacher" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {algerianTeachers.map((teacher) => (
-                                    <SelectItem key={teacher.id} value={teacher.id}>
-                                        {teacher.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Input
+              id="tags"
+              value={formData.tags}
+              onChange={(e) => handleInputChange("tags", e.target.value)}
+              placeholder="e.g., functions, calculus, advanced"
+            />
+          </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="type">Type *</Label>
-                            <Select
-                                value={formData.type}
-                                onValueChange={(value) => handleInputChange("type", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {homeworkTypes.map((type) => (
-                                        <SelectItem key={type.value} value={type.value}>
-                                            {type.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="priority">Priority *</Label>
-                            <Select
-                                value={formData.priority}
-                                onValueChange={(value) => handleInputChange("priority", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select priority" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {priorities.map((priority) => (
-                                        <SelectItem key={priority.value} value={priority.value}>
-                                            {priority.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="difficulty">Difficulty *</Label>
-                            <Select
-                                value={formData.difficulty}
-                                onValueChange={(value) => handleInputChange("difficulty", value)}
-                                required
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select difficulty" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {difficulties.map((difficulty) => (
-                                        <SelectItem key={difficulty.value} value={difficulty.value}>
-                                            {difficulty.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                            <Label>Due Date *</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !formData.dueDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <RiCalendarLine className="mr-2 h-4 w-4" />
-                                        {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a date"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={formData.dueDate}
-                                        onSelect={(date) => handleInputChange("dueDate", date)}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="dueTime">Due Time</Label>
-                            <Input
-                                id="dueTime"
-                                type="time"
-                                value={formData.dueTime}
-                                onChange={(e) => handleInputChange("dueTime", e.target.value)}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="totalMarks">Total Marks</Label>
-                            <Input
-                                id="totalMarks"
-                                type="number"
-                                min="1"
-                                max="100"
-                                value={formData.totalMarks}
-                                onChange={(e) => handleInputChange("totalMarks", e.target.value)}
-                                placeholder="20"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="estimatedDuration">Estimated Duration (minutes)</Label>
-                        <Input
-                            id="estimatedDuration"
-                            type="number"
-                            min="15"
-                            max="600"
-                            value={formData.estimatedDuration}
-                            onChange={(e) => handleInputChange("estimatedDuration", e.target.value)}
-                            placeholder="120"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="instructions">Instructions</Label>
-                        <Textarea
-                            id="instructions"
-                            value={formData.instructions}
-                            onChange={(e) => handleInputChange("instructions", e.target.value)}
-                            placeholder="Detailed instructions for students..."
-                            rows={3}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="tags">Tags (comma-separated)</Label>
-                        <Input
-                            id="tags"
-                            value={formData.tags}
-                            onChange={(e) => handleInputChange("tags", e.target.value)}
-                            placeholder="e.g., functions, calculus, advanced"
-                        />
-                    </div>
-
-                    <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Creating..." : "Create Homework"}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating..." : "Create Homework"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
