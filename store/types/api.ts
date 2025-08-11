@@ -95,16 +95,19 @@ export interface UpdateClassroomParams {
 // Group interfaces
 export interface Group {
   id: string;
-  school: string;
+  school?: string;
   schoolName?: string;
   title: string;
   frontPicture?: string;
   backPicture?: string;
   isArchived?: boolean;
   description?: string;
-  field: string;
+  field?: string; // Keep for backward compatibility
+  major: string; // API uses 'major' instead of 'field'
   level: string;
   color: string;
+  maxStudents: number;
+  majors: string[]; // Array of specializations
   isSemestral?: boolean;
   startDate?: number;
   endDate?: number;

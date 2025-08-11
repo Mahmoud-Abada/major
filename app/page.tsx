@@ -1,28 +1,17 @@
 "use client";
 
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { Charts } from "@/components/dashboard/charts";
-import { NotificationsPanel } from "@/components/dashboard/notifications-panel";
-import { QuickActions } from "@/components/dashboard/quick-actions";
-import { StatsCards } from "@/components/dashboard/stats-cards";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { authService } from "@/lib/auth";
+import { useAppSelector } from "@/store/hooks";
+import { selectIsAuthenticated, selectUser } from "@/store/slices/authSlice";
 import { motion } from "framer-motion";
-import { Calendar, Clock, Eye, Settings } from "lucide-react";
+import { Calendar, Eye, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import LocaleSwitcher from "../components/common/LocaleSwicher";
 import ThemeToggle from "../components/common/ThemeToggle";
-// User type - will be replaced with actual API types
-interface User {
-  id: string;
-  email: string;
-  role: string;
-}
 
 // Welcome screen for non-authenticated users
 function WelcomeScreen() {
@@ -125,138 +114,20 @@ function WelcomeScreen() {
   );
 }
 
-// Dashboard for authenticated users
-function Dashboard({ user }: { user: User }) {
-  const t = useTranslations("dashboard");
-  const tFooter = useTranslations("footer");
-  const tCommon = useTranslations("common");
 
-  const currentTime = new Date();
-  const greeting =
-    currentTime.getHours() < 12
-      ? t("goodMorning")
-      : currentTime.getHours() < 18
-        ? t("goodAfternoon")
-        : t("goodEvening");
-
-  const pageVariants = {
-    initial: { opacity: 0 },
-    animate: {
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const sectionVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
-
-  return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      className="min-h-screen bg-background"
-    >
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Header */}
-        <motion.div
-          variants={sectionVariants}
-          className="flex flex-col md:flex-row md:items-center justify-between"
-        >
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src={user.avatar} alt={user.firstName} />
-              <AvatarFallback>
-                {user.firstName[0]}
-                {user.lastName[0]}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                {greeting}, {user.firstName}!
-              </h1>
-              <p className="text-muted-foreground">
-                {t("welcomeBack", { role: user.role })}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{currentTime.toLocaleDateString()}</span>
-            </div>
-            <Badge variant="outline" className="capitalize">
-              {user.role}
-            </Badge>
-            <LocaleSwitcher />
-            <ThemeToggle />
-          </div>
-        </motion.div>
-
-        {/* Stats Cards */}
-        <motion.div variants={sectionVariants}>
-          <StatsCards user={user} />
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div variants={sectionVariants}>
-          <QuickActions user={user} />
-        </motion.div>
-
-        {/* Charts */}
-        <motion.div variants={sectionVariants}>
-          <Charts user={user} />
-        </motion.div>
-
-        {/* Activity Feed and Notifications */}
-        <motion.div
-          variants={sectionVariants}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-        >
-          <ActivityFeed user={user} />
-          <NotificationsPanel user={user} />
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div variants={sectionVariants} className="text-center py-8">
-          <p className="text-sm text-muted-foreground">
-            {tFooter("copyright")}
-          </p>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
-    setIsLoading(false);
-  }, []);
+    // If user is authenticated, redirect to the classroom dashboard
+    if (isAuthenticated && user) {
+      router.push("/classroom/dashboard");
+    }
+  }, [isAuthenticated, user, router]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-600"></div>
-      </div>
-    );
-  }
-
-  // Show dashboard if user is authenticated, otherwise show welcome screen
-  return user ? <Dashboard user={user} /> : <WelcomeScreen />;
+  // Show welcome screen for non-authenticated users
+  return <WelcomeScreen />;
 }

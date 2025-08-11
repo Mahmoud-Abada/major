@@ -1,9 +1,5 @@
 "use client";
-import { handleApiError, showErrorToast, showSuccessToast } from "@/utils/error-handler";
-
-
 import {
-  authService,
   AuthUser,
   ForgetPasswordRequest,
   LoginRequest,
@@ -13,136 +9,174 @@ import {
   VerifyOTPRequest,
 } from "@/services/auth";
 import {
-  AUTH_STORAGE_KEYS,
+  useForgetPasswordMutation,
+  useLoginMutation,
+  useLogoutMutation,
+  useRegisterMutation,
+  useResetPasswordMutation,
+  useSendOTPMutation,
+  useVerifyOTPMutation,
+} from "@/store/api/authApi";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  clearAuthState,
+  clearError,
+  selectAuthError,
+  selectAuthLoading,
+  selectIsAuthenticated,
+  selectUser,
+  setAuthState,
+  setOTPState,
+  setPasswordResetState,
+} from "@/store/slices/authSlice";
+import { showErrorToast, showSuccessToast } from "@/utils/error-handler";
+import {
   clearAuthData,
-  getStoredUser,
-  setAuthData,
-} from "@/utils/auth";
+  setTokens,
+  setUserData,
+} from "@/utils/tokenManager";
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 export interface UseAuthReturn {
   user: AuthUser | null;
   loading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   sendOTP: (data: SendOTPRequest) => Promise<void>;
   verifyOTP: (data: VerifyOTPRequest) => Promise<void>;
   forgetPassword: (data: ForgetPasswordRequest) => Promise<void>;
   resetPassword: (data: ResetPasswordRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
 }
 
 export function useAuth(): UseAuthReturn {
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const loading = useAppSelector(selectAuthLoading);
+  const error = useAppSelector(selectAuthError);
+
   const router = useRouter();
   const locale = useLocale();
-
-  const clearError = useCallback(() => setError(null), []);
-
   const t = useTranslations("auth");
 
+  // RTK Query mutations
+  const [loginMutation, { isLoading: loginLoading }] = useLoginMutation();
+  const [registerMutation, { isLoading: registerLoading }] = useRegisterMutation();
+  const [sendOTPMutation, { isLoading: sendOTPLoading }] = useSendOTPMutation();
+  const [verifyOTPMutation, { isLoading: verifyOTPLoading }] = useVerifyOTPMutation();
+  const [forgetPasswordMutation, { isLoading: forgetPasswordLoading }] = useForgetPasswordMutation();
+  const [resetPasswordMutation, { isLoading: resetPasswordLoading }] = useResetPasswordMutation();
+  const [logoutMutation] = useLogoutMutation();
+
+  const isLoading = loading || loginLoading || registerLoading || sendOTPLoading ||
+    verifyOTPLoading || forgetPasswordLoading || resetPasswordLoading;
+
   const handleError = useCallback((err: unknown, defaultMessage: string) => {
-    const errorMessage = handleApiError(err, defaultMessage);
-    setError(errorMessage);
-    showErrorToast(err, defaultMessage);
-    console.error(defaultMessage, err);
-    throw err;
+    console.error("Auth error:", err);
+
+    // Extract the actual error message from RTK Query error
+    let errorMessage = defaultMessage;
+
+    if (err && typeof err === 'object') {
+      // RTK Query error structure
+      if ('data' in err && err.data && typeof err.data === 'object') {
+        if ('message' in err.data && typeof err.data.message === 'string') {
+          errorMessage = err.data.message;
+        }
+      }
+      // Direct error with message
+      else if ('message' in err && typeof err.message === 'string') {
+        errorMessage = err.message;
+      }
+    }
+
+    showErrorToast(errorMessage, "Error");
+    throw new Error(errorMessage);
   }, []);
+
+  const clearAuthError = useCallback(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
   const login = useCallback(
     async (data: LoginRequest) => {
       try {
-        setLoading(true);
-        setError(null);
+        const response = await loginMutation(data).unwrap();
 
-        const response = await authService.login(data, locale);
+        // Handle both old and new response structures
+        const isSuccess = response.success || response.status === "success";
+        const userData = response.user || response.payload;
 
-        if (response.success && response.user) {
-          setUser(response.user);
-          setAuthData(response.user, response.user.token);
+        if (isSuccess && userData) {
+          // Store tokens securely with a default expiry (7 days)
+          const defaultExpiryInSeconds = 7 * 24 * 60 * 60;
+          setTokens(userData.token, undefined, defaultExpiryInSeconds);
+          setUserData(userData);
+
+          // Update Redux state
+          dispatch(setAuthState({
+            user: userData,
+            token: userData.token,
+            expiresIn: 7 * 24 * 60 * 60
+          }));
 
           // Show success toast
           showSuccessToast("Login successful! Redirecting...", "Welcome back!");
 
           // Redirect based on user verification status
-          if (!response.user.isVerified) {
-            sessionStorage.setItem(AUTH_STORAGE_KEYS.USER_ID, response.user.id);
+          if (!userData.isVerified) {
+            sessionStorage.setItem("userId", userData.id || userData._id);
             setTimeout(() => router.push("/otp"), 1000);
           } else {
-            setTimeout(() => router.push("/classroom/classrooms/create"), 1000);
+            setTimeout(() => router.push("/classroom/dashboard"), 1000);
           }
         } else {
           throw new Error(response.message || "Login failed");
         }
       } catch (err) {
         handleError(err, "Login failed");
-      } finally {
-        setLoading(false);
       }
     },
-    [locale, router, handleError],
+    [loginMutation, dispatch, router, handleError],
   );
 
   const register = useCallback(
     async (data: RegisterRequest) => {
       try {
-        setLoading(true);
-        setError(null);
-
         console.log("🚀 Starting registration process...");
-        console.log("📝 Registration data:", JSON.stringify(data, null, 2));
-        console.log("🌐 Locale:", locale);
 
-        const response = await authService.register(data, locale);
+        const response = await registerMutation(data).unwrap();
 
-        console.log("📡 API Response received:", JSON.stringify(response, null, 2));
+        console.log("📡 API Response received:", response);
 
         if (response.status === "success" && response.payload?._id) {
-          console.log("✅ Registration successful, creating user object...");
+          console.log("✅ Registration successful");
 
-          // Create user object from response
-          const user = {
-            id: response.payload._id,
-            email: data.userData.email,
-            name: data.userData.name,
-            username: data.userData.username || "",
-            phoneNumber: data.userData.phoneNumber,
-            userType: data.userData.userType,
-            isVerified: false,
-            token: "", // Will be set after OTP verification
-          };
+          // Store user ID for OTP verification
+          dispatch(setOTPState({
+            sent: true,
+            verified: false,
+            userId: response.payload._id
+          }));
 
-          console.log("👤 User object created:", user);
-
-          setUser(user);
-          sessionStorage.setItem(
-            AUTH_STORAGE_KEYS.USER_ID,
-            response.payload._id,
-          );
-
-          console.log("💾 User stored in session storage");
+          sessionStorage.setItem("userId", response.payload._id);
 
           // Show success toast
-          showErrorToast(
+          showSuccessToast(
             "Registration successful! Please check your verification method.",
             "Success",
           );
 
           console.log("🔄 Redirecting to OTP page...");
-          // Redirect to OTP verification
           router.push("/otp");
-          return;
         } else {
-          console.log("❌ Registration failed - invalid response format");
-          console.log("Response status:", response.status);
-          console.log("Response payload:", response.payload);
           throw new Error(response.message || "Registration failed");
         }
       } catch (err) {
@@ -150,7 +184,6 @@ export function useAuth(): UseAuthReturn {
 
         // Check if this is actually a success message being treated as error
         const errorMessage = err instanceof Error ? err.message : String(err);
-        console.log("📄 Error message:", errorMessage);
 
         if (
           errorMessage.includes("User had been created successfully") ||
@@ -158,144 +191,149 @@ export function useAuth(): UseAuthReturn {
         ) {
           console.log("✅ Error message indicates success - treating as success");
 
-          // This is actually a success case being treated as error
-          setError(null);
-          setLoading(false);
-
           // Show success toast
-          showErrorToast(
+          showSuccessToast(
             "Registration successful! Please check your verification method.",
             "Success",
           );
 
-          console.log("🔄 Redirecting to OTP page...");
-          // Still redirect to OTP page since registration was successful
           router.push("/otp");
           return;
         }
 
-        console.log("❌ Actual registration error - calling handleError");
-        // Only call handleError for actual errors
         handleError(err, "Registration failed");
-      } finally {
-        console.log("🏁 Registration process completed, setting loading to false");
-        setLoading(false);
       }
     },
-    [locale, router, handleError],
+    [registerMutation, dispatch, router, handleError],
   );
 
   const sendOTP = useCallback(
     async (data: SendOTPRequest) => {
       try {
-        setLoading(true);
-        setError(null);
+        const response = await sendOTPMutation(data).unwrap();
 
-        const response = await authService.sendOTP(data, locale);
-
-        if (!response.success) {
+        if (response.success) {
+          dispatch(setOTPState({ sent: true, verified: false, userId: data.userId }));
+          showSuccessToast("OTP sent successfully!", "Success");
+        } else {
           throw new Error(response.message || "Failed to send OTP");
         }
       } catch (err) {
         handleError(err, "Failed to send OTP");
-      } finally {
-        setLoading(false);
       }
     },
-    [locale, handleError],
+    [sendOTPMutation, dispatch, handleError],
   );
 
   const verifyOTP = useCallback(
     async (data: VerifyOTPRequest) => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const response = await authService.verifyOTP(data, locale);
+        const response = await verifyOTPMutation(data).unwrap();
 
         if (response.success && response.verified) {
+          dispatch(setOTPState({ sent: true, verified: true }));
+
           if (response.token) {
-            const updatedUser = user ? { ...user, isVerified: true } : null;
+            // Store tokens securely
+            setTokens(response.token);
+
+            // Update user as verified
+            const updatedUser = user ? { ...user, isVerified: true, token: response.token } : null;
             if (updatedUser) {
-              setUser(updatedUser);
-              setAuthData(updatedUser, response.token);
+              setUserData(updatedUser);
+              dispatch(setAuthState({
+                user: updatedUser,
+                token: response.token
+              }));
             }
           }
 
-          sessionStorage.removeItem(AUTH_STORAGE_KEYS.USER_ID);
-          sessionStorage.removeItem(AUTH_STORAGE_KEYS.RESET_USER_ID);
-          router.push("/(auth)/classroom");
+          sessionStorage.removeItem("userId");
+          sessionStorage.removeItem("resetUserId");
+
+          showSuccessToast("Verification successful!", "Welcome!");
+          router.push("/classroom/dashboard");
         } else {
           throw new Error(response.message || "OTP verification failed");
         }
       } catch (err) {
         handleError(err, "OTP verification failed");
-      } finally {
-        setLoading(false);
       }
     },
-    [locale, user, router, handleError],
+    [verifyOTPMutation, dispatch, user, router, handleError],
   );
 
   const forgetPassword = useCallback(
     async (data: ForgetPasswordRequest) => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const response = await authService.forgetPassword(data, locale);
+        const response = await forgetPasswordMutation(data).unwrap();
 
         if (response.success) {
-          // Store userId for password reset flow
-          sessionStorage.setItem(AUTH_STORAGE_KEYS.RESET_USER_ID, data.userId);
+          dispatch(setPasswordResetState({
+            requested: true,
+            completed: false,
+            userId: data.userId
+          }));
+
+          sessionStorage.setItem("resetUserId", data.userId);
+          showSuccessToast("Password reset code sent!", "Success");
           router.push("/otp?type=reset");
         } else {
-          throw new Error(
-            response.message || "Failed to initiate password reset",
-          );
+          throw new Error(response.message || "Failed to initiate password reset");
         }
       } catch (err) {
         handleError(err, "Failed to initiate password reset");
-      } finally {
-        setLoading(false);
       }
     },
-    [locale, router, handleError],
+    [forgetPasswordMutation, dispatch, router, handleError],
   );
 
   const resetPassword = useCallback(
     async (data: ResetPasswordRequest) => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const response = await authService.resetPassword(data, locale);
+        const response = await resetPasswordMutation(data).unwrap();
 
         if (response.success) {
-          sessionStorage.removeItem(AUTH_STORAGE_KEYS.RESET_USER_ID);
+          dispatch(setPasswordResetState({
+            requested: true,
+            completed: true
+          }));
+
+          sessionStorage.removeItem("resetUserId");
+          showSuccessToast("Password reset successful!", "Success");
           router.push("/signin?message=password-reset-success");
         } else {
           throw new Error(response.message || "Password reset failed");
         }
       } catch (err) {
         handleError(err, "Password reset failed");
-      } finally {
-        setLoading(false);
       }
     },
-    [locale, router, handleError],
+    [resetPasswordMutation, dispatch, router, handleError],
   );
 
-  const logout = useCallback(() => {
-    setUser(null);
-    clearAuthData();
-    router.push("/signin");
-  }, [router]);
+  const logout = useCallback(async () => {
+    try {
+      // Call logout API
+      await logoutMutation().unwrap();
+    } catch (error) {
+      console.error("Logout API failed:", error);
+      // Continue with local logout even if API fails
+    } finally {
+      // Clear all auth data
+      clearAuthData();
+      dispatch(clearAuthState());
+
+      showSuccessToast("Logged out successfully", "Goodbye!");
+      router.push("/signin");
+    }
+  }, [logoutMutation, dispatch, router]);
 
   return {
     user,
-    loading,
+    loading: isLoading,
     error,
+    isAuthenticated,
     login,
     register,
     sendOTP,
@@ -303,6 +341,6 @@ export function useAuth(): UseAuthReturn {
     forgetPassword,
     resetPassword,
     logout,
-    clearError,
+    clearError: clearAuthError,
   };
 }

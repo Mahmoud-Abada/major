@@ -115,7 +115,7 @@ export default function AdminsPage() {
       ),
       avgPermissions: Math.round(
         mockAdmins.reduce((sum, a) => sum + a.permissions.length, 0) /
-          mockAdmins.length,
+        mockAdmins.length,
       ),
       departmentCounts,
     };
@@ -165,7 +165,7 @@ export default function AdminsPage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Link href="/users/create">
+          <Link href="/classroom/users/create">
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Admin

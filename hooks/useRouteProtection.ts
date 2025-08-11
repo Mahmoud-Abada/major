@@ -5,7 +5,8 @@
 
 "use client";
 
-import { useAuthContext } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
+import { selectAuthLoading, selectIsAuthenticated, selectUser } from "@/store/slices/authSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -17,12 +18,14 @@ interface UseRouteProtectionOptions {
 
 export function useRouteProtection(options: UseRouteProtectionOptions = {}) {
     const {
-        redirectTo = "/unauthorized",
+        redirectTo = "/signin",
         requireAuth = true,
         allowedRoles = [],
     } = options;
 
-    const { user, isAuthenticated, isLoading } = useAuthContext();
+    const user = useAppSelector(selectUser);
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
+    const isLoading = useAppSelector(selectAuthLoading);
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -33,9 +36,9 @@ export function useRouteProtection(options: UseRouteProtectionOptions = {}) {
         // Check authentication requirement
         if (requireAuth && !isAuthenticated) {
             const currentPath = window.location.pathname;
-            const unauthorizedUrl = new URL("/unauthorized", window.location.origin);
-            unauthorizedUrl.searchParams.set("callbackUrl", currentPath);
-            router.push(unauthorizedUrl.toString());
+            const loginUrl = new URL(redirectTo, window.location.origin);
+            loginUrl.searchParams.set("callbackUrl", currentPath);
+            router.push(loginUrl.toString());
             return;
         }
 
@@ -47,13 +50,15 @@ export function useRouteProtection(options: UseRouteProtectionOptions = {}) {
             allowedRoles.length > 0 &&
             !allowedRoles.includes(user.userType)
         ) {
-            router.push("/unauthorized");
+            const unauthorizedUrl = new URL("/unauthorized", window.location.origin);
+            unauthorizedUrl.searchParams.set("reason", "insufficient-permissions");
+            router.push(unauthorizedUrl.toString());
             return;
         }
 
         // Handle callback URL after successful authentication
-        const callbackUrl = searchParams.get("callbackUrl");
-        if (isAuthenticated && callbackUrl) {
+        const callbackUrl = searchParams?.get("callbackUrl");
+        if (isAuthenticated && callbackUrl && callbackUrl !== window.location.pathname) {
             router.push(callbackUrl);
         }
     }, [

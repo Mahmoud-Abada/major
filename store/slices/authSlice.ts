@@ -3,15 +3,17 @@
  * Manages authentication state and user information
  */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { authApi } from "../api/authApi";
 
 interface User {
   id: string;
   email: string;
   name: string;
-  role: "teacher" | "student" | "admin" | "parent";
+  username: string;
+  phoneNumber: string;
+  userType: "teacher" | "student" | "school";
+  isVerified: boolean;
   avatar?: string;
-  isVerified?: boolean;
-  userType?: string;
   preferences?: {
     language: string;
     timezone: string;
@@ -26,34 +28,35 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   lastActivity: number | null;
   sessionExpiry: number | null;
-  // Legacy fields for backward compatibility
-  loading: boolean;
+  // OTP state
   otp: {
     sent: boolean;
     verified: boolean;
+    userId?: string;
   };
+  // Password reset state
   passwordReset: {
     requested: boolean;
     completed: boolean;
+    userId?: string;
   };
-  schoolForm: any;
 }
 
 const initialState: AuthState = {
   user: null,
   token: null,
+  refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
   lastActivity: null,
   sessionExpiry: null,
-  // Legacy fields
-  loading: false,
   otp: {
     sent: false,
     verified: false,
@@ -62,88 +65,30 @@ const initialState: AuthState = {
     requested: false,
     completed: false,
   },
-  schoolForm: null,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Login actions
-    loginStart: (state) => {
-      state.isLoading = true;
-      state.loading = true;
-      state.error = null;
-    },
-
-    loginSuccess: (
+    // Set auth state (for initialization from storage)
+    setAuthState: (
       state,
-      action: PayloadAction<{ user: User; token: string; expiresIn?: number }>,
+      action: PayloadAction<{
+        user: User | null;
+        token: string | null;
+        refreshToken?: string | null;
+        expiresIn?: number;
+      }>,
     ) => {
-      state.isLoading = false;
-      state.loading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
-      state.isAuthenticated = true;
-      state.error = null;
+      state.refreshToken = action.payload.refreshToken || null;
+      state.isAuthenticated = !!(action.payload.user && action.payload.token);
       state.lastActivity = Date.now();
 
       if (action.payload.expiresIn) {
         state.sessionExpiry = Date.now() + action.payload.expiresIn * 1000;
-      }
-
-      // Store in localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("auth_token", action.payload.token);
-        localStorage.setItem("user_data", JSON.stringify(action.payload.user));
-      }
-    },
-
-    loginFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
-      state.loading = false;
-      state.error = action.payload;
-      state.isAuthenticated = false;
-      state.user = null;
-      state.token = null;
-    },
-
-    // Logout actions
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      state.error = null;
-      state.lastActivity = null;
-      state.sessionExpiry = null;
-      state.otp = {
-        sent: false,
-        verified: false,
-      };
-      state.passwordReset = {
-        requested: false,
-        completed: false,
-      };
-      state.schoolForm = null;
-
-      // Clear localStorage
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("user_data");
-        sessionStorage.removeItem("auth_token");
-      }
-    },
-
-    // Set auth state (for initialization)
-    setAuthState: (
-      state,
-      action: PayloadAction<{ user: User | null; token: string | null }>,
-    ) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.isAuthenticated = !!(action.payload.user && action.payload.token);
-      if (state.isAuthenticated) {
-        state.lastActivity = Date.now();
       }
     },
 
@@ -151,11 +96,6 @@ const authSlice = createSlice({
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-
-        // Update localStorage
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user_data", JSON.stringify(state.user));
-        }
       }
     },
 
@@ -168,34 +108,26 @@ const authSlice = createSlice({
       state.sessionExpiry = Date.now() + action.payload * 1000;
     },
 
-    // Token refresh
-    refreshToken: (
-      state,
-      action: PayloadAction<{ token: string; expiresIn?: number }>,
-    ) => {
-      state.token = action.payload.token;
-
-      if (action.payload.expiresIn) {
-        state.sessionExpiry = Date.now() + action.payload.expiresIn * 1000;
-      }
-
-      // Update localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("auth_token", action.payload.token);
-      }
-    },
-
     // Clear auth error
     clearError: (state) => {
       state.error = null;
     },
 
-    // Legacy actions for backward compatibility
+    // OTP state management
+    setOTPState: (state, action: PayloadAction<{ sent: boolean; verified: boolean; userId?: string }>) => {
+      state.otp = action.payload;
+    },
+
     resetOTPState: (state) => {
       state.otp = {
         sent: false,
         verified: false,
       };
+    },
+
+    // Password reset state management
+    setPasswordResetState: (state, action: PayloadAction<{ requested: boolean; completed: boolean; userId?: string }>) => {
+      state.passwordReset = action.payload;
     },
 
     resetPasswordResetState: (state) => {
@@ -204,22 +136,188 @@ const authSlice = createSlice({
         completed: false,
       };
     },
+
+    // Manual logout (clears state only)
+    clearAuthState: (state) => {
+      state.user = null;
+      state.token = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
+      state.error = null;
+      state.lastActivity = null;
+      state.sessionExpiry = null;
+      state.otp = {
+        sent: false,
+        verified: false,
+      };
+      state.passwordReset = {
+        requested: false,
+        completed: false,
+      };
+    },
+  },
+  extraReducers: (builder) => {
+    // Handle login
+    builder
+      .addMatcher(authApi.endpoints.login.matchPending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.success && action.payload.user) {
+          state.user = action.payload.user;
+          state.token = action.payload.user.token;
+          state.isAuthenticated = true;
+          state.lastActivity = Date.now();
+          state.error = null;
+        }
+      })
+      .addMatcher(authApi.endpoints.login.matchRejected, (state, action) => {
+        state.isLoading = false;
+        // Extract the actual backend error message
+        let errorMessage = "Login failed";
+        if (action.payload && typeof action.payload === 'object' && 'data' in action.payload) {
+          const data = action.payload.data as any;
+          if (data && typeof data.message === 'string') {
+            errorMessage = data.message;
+          }
+        } else if (action.error?.message) {
+          errorMessage = action.error.message;
+        }
+        state.error = errorMessage;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.token = null;
+      });
+
+    // Handle register
+    builder
+      .addMatcher(authApi.endpoints.register.matchPending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.status === "success" && action.payload.payload?._id) {
+          // Store user ID for OTP verification
+          state.otp.userId = action.payload.payload._id;
+          state.otp.sent = true;
+        }
+      })
+      .addMatcher(authApi.endpoints.register.matchRejected, (state, action) => {
+        state.isLoading = false;
+        // Extract the actual backend error message
+        let errorMessage = "Registration failed";
+        if (action.payload && typeof action.payload === 'object' && 'data' in action.payload) {
+          const data = action.payload.data as any;
+          if (data && typeof data.message === 'string') {
+            errorMessage = data.message;
+          }
+        } else if (action.error?.message) {
+          errorMessage = action.error.message;
+        }
+        state.error = errorMessage;
+      });
+
+    // Handle OTP verification
+    builder
+      .addMatcher(authApi.endpoints.verifyOTP.matchPending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addMatcher(authApi.endpoints.verifyOTP.matchFulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload.success && action.payload.verified) {
+          state.otp.verified = true;
+          if (action.payload.token && state.user) {
+            state.token = action.payload.token;
+            state.user.isVerified = true;
+            state.isAuthenticated = true;
+            state.lastActivity = Date.now();
+          }
+        }
+      })
+      .addMatcher(authApi.endpoints.verifyOTP.matchRejected, (state, action) => {
+        state.isLoading = false;
+        // Extract the actual backend error message
+        let errorMessage = "OTP verification failed";
+        if (action.payload && typeof action.payload === 'object' && 'data' in action.payload) {
+          const data = action.payload.data as any;
+          if (data && typeof data.message === 'string') {
+            errorMessage = data.message;
+          }
+        } else if (action.error?.message) {
+          errorMessage = action.error.message;
+        }
+        state.error = errorMessage;
+      });
+
+    // Handle token refresh
+    builder
+      .addMatcher(authApi.endpoints.refreshToken.matchFulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.sessionExpiry = Date.now() + action.payload.expiresIn * 1000;
+        state.lastActivity = Date.now();
+      })
+      .addMatcher(authApi.endpoints.refreshToken.matchRejected, (state) => {
+        // Token refresh failed, clear auth state
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+        state.sessionExpiry = null;
+      });
+
+    // Handle logout
+    builder
+      .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+        state.error = null;
+        state.lastActivity = null;
+        state.sessionExpiry = null;
+        state.otp = {
+          sent: false,
+          verified: false,
+        };
+        state.passwordReset = {
+          requested: false,
+          completed: false,
+        };
+      });
+
+    // Handle get current user
+    builder
+      .addMatcher(authApi.endpoints.getCurrentUser.matchFulfilled, (state, action) => {
+        if (action.payload.user) {
+          state.user = action.payload.user;
+          state.isAuthenticated = true;
+          state.lastActivity = Date.now();
+        }
+      })
+      .addMatcher(authApi.endpoints.getCurrentUser.matchRejected, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+        state.token = null;
+        state.refreshToken = null;
+      });
   },
 });
 
 export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  logout,
   setAuthState,
   updateUser,
   updateLastActivity,
   extendSession,
-  refreshToken,
   clearError,
+  setOTPState,
   resetOTPState,
+  setPasswordResetState,
   resetPasswordResetState,
+  clearAuthState,
 } = authSlice.actions;
 
 export default authSlice.reducer;

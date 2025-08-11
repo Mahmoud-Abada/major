@@ -92,13 +92,13 @@ const FIELDS = [
 const LEVELS = ["Primary", "Middle School", "High School", "University"];
 
 const DAYS = [
-  { value: "Monday", label: "Monday" },
-  { value: "Tuesday", label: "Tuesday" },
-  { value: "Wednesday", label: "Wednesday" },
-  { value: "Thursday", label: "Thursday" },
-  { value: "Friday", label: "Friday" },
-  { value: "Saturday", label: "Saturday" },
-  { value: "Sunday", label: "Sunday" },
+  { value: "Sunday", label: "Sunday", index: "0" },
+  { value: "Monday", label: "Monday", index: "1" },
+  { value: "Tuesday", label: "Tuesday", index: "2" },
+  { value: "Wednesday", label: "Wednesday", index: "3" },
+  { value: "Thursday", label: "Thursday", index: "4" },
+  { value: "Friday", label: "Friday", index: "5" },
+  { value: "Saturday", label: "Saturday", index: "6" },
 ];
 
 // Updated colors - Top 15 colors for classroom themes
@@ -553,6 +553,15 @@ export default function ClassroomCreateForm({
       return;
     }
 
+    // Convert schedule days to indexes (Sunday = 0, Monday = 1, etc.)
+    const scheduleWithIndexes = schedule.map(item => {
+      const dayObj = DAYS.find(d => d.value === item.day);
+      return {
+        ...item,
+        day: dayObj ? dayObj.index : item.day, // Convert day name to index string
+      };
+    });
+
     // Format data according to API structure
     const classroomData = {
       teacher: selectedTeacher || "current-user-id",
@@ -570,7 +579,7 @@ export default function ClassroomCreateForm({
       color: data.color,
       maxStudents: data.maxStudents,
       price: data.price || 0,
-      schedule,
+      schedule: scheduleWithIndexes,
       mode: data.mode,
       ...(data.mode === "monthly" && {
         perDuration: data.perDuration || 30,
@@ -915,8 +924,8 @@ export default function ClassroomCreateForm({
                                       key={index}
                                       type="button"
                                       className={`w-12 h-12 rounded-lg border-2 transition-all hover:scale-105 ${field.value === color
-                                          ? "border-foreground shadow-lg scale-105"
-                                          : "border-border"
+                                        ? "border-foreground shadow-lg scale-105"
+                                        : "border-border"
                                         }`}
                                       style={{ backgroundColor: color }}
                                       onClick={() => field.onChange(color)}
@@ -1241,8 +1250,8 @@ export default function ClassroomCreateForm({
                               <div
                                 key={teacher.id}
                                 className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${selectedTeacher === teacher.id
-                                    ? "border-primary bg-primary/5 shadow-sm"
-                                    : "border-border hover:border-primary/50"
+                                  ? "border-primary bg-primary/5 shadow-sm"
+                                  : "border-border hover:border-primary/50"
                                   }`}
                                 onClick={() => setSelectedTeacher(teacher.id)}
                               >

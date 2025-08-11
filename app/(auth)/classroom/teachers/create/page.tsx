@@ -1,56 +1,62 @@
 "use client";
 
-import TeacherCreateForm from "@/components/forms/TeacherCreateForm";
-import { TeacherFormData } from "@/lib/validations/forms";
-import { addTeacher } from "@/store/slices/classroom/teachersSlice";
+import CreateUserForm from "@/components/forms/CreateUserForm";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-// Simple toast replacement - you can integrate with your preferred toast library
-const toast = {
-  success: (message: string) => console.log("Success:", message),
-  error: (message: string) => console.error("Error:", message),
-};
+import { toast } from "sonner";
 
-export default function CreateTeacherPage() {
+export default function CreateUserPage() {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const { user } = useAuthContext();
 
-  const handleSubmit = async (data: TeacherFormData) => {
-    setLoading(true);
+  const handleSubmit = async (formData: any) => {
+    if (!user) {
+      toast.error("You must be logged in to create users");
+      return;
+    }
+
+    if (user.userType !== "school") {
+      toast.error("Only schools can create users");
+      return;
+    }
+
     try {
-      // Generate a unique ID for the teacher
-      const teacherData = {
-        ...data,
-        id: `teacher_${Date.now()}`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        payments: [],
-      };
+      // Here we'll use the same registration API as the signup forms
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-      dispatch(addTeacher(teacherData));
-      toast.success("تم إضافة المعلم بنجاح");
-      router.push("/classroom/teachers");
-    } catch (error) {
-      console.error("Error creating teacher:", error);
-      toast.error("حدث خطأ أثناء إضافة المعلم");
-    } finally {
-      setLoading(false);
+      const result = await response.json();
+
+      if (result.status === "success") {
+        toast.success(`${formData.userData.userType} created successfully!`, {
+          description: `${formData.userData.name} has been added to your school.`,
+        });
+        router.push("/classroom/users");
+      } else {
+        throw new Error(result.message || "Failed to create user");
+      }
+    } catch (error: any) {
+      console.error("Failed to create user:", error);
+      toast.error("Failed to create user", {
+        description: error.message || "An unexpected error occurred",
+      });
     }
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push("/classroom/users");
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <TeacherCreateForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        loading={loading}
-      />
-    </div>
+    <CreateUserForm
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+    />
   );
 }

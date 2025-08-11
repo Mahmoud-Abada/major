@@ -1,0 +1,162 @@
+{
+  "v": 9,
+  "id": "cmbnnicys164413phr44pn6z0",
+  "name": "Auth service",
+  "folders": [],
+  "requests": [
+    {
+      "v": "15",
+      "name": "Register",
+      "method": "POST",
+      "endpoint": "http://localhost:3000/auth/register",
+      "params": [],
+      "headers": [
+        {
+          "key": "locale",
+          "value": "[\"ar, fr]",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"userData\": {\n    \"email\": \"abdelalimchicha@gmail.com\",\n    \"name\": \"Greenwood University\",\n    \"password\": \"hashed_password_789\",\n    \"username\": \"greenwood_suni\",\n    \"phoneNumber\": \"0667681395\",\n    \"location\": {\n      \"fullLocation\": \"789 University Ave, Metropolis\",\n      \"coordinates\": {\n        \"lat\": 37.7749,\n        \"long\": -122.4194\n      },\n      \"wilaya\": \"Metropolis\",\n      \"commune\": \"Central\"\n    },\n    \"profilePicture\": \"https://example.com/profile/greenwood_uni.png\",\n    \"isDeleted\": false,\n    \"isVerified\": false,\n    \"verificationType\": \"phone\",\n  \n    \"socialLinks\": {\n      \"website\": \"https://greenwood.edu\",\n      \"youtube\": \"https://youtube.com/greenwood_university\"\n    },\n    \"description\": \"A prestigious private university.\",\n    \"preferences\": [],\n    \"userType\": \"school\",\n    \"last\": null,\n    \"schoolType\": \"university\",\n    \"DOB\": null,\n    \"gender\": null\n  },\n  \"schoolForm\": {\n    \"representativeName\": \"Ahmed 9dor\",\n    \"role\": \"owner\",\n    \"approximateTeachers\": 15,\n    \"approximateStudents\": 3000,\n    \"numberOfBranches\": 3,\n    \"attachements\": [\n      {\n        \"attachement\": \"ss\",\n        \"type\": \"doc\",\n        \"title\": \"title\"\n      }\n    ],\n    \"isValidated\": null,\n    \"note\": \"pending\",\n    \"isIdentifierVerified\": false\n  }\n}"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "Login",
+      "method": "POST",
+      "endpoint": "http://localhost:3000/auth/login",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"identifier\": \"0667681395\",\n  \"password\": \"hashed_password_789\"\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "send-otp",
+      "method": "POST",
+      "endpoint": "http://localhost:5000/auth/send-otp",
+      "params": [],
+      "headers": [
+        {
+          "key": "locale",
+          "value": "en",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"userId\": \"j97fn5gm9bbfw2nvdpek5f1pnd7dwv3x\",\n  \"sendWhere\": \"email\"\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "verify-otp",
+      "method": "POST",
+      "endpoint": "http://localhost:5000/auth/verify-otp",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"userId\": \"j97fn5gm9bbfw2nvdpek5f1pnd7dwv3x\",\n  \"otp\": \"828451\"\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "forget_password",
+      "method": "POST",
+      "endpoint": "http://localhost:5000/auth/forget-password",
+      "params": [],
+      "headers": [
+        {
+          "key": "locale",
+          "value": "en",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"userId\": \"j97fn5gm9bbfw2nvdpek5f1pnd7dwv3x\"\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "15",
+      "name": "reset_password",
+      "method": "POST",
+      "endpoint": "http://localhost:5000/auth/reset-password",
+      "params": [],
+      "headers": [
+        {
+          "key": "locale",
+          "value": "ar",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvdHAiOiI1NTE4ODYiLCJleHAiOjE3NDQ2NjU4MTU4MzcsInVzZXJJZCI6Imo5N2ZuNWdtOWJiZncybnZkcGVrNWYxcG5kN2R3djN4In0.mtfuRBdMgJMc9a-yrcKxv7cx7X7qfB0PH7hbBRFP4tY\",\n  \"newPassword\": \"00000001\"\n}\n"
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_me4byvib_2e92993a-7987-4b85-9cf9-f8e9e993c634"
+}

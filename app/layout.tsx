@@ -1,7 +1,6 @@
 import clsx from "clsx";
 
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ReduxProviders from "@/store/Providers";
 import "@/styles/rtl.css";
@@ -9,6 +8,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Inter, Noto_Kufi_Arabic } from "next/font/google";
 import { ReactNode } from "react";
+import { Toaster } from "sonner";
 import { CalendarProvider } from "../components/calendar/event-calendar/calendar-context";
 import "./globals.css";
 

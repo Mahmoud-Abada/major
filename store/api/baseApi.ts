@@ -3,29 +3,31 @@
  * Provides base query configuration with authentication and error handling
  */
 import { handleError } from "@/utils/errorHandling";
+import { clearAuthData, getAccessToken, isTokenExpired } from "@/utils/tokenManager";
 import type {
   BaseQueryFn,
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 
 // Base query with authentication
 const baseQuery = fetchBaseQuery({
-  baseUrl:
-    process.env.NEXT_PUBLIC_CLASSROOM_API_URL ||
-    "http://127.0.0.1:3001/classroom",
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000",
   timeout: 30000, // 30 second timeout
   prepareHeaders: (headers, { getState }) => {
-    // Get token from localStorage or sessionStorage
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("auth_token") ||
-        sessionStorage.getItem("auth_token")
-        : null;
+    // Get token from secure storage
+    const token = getAccessToken();
 
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
+    // Also try to get token from Redux state as fallback
+    const state = getState() as RootState;
+    const stateToken = state.auth?.token;
+
+    const finalToken = token || stateToken;
+
+    if (finalToken && !isTokenExpired()) {
+      headers.set("authorization", `Bearer ${finalToken}`);
     }
 
     headers.set("content-type", "application/json");
@@ -37,11 +39,17 @@ const baseQuery = fetchBaseQuery({
       `req_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     );
 
+    // Add locale header if available
+    if (typeof window !== "undefined") {
+      const locale = document.documentElement.lang || "en";
+      headers.set("accept-language", locale);
+    }
+
     return headers;
   },
 });
 
-// Enhanced base query with comprehensive retry logic and error handling
+// Enhanced base query with token refresh and comprehensive retry logic
 const baseQueryWithRetry: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -60,17 +68,41 @@ const baseQueryWithRetry: BaseQueryFn<
 
     const error = result.error;
 
-    // Handle authentication errors immediately (don't retry)
+    // Handle authentication errors with token refresh
     if (error.status === 401) {
-      // Clear auth tokens
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("auth_token");
-        sessionStorage.removeItem("auth_token");
+      // Try to refresh token on first 401 error
+      if (attempt === 0) {
+        try {
+          // Attempt token refresh
+          const refreshResult = await api.dispatch(
+            baseApi.endpoints.refreshToken.initiate()
+          );
+
+          if ('data' in refreshResult && refreshResult.data) {
+            // Token refreshed successfully, retry the original request
+            result = await baseQuery(args, api, extraOptions);
+            if (!result.error) {
+              return result;
+            }
+          }
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+        }
       }
+
+      // If token refresh failed or this is not the first attempt, clear auth and redirect
+      clearAuthData();
+
+      // Dispatch logout action to clear Redux state
+      api.dispatch({ type: 'auth/clearAuthState' });
 
       // Redirect to login page
       if (typeof window !== "undefined") {
-        window.location.href = "/signin";
+        const currentPath = window.location.pathname;
+        const loginUrl = new URL("/signin", window.location.origin);
+        loginUrl.searchParams.set("callbackUrl", currentPath);
+        loginUrl.searchParams.set("error", "session-expired");
+        window.location.href = loginUrl.toString();
       }
 
       // Log the error

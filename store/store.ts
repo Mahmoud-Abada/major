@@ -12,8 +12,12 @@ import parentsReducer from "./slices/classroom/parentsSlice";
 import studentsReducer from "./slices/classroom/studentsSlice";
 import teachersReducer from "./slices/classroom/teachersSlice";
 
+// Import auth slice
+import authReducer from "./slices/authSlice";
+
 // Import API slices
 import "./api/attendanceApi";
+import "./api/authApi";
 import "./api/classroomApi";
 import "./api/groupApi";
 import "./api/markApi";
@@ -22,6 +26,9 @@ import "./api/postApi";
 // Create the store
 export const store = configureStore({
   reducer: {
+    // Auth slice
+    auth: authReducer,
+
     // Classroom management slices
     students: studentsReducer,
     teachers: teachersReducer,
@@ -75,6 +82,7 @@ export type AppStore = typeof store;
 
 // Export API hooks for convenience
 export * from "./api/attendanceApi";
+export * from "./api/authApi";
 export * from "./api/classroomApi";
 export * from "./api/groupApi";
 export * from "./api/markApi";
@@ -85,3 +93,4 @@ export * from "./slices/classroom/dashboardSlice";
 export * from "./slices/classroom/parentsSlice";
 export * from "./slices/classroom/studentsSlice";
 export * from "./slices/classroom/teachersSlice";
+

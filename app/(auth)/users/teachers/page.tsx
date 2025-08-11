@@ -108,7 +108,7 @@ export default function TeachersPage() {
       active: mockTeachers.filter((t) => t.status === "active").length,
       avgExperience: Math.round(
         mockTeachers.reduce((sum, t) => sum + t.yearsOfExperience, 0) /
-          mockTeachers.length,
+        mockTeachers.length,
       ),
       totalSubjects: Object.keys(subjectCounts).length,
       subjectCounts,
@@ -159,7 +159,7 @@ export default function TeachersPage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Link href="/users/create">
+          <Link href="/classroom/users/create">
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Teacher

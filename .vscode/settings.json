@@ -1,1 +1,37 @@
-{}
+{
+  "typescript.suggest.autoImports": "off",
+  "typescript.suggest.includePackageJsonAutoImports": "off",
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.suggest.includeCompletionsForModuleExports": false,
+  "typescript.suggest.includeCompletionsWithSnippetText": false,
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": "never",
+    "source.organizeImports": "never",
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "never"
+  },
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "eslint.enable": false,
+  "typescript.validate.enable": false,
+  "javascript.validate.enable": false,
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  },
+  "editor.parameterHints.enabled": false,
+  "editor.suggest.showKeywords": false,
+  "editor.suggest.showSnippets": false,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.tabCompletion": "off",
+  "editor.wordBasedSuggestions": "off",
+  "editor.suggest.localityBonus": false,
+  "editor.suggest.shareSuggestSelections": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.suggest.showIcons": false,
+  "editor.hover.enabled": false,
+  "editor.lightbulb.enabled": "off"
+}

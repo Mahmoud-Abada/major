@@ -47,6 +47,8 @@ const groupSchema = z.object({
   color: z.string().min(1, "Color is required"),
   frontPicture: z.string().optional(),
   backPicture: z.string().optional(),
+  maxStudents: z.number().min(1, "Max students must be at least 1"),
+  major: z.string().min(1, "Major is required"),
   isSemestral: z.boolean().optional(),
   startDate: z.number().optional(),
   endDate: z.number().optional(),
@@ -71,6 +73,19 @@ const FIELDS = [
 ];
 
 const LEVELS = ["Primary", "Middle School", "High School", "University"];
+
+const MAJORS_OPTIONS = [
+  "Science",
+  "Literature",
+  "Mathematics",
+  "Languages",
+  "Arts",
+  "Technology",
+  "Medicine",
+  "Engineering",
+  "Business",
+  "Law",
+];
 
 // Updated colors - Top 15 colors for group themes (exact same as classroom)
 const COLORS = [
@@ -117,6 +132,8 @@ export default function GroupCreateForm({
       color: COLORS[0],
       frontPicture: "",
       backPicture: "",
+      maxStudents: undefined,
+      major: "",
       isSemestral: false,
     },
   });
@@ -126,6 +143,8 @@ export default function GroupCreateForm({
   const watchedLevel = form.watch("level");
   const watchedColor = form.watch("color");
   const watchedDescription = form.watch("description");
+  const watchedMajor = form.watch("major");
+  const watchedMaxStudents = form.watch("maxStudents");
   const watchedIsSemestral = form.watch("isSemestral");
 
   // Exact same image upload handler as classroom
@@ -166,6 +185,8 @@ export default function GroupCreateForm({
     }
   };
 
+  // No need for add/remove functions since we're using a single major selection
+
   const handleSubmit = async (data: GroupFormData) => {
     // Validate semestral dates if enabled
     if (data.isSemestral && (!data.startDate || !data.endDate)) {
@@ -182,22 +203,20 @@ export default function GroupCreateForm({
       return;
     }
 
-    // Format data according to API structure
+    // Format data according to exact API structure
     const groupData = {
-      school: "current-school-id", // Will be set based on user context
       title: data.title,
-      frontPicture:
-        data.frontPicture || "https://mock-storage.com/default-front.jpg",
-      backPicture:
-        data.backPicture || "https://mock-storage.com/default-back.jpg",
+      frontPicture: data.frontPicture || "https://example.com/group-front.jpg",
+      backPicture: data.backPicture || "https://example.com/group-back.jpg",
       isArchived: false,
-      description: data.description,
-      field: data.field,
+      description: data.description || "Group for advanced students.",
       level: data.level,
+      major: data.major, // Use the selected major directly
       color: data.color,
+      maxStudents: data.maxStudents,
       isSemestral: data.isSemestral || false,
-      startDate: data.startDate || null,
-      endDate: data.endDate || null,
+      startDate: data.startDate || Date.now(),
+      endDate: data.endDate || Date.now() + (6 * 30 * 24 * 60 * 60 * 1000), // 6 months from now
     };
 
     onSubmit(groupData);
@@ -210,8 +229,10 @@ export default function GroupCreateForm({
         return (
           (((watchedTitle ? 1 : 0) +
             (watchedField ? 1 : 0) +
-            (watchedLevel ? 1 : 0)) /
-            3) *
+            (watchedLevel ? 1 : 0) +
+            (watchedMaxStudents ? 1 : 0) +
+            (watchedMajor ? 1 : 0)) /
+            5) *
           100
         );
       case "details":
@@ -351,6 +372,55 @@ export default function GroupCreateForm({
 
                     <FormField
                       control={form.control}
+                      name="maxStudents"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maximum Students *</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 42"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                              className="h-11"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Major Selection */}
+                    <FormField
+                      control={form.control}
+                      name="major"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Specialization *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="h-11 w-full">
+                                <SelectValue placeholder="Select specialization" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="w-full">
+                              {MAJORS_OPTIONS.map((major) => (
+                                <SelectItem key={major} value={major}>
+                                  {major}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name="description"
                       render={({ field }) => (
                         <FormItem>
@@ -384,8 +454,8 @@ export default function GroupCreateForm({
                                   key={index}
                                   type="button"
                                   className={`w-12 h-12 rounded-lg border-2 transition-all hover:scale-105 ${field.value === color
-                                      ? "border-foreground shadow-lg scale-105"
-                                      : "border-border"
+                                    ? "border-foreground shadow-lg scale-105"
+                                    : "border-border"
                                     }`}
                                   style={{ backgroundColor: color }}
                                   onClick={() => field.onChange(color)}
@@ -680,6 +750,19 @@ export default function GroupCreateForm({
                           {watchedDescription}
                         </p>
                       )}
+
+                      {/* Major Display */}
+                      {watchedMajor && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          <Badge
+                            variant="outline"
+                            className="text-xs px-2 py-0"
+                          >
+                            {watchedMajor}
+                          </Badge>
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 pt-2">
                         <Badge
                           variant="secondary"
@@ -691,7 +774,8 @@ export default function GroupCreateForm({
                           {watchedIsSemestral ? "Semestral" : "Regular"}
                         </Badge>
                         <Badge variant="outline">
-                          <Users className="h-3 w-3 mr-1" />0 members
+                          <Users className="h-3 w-3 mr-1" />
+                          {watchedMaxStudents || 0} max
                         </Badge>
                       </div>
                     </div>
@@ -720,7 +804,7 @@ export default function GroupCreateForm({
                       {
                         key: "basic",
                         label: "Basic Information",
-                        desc: "Title, subject, level",
+                        desc: "Title, subject, level, max students, majors",
                       },
                       {
                         key: "details",
@@ -784,12 +868,18 @@ export default function GroupCreateForm({
               </div>
 
               {/* Validation Alerts - Same style as classroom */}
-              {(!watchedTitle || !watchedField || !watchedLevel) && (
+              {(!watchedTitle || !watchedField || !watchedLevel || !watchedMaxStudents || !watchedMajor) && (
                 <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg mt-3">
                   <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
                     <AlertCircle className="h-4 w-4" />
                     <span className="text-sm font-medium">
-                      Complete basic information
+                      Complete required fields: {[
+                        !watchedTitle && "title",
+                        !watchedField && "field",
+                        !watchedLevel && "level",
+                        !watchedMaxStudents && "max students",
+                        !watchedMajor && "major"
+                      ].filter(Boolean).join(", ")}
                     </span>
                   </div>
                 </div>

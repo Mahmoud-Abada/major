@@ -59,7 +59,7 @@ const getActionsForRole = (user: User, t: any): QuickAction[] => {
           title: "Add New User",
           description: "Register teachers, students, or parents",
           icon: Users,
-          href: "/users/create",
+          href: "/classroom/users/create",
           color: "text-blue-600 bg-blue-50 hover:bg-blue-100",
           shortcut: "Ctrl+N",
           category: "primary",

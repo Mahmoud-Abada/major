@@ -152,7 +152,7 @@ export default function StudentsPage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Link href="/users/create">
+          <Link href="/classroom/users/create">
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Student

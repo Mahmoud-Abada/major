@@ -29,7 +29,21 @@ export class ClassroomService {
 
   private getAuthToken(): string | null {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+      // Try new token storage format first, then fallback to legacy
+      const accessToken = sessionStorage.getItem("access_token");
+      const authTokenLocal = localStorage.getItem("auth_token");
+      const authTokenSession = sessionStorage.getItem("auth_token");
+
+      console.log("Token check:", {
+        accessToken: accessToken ? "found" : "not found",
+        authTokenLocal: authTokenLocal ? "found" : "not found",
+        authTokenSession: authTokenSession ? "found" : "not found"
+      });
+
+      const token = accessToken || authTokenLocal || authTokenSession;
+      console.log("Using token:", token ? "token found" : "no token");
+
+      return token;
     }
     return null;
   }
@@ -112,18 +126,41 @@ export class ClassroomService {
 
   async createClassrooms(classrooms: Omit<Classroom, "id" | "createdAt" | "updatedAt">[]): Promise<ApiResponse<Classroom[]>> {
     const url = `${this.classroomBaseUrl}/create-classroom`;
-    const result = await this.request<ApiResponse<Classroom[]>>(url, {
+
+    console.log("Sending request to:", url);
+    console.log("Request payload:", JSON.stringify({ classroomsData: classrooms }, null, 2));
+
+    const result = await this.request<any[]>(url, {
       method: "POST",
-      body: JSON.stringify(classrooms),
+      body: JSON.stringify({ classroomsData: classrooms }),
     });
 
-    this.showNotification(
-      "success",
-      "Classrooms Created",
-      `Successfully created ${classrooms.length} classroom${classrooms.length > 1 ? 's' : ''}`
-    );
+    console.log("Backend response:", result);
 
-    return result;
+    // Transform backend response to match expected ApiResponse format
+    const successfulClassrooms = result
+      .filter(r => r.status === "success")
+      .map(r => r.payload);
+
+    console.log("Successful classrooms:", successfulClassrooms);
+
+    // Check for any errors in the response
+    const errors = result.filter(r => r.status !== "success");
+    if (errors.length > 0) {
+      console.error("Backend errors:", errors);
+    }
+
+    // Return in expected ApiResponse format with backend messages
+    const response = {
+      data: successfulClassrooms,
+      success: successfulClassrooms.length > 0,
+      message: successfulClassrooms.length > 0
+        ? result.find(r => r.status === "success")?.message || "Classrooms created successfully"
+        : errors[0]?.message || "Failed to create classrooms",
+      errors: errors.map(e => e.message)
+    };
+
+    return response;
   }
 
   async updateClassroom(classroomId: string, classroomData: Partial<Classroom>): Promise<ApiResponse<Classroom>> {
@@ -210,18 +247,47 @@ export class ClassroomService {
   // Group Management Methods
   async createGroups(groups: Omit<Group, "id" | "createdAt" | "updatedAt">[]): Promise<ApiResponse<Group[]>> {
     const url = `${this.classroomBaseUrl}/create-group`;
-    const result = await this.request<ApiResponse<Group[]>>(url, {
+
+    console.log("Sending group request to:", url);
+    console.log("Request payload:", JSON.stringify({ groupsData: groups }, null, 2));
+
+    const result = await this.request<any[]>(url, {
       method: "POST",
-      body: JSON.stringify(groups),
+      body: JSON.stringify({ groupsData: groups }),
     });
 
-    this.showNotification(
-      "success",
-      "Groups Created",
-      `Successfully created ${groups.length} group${groups.length > 1 ? 's' : ''}`
-    );
+    console.log("Backend response:", result);
 
-    return result;
+    // Transform backend response to match expected ApiResponse format
+    const successfulGroups = result
+      .filter(r => r.status === "success")
+      .map(r => r.payload);
+
+    const errors = result.filter(r => r.status !== "success");
+
+    console.log("Successful groups:", successfulGroups);
+    console.log("Errors:", errors);
+
+    // Show success notification
+    if (successfulGroups.length > 0) {
+      this.showNotification(
+        "success",
+        "Groups Created",
+        `Successfully created ${successfulGroups.length} group${successfulGroups.length > 1 ? 's' : ''}`
+      );
+    }
+
+    // Return in expected ApiResponse format with backend messages
+    const response = {
+      data: successfulGroups,
+      success: successfulGroups.length > 0,
+      message: successfulGroups.length > 0
+        ? result.find(r => r.status === "success")?.message || "Groups created successfully"
+        : errors[0]?.message || "Failed to create groups",
+      errors: errors.map(e => e.message)
+    };
+
+    return response;
   }
 
   async updateGroup(groupId: string, groupData: Partial<Group>): Promise<ApiResponse<Group>> {
