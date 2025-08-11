@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGroupApi } from "@/hooks/useGroupApi";
+import { useDeleteGroupMutation, useGetGroupsQuery, useUpdateGroupMutation } from "@/store/api/groupApi";
 import { Group } from "@/store/types/api";
 import {
   Archive,
@@ -61,7 +61,8 @@ interface GroupsPageState {
 export default function GroupsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { updateGroup, deleteGroup, isUpdating, isDeleting } = useGroupApi();
+  const [updateGroupMutation] = useUpdateGroupMutation();
+  const [deleteGroupMutation] = useDeleteGroupMutation();
 
   const [state, setState] = useState<GroupsPageState>({
     selectedGroups: new Set(),
@@ -90,50 +91,36 @@ export default function GroupsPage() {
     }));
   }, [searchParams]);
 
-  // Mock data for demonstration - replace with actual API call
-  useEffect(() => {
-    // This would be replaced with actual API call to get groups
-    const mockGroups: Group[] = [
-      {
-        id: "1",
-        school: "school_123",
-        schoolName: "Al-Azhar School",
-        title: "Advanced Mathematics Study Group",
-        frontPicture: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400",
-        backPicture: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400",
-        isArchived: false,
-        description: "Group for advanced students in mathematics",
-        field: "Mathematics",
-        level: "High School",
-        color: "#3498db",
-        isSemestral: true,
-        startDate: Date.now(),
-        endDate: Date.now() + 90 * 24 * 60 * 60 * 1000,
-        memberCount: 15,
-        createdAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-      },
-      {
-        id: "2",
-        school: "school_456",
-        schoolName: "Modern Science Institute",
-        title: "Physics Lab Group",
-        frontPicture: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400",
-        backPicture: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400",
-        isArchived: false,
-        description: "Hands-on physics experiments and discussions",
-        field: "Physics",
-        level: "University",
-        color: "#e74c3c",
-        isSemestral: false,
-        memberCount: 8,
-        createdAt: Date.now() - 20 * 24 * 60 * 60 * 1000,
-        updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
-      },
-    ];
+  // Fetch groups using RTK Query
+  const {
+    data: groupsResponse,
+    isLoading,
+    error: apiError,
+    refetch
+  } = useGetGroupsQuery({
+    status: state.filters.status
+  });
 
-    setState((prev) => ({ ...prev, groups: mockGroups }));
-  }, []);
+  // Update local state when API data changes
+  useEffect(() => {
+    if (groupsResponse?.data) {
+      setState((prev) => ({
+        ...prev,
+        groups: groupsResponse.data,
+        loading: false,
+        error: null
+      }));
+    }
+  }, [groupsResponse]);
+
+  // Update loading and error states
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      loading: isLoading,
+      error: apiError ? 'Failed to load groups' : null
+    }));
+  }, [isLoading, apiError]);
 
   // Handle search input with debouncing
   const handleSearchChange = useCallback((value: string) => {
@@ -203,9 +190,9 @@ export default function GroupsPage() {
     try {
       const promises = Array.from(state.selectedGroups).map((id) => {
         if (action === "archive") {
-          return updateGroup(id, { isArchived: true });
+          return updateGroupMutation({ groupId: id, groupData: { isArchived: true } });
         } else {
-          return deleteGroup(id);
+          return deleteGroupMutation(id);
         }
       });
 
@@ -234,16 +221,17 @@ export default function GroupsPage() {
     }
 
     try {
-      await deleteGroup(id);
-      // Success notification will be handled by the API service
+      await deleteGroupMutation(id).unwrap();
 
       // Remove from local state
       setState((prev) => ({
         ...prev,
         groups: prev.groups.filter((g) => g.id !== id),
       }));
+
+      // Refetch to ensure consistency
+      refetch();
     } catch (error: any) {
-      // Error notification will be handled by the error handling utility
       console.error("Failed to delete group:", error);
     }
   };
@@ -254,8 +242,7 @@ export default function GroupsPage() {
     }
 
     try {
-      await updateGroup(id, { isArchived: true });
-      // Success notification will be handled by the API service
+      await updateGroupMutation({ groupId: id, groupData: { isArchived: true } }).unwrap();
 
       // Update local state
       setState((prev) => ({
@@ -264,16 +251,17 @@ export default function GroupsPage() {
           g.id === id ? { ...g, isArchived: true } : g
         ),
       }));
+
+      // Refetch to ensure consistency
+      refetch();
     } catch (error: any) {
-      // Error notification will be handled by the error handling utility
       console.error("Failed to archive group:", error);
     }
   };
 
   const handleGroupUnarchive = async (id: string) => {
     try {
-      await updateGroup(id, { isArchived: false });
-      // Success notification will be handled by the API service
+      await updateGroupMutation({ groupId: id, groupData: { isArchived: false } }).unwrap();
 
       // Update local state
       setState((prev) => ({
@@ -282,8 +270,10 @@ export default function GroupsPage() {
           g.id === id ? { ...g, isArchived: false } : g
         ),
       }));
+
+      // Refetch to ensure consistency
+      refetch();
     } catch (error: any) {
-      // Error notification will be handled by the error handling utility
       console.error("Failed to unarchive group:", error);
     }
   };
@@ -541,10 +531,7 @@ export default function GroupsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              // Refresh groups - replace with actual API call
-              console.log("Refreshing groups...");
-            }}
+            onClick={() => refetch()}
             disabled={state.loading}
           >
             <RefreshCw
@@ -601,8 +588,8 @@ export default function GroupsPage() {
           ) : filteredGroups.length > 0 ? (
             <div
               className={`grid gap-4 ${state.view === "grid"
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1"
                 }`}
             >
               {filteredGroups.map((group) => (
@@ -650,8 +637,8 @@ export default function GroupsPage() {
           {filteredGroups.length > 0 ? (
             <div
               className={`grid gap-4 ${state.view === "grid"
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                  : "grid-cols-1"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1"
                 }`}
             >
               {filteredGroups.map((group) => (

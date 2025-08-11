@@ -23,7 +23,7 @@ import {
   MoreHorizontal,
   Star,
   Trash2,
-  Users,
+  Users
 } from "lucide-react";
 
 interface GroupCardProps {

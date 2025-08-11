@@ -74,12 +74,13 @@ export interface SemesterPricing {
 }
 
 export interface GetClassroomsParams {
-  status?: "active" | "archived";
-  pagination: PaginationParams;
+  status?: "archived" | "all" | "notArchived";
+  pagination?: { numItems: number; cursor: string | null };
+  groupPagination?: { numItems: number; cursor: string | null };
   classroomId?: string;
-  fetchBy: {
-    userType: string;
-    userId: string;
+  fetchBy?: {
+    userType: "school" | "teacher" | "student";
+    userId?: string;
   };
 }
 
@@ -303,4 +304,16 @@ export interface AddStudentToGroupParams {
 export interface AddGroupToClassroomParams {
   classroom: string;
   group: string;
+}
+
+// Group-Classroom relationship interface
+export interface GroupClassroom {
+  _id?: string;
+  classroom: string;
+  group: string;
+  coefficient?: number;
+}
+
+export interface AddGroupClassroomParams {
+  groupClassrooms: Omit<GroupClassroom, "_id"> | Array<Omit<GroupClassroom, "_id">>;
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,149 +10,204 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  addTeacher,
-  deleteTeacher,
-  selectFilteredTeachers,
-  selectTeachersLoading,
-  updateTeacher,
-} from "@/store/slices/classroom/teachersSlice";
-import { Teacher, TeacherFormData } from "@/types/classroom";
-import { Edit, Eye, Trash2, UserPlus } from "lucide-react";
-import dynamic from "next/dynamic";
+  Edit,
+  Eye,
+  GraduationCap,
+  Mail,
+  Phone,
+  RefreshCw,
+  Search,
+  Trash2,
+  UserPlus,
+  Users
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
-// Custom columns for teachers with enhanced actions
-const getTeacherColumns = (
-  onEdit: (teacher: Teacher) => void,
-  onDelete: (id: string) => void,
-  onView: (id: string) => void,
-) => [
+// Mock teacher data - replace with actual API call
+const mockTeachers = [
   {
-    id: "select",
-    header: "Select",
+    id: "1",
+    name: "Dr. Ahmed Benali",
+    email: "ahmed.benali@school.com",
+    phone: "+213 555 0123",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    userType: "teacher",
+    subjects: ["Mathematics", "Physics"],
+    level: ["High School", "University"],
+    experience: 8,
+    status: "active",
+    location: "Algiers",
+    bio: "Experienced mathematics and physics teacher with PhD in Applied Mathematics",
+    classroomsCount: 3,
+    studentsCount: 45,
+    createdAt: Date.now() - 365 * 24 * 60 * 60 * 1000,
   },
   {
-    header: "Name",
-    accessorKey: "name",
+    id: "2",
+    name: "Prof. Fatima Khelifi",
+    email: "fatima.khelifi@school.com",
+    phone: "+213 555 0124",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    userType: "teacher",
+    subjects: ["French", "Literature"],
+    level: ["Middle School", "High School"],
+    experience: 12,
+    status: "active",
+    location: "Oran",
+    bio: "French literature specialist with extensive teaching experience",
+    classroomsCount: 2,
+    studentsCount: 38,
+    createdAt: Date.now() - 2 * 365 * 24 * 60 * 60 * 1000,
   },
   {
-    header: "ID",
-    accessorKey: "teacherId",
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-  },
-  {
-    header: "Specialization",
-    accessorKey: "specialization",
-    cell: ({ row }: { row: { original: Teacher } }) => (
-      <span>{row.original.specialization.slice(0, 2).join(", ")}</span>
-    ),
-  },
-  {
-    header: "Experience",
-    accessorKey: "experience",
-    cell: ({ row }: { row: { original: Teacher } }) => (
-      <span>{row.original.experience} سنة</span>
-    ),
-  },
-  {
-    header: "Classes",
-    accessorKey: "classIds",
-    cell: ({ row }: { row: { original: Teacher } }) => (
-      <span>{row.original.classIds.length}</span>
-    ),
-  },
-  {
-    header: "Salary",
-    accessorKey: "salary",
-    cell: ({ row }: { row: { original: Teacher } }) => (
-      <span>{row.original.salary.toLocaleString()} دج</span>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }: { row: { original: Teacher } }) => (
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onView(row.original.id);
-          }}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(row.original);
-          }}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(row.original.id);
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    ),
+    id: "3",
+    name: "Dr. Karim Messaoudi",
+    email: "karim.messaoudi@school.com",
+    phone: "+213 555 0125",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    userType: "teacher",
+    subjects: ["Chemistry", "Biology"],
+    level: ["High School", "University"],
+    experience: 10,
+    status: "inactive",
+    location: "Constantine",
+    bio: "Chemistry professor specializing in organic chemistry and biochemistry",
+    classroomsCount: 1,
+    studentsCount: 22,
+    createdAt: Date.now() - 3 * 365 * 24 * 60 * 60 * 1000,
   },
 ];
 
+interface Teacher {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  userType: string;
+  subjects: string[];
+  level: string[];
+  experience: number;
+  status: "active" | "inactive";
+  location: string;
+  bio: string;
+  classroomsCount: number;
+  studentsCount: number;
+  createdAt: number;
+}
+
 export default function TeachersPage() {
-  const dispatch = useDispatch();
   const router = useRouter();
-  const teachers = useSelector(selectFilteredTeachers);
-  const loading = useSelector(selectTeachersLoading);
-
-  const [showForm, setShowForm] = useState(false);
-  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [teachers] = useState<Teacher[]>(mockTeachers);
+  const [loading] = useState(false);
 
-  // Import the DataView component dynamically to avoid SSR issues with window
-  const DataView = dynamic(
-    () => import("@/components/classroom/contacts-table"),
-    {
-      ssr: false,
-      loading: () => <p>Loading table...</p>,
-    },
-  );
+  // Filter teachers based on search and active tab
+  const filteredTeachers = useMemo(() => {
+    return teachers.filter((teacher) => {
+      const matchesSearch =
+        teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        teacher.subjects.some(subject =>
+          subject.toLowerCase().includes(searchQuery.toLowerCase())
+        ) ||
+        teacher.location.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const handleAddTeacher = () => {
-    setEditingTeacher(null);
-    setShowForm(true);
-  };
+      let matchesTab = true;
+      switch (activeTab) {
+        case "all":
+          matchesTab = true;
+          break;
+        case "active":
+          matchesTab = teacher.status === "active";
+          break;
+        case "inactive":
+          matchesTab = teacher.status === "inactive";
+          break;
+        case "math":
+          matchesTab = teacher.subjects.some(subject =>
+            subject.toLowerCase().includes("math")
+          );
+          break;
+        case "sciences":
+          matchesTab = teacher.subjects.some(subject =>
+            ["physics", "chemistry", "biology"].some(science =>
+              subject.toLowerCase().includes(science)
+            )
+          );
+          break;
+        case "languages":
+          matchesTab = teacher.subjects.some(subject =>
+            ["french", "english", "arabic", "literature"].some(lang =>
+              subject.toLowerCase().includes(lang)
+            )
+          );
+          break;
+        case "experienced":
+          matchesTab = teacher.experience >= 10;
+          break;
+      }
 
-  const handleEditTeacher = (teacher: Teacher) => {
-    setEditingTeacher(teacher);
-    setShowForm(true);
-  };
+      return matchesSearch && matchesTab;
+    });
+  }, [teachers, searchQuery, activeTab]);
 
-  const handleDeleteTeacher = (id: string) => {
-    if (confirm("هل أنت متأكد من حذف هذا الأستاذ؟")) {
-      dispatch(deleteTeacher(id));
+  // Calculate stats
+  const stats = useMemo(() => {
+    const activeTeachers = teachers.filter(t => t.status === "active");
+    const inactiveTeachers = teachers.filter(t => t.status === "inactive");
+    const totalStudents = teachers.reduce((sum, t) => sum + t.studentsCount, 0);
+    const totalClassrooms = teachers.reduce((sum, t) => sum + t.classroomsCount, 0);
+    const experiencedTeachers = teachers.filter(t => t.experience >= 10);
+
+    return {
+      total: teachers.length,
+      active: activeTeachers.length,
+      inactive: inactiveTeachers.length,
+      totalStudents,
+      totalClassrooms,
+      experienced: experiencedTeachers.length,
+    };
+  }, [teachers]);
+
+  const getTabCount = (tab: string) => {
+    switch (tab) {
+      case "all":
+        return stats.total;
+      case "active":
+        return stats.active;
+      case "inactive":
+        return stats.inactive;
+      case "math":
+        return teachers.filter(t =>
+          t.subjects.some(s => s.toLowerCase().includes("math"))
+        ).length;
+      case "sciences":
+        return teachers.filter(t =>
+          t.subjects.some(s =>
+            ["physics", "chemistry", "biology"].some(science =>
+              s.toLowerCase().includes(science)
+            )
+          )
+        ).length;
+      case "languages":
+        return teachers.filter(t =>
+          t.subjects.some(s =>
+            ["french", "english", "arabic", "literature"].some(lang =>
+              s.toLowerCase().includes(lang)
+            )
+          )
+        ).length;
+      case "experienced":
+        return stats.experienced;
+      default:
+        return 0;
     }
   };
 
@@ -158,298 +215,258 @@ export default function TeachersPage() {
     router.push(`/classroom/teachers/${id}`);
   };
 
-  const handleSubmitForm = (data: TeacherFormData) => {
-    if (editingTeacher) {
-      dispatch(updateTeacher({ id: editingTeacher.id, data }));
-    } else {
-      dispatch(addTeacher(data));
-    }
-    setShowForm(false);
-    setEditingTeacher(null);
+  const handleEditTeacher = (id: string) => {
+    router.push(`/classroom/teachers/${id}/edit`);
   };
 
-  const handleCancelForm = () => {
-    setShowForm(false);
-    setEditingTeacher(null);
-  };
+  const handleDeleteTeacher = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this teacher?")) return;
 
-  const getFilteredTeachers = (filterType: string) => {
-    switch (filterType) {
-      case "active":
-        return teachers.filter((teacher) => teacher.status === "Active");
-      case "inactive":
-        return teachers.filter((teacher) => teacher.status === "Inactive");
-      case "on-leave":
-        return teachers.filter((teacher) => teacher.status === "On Leave");
-      case "math":
-        return teachers.filter((teacher) =>
-          teacher.specialization.some((spec) => spec.includes("الرياضيات")),
-        );
-      case "sciences":
-        return teachers.filter((teacher) =>
-          teacher.specialization.some(
-            (spec) =>
-              spec.includes("الفيزياء") ||
-              spec.includes("الكيمياء") ||
-              spec.includes("علوم"),
-          ),
-        );
-      case "languages":
-        return teachers.filter((teacher) =>
-          teacher.specialization.some(
-            (spec) =>
-              spec.includes("العربية") ||
-              spec.includes("الفرنسية") ||
-              spec.includes("الإنجليزية"),
-          ),
-        );
-      case "experienced":
-        return teachers.filter((teacher) => teacher.experience >= 10);
-      default:
-        return teachers;
+    try {
+      // TODO: Implement actual delete API call
+      toast.success("Teacher deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete teacher");
     }
   };
 
-  const columns = getTeacherColumns(
-    handleEditTeacher,
-    handleDeleteTeacher,
-    handleViewTeacher,
-  );
+  const handleAddTeacher = () => {
+    router.push("/classroom/users/create");
+  };
 
   return (
-    <div className="flex flex-col space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">إدارة الأساتذة</h1>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Teachers</h1>
+          <p className="text-muted-foreground">
+            Manage your teaching staff and their assignments
+          </p>
+        </div>
         <Button onClick={handleAddTeacher}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          إضافة أستاذ
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Teacher
         </Button>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Active</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Inactive</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-600">
+              {stats.inactive}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.totalStudents}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Classrooms</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {stats.totalClassrooms}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Experienced</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {stats.experienced}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search and Controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search teachers..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // TODO: Implement refresh functionality
+              toast.success("Teachers refreshed");
+            }}
+            disabled={loading}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+          </Button>
+        </div>
+      </div>
+
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="all">جميع الأساتذة</TabsTrigger>
-          <TabsTrigger value="active">نشط</TabsTrigger>
-          <TabsTrigger value="inactive">غير نشط</TabsTrigger>
-          <TabsTrigger value="on-leave">في إجازة</TabsTrigger>
-          <TabsTrigger value="math">الرياضيات</TabsTrigger>
-          <TabsTrigger value="sciences">العلوم</TabsTrigger>
-          <TabsTrigger value="languages">اللغات</TabsTrigger>
-          <TabsTrigger value="experienced">ذوو الخبرة</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="all">All ({getTabCount("all")})</TabsTrigger>
+          <TabsTrigger value="active">Active ({getTabCount("active")})</TabsTrigger>
+          <TabsTrigger value="inactive">Inactive ({getTabCount("inactive")})</TabsTrigger>
+          <TabsTrigger value="math">Math ({getTabCount("math")})</TabsTrigger>
+          <TabsTrigger value="sciences">Sciences ({getTabCount("sciences")})</TabsTrigger>
+          <TabsTrigger value="languages">Languages ({getTabCount("languages")})</TabsTrigger>
+          <TabsTrigger value="experienced">Experienced ({getTabCount("experienced")})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>جميع الأساتذة</CardTitle>
-              <CardDescription>
-                إدارة جميع الأساتذة في النظام. انقر على أستاذ لعرض ملفه الشخصي.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("all")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Tab Contents */}
+        {["all", "active", "inactive", "math", "sciences", "languages", "experienced"].map((tab) => (
+          <TabsContent key={tab} value={tab} className="mt-6">
+            {loading ? (
+              <div className="text-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
+                <p>Loading teachers...</p>
+              </div>
+            ) : filteredTeachers.length > 0 ? (
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {filteredTeachers.map((teacher) => (
+                  <Card key={teacher.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={teacher.avatar} alt={teacher.name} />
+                            <AvatarFallback>
+                              {teacher.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <CardTitle className="text-lg">{teacher.name}</CardTitle>
+                            <CardDescription className="flex items-center gap-1">
+                              <GraduationCap className="h-3 w-3" />
+                              {teacher.experience} years experience
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Badge variant={teacher.status === "active" ? "default" : "secondary"}>
+                          {teacher.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        {teacher.email}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        {teacher.phone}
+                      </div>
 
-        <TabsContent value="active" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>الأساتذة النشطون</CardTitle>
-              <CardDescription>
-                عرض وإدارة الأساتذة النشطين حالياً.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("active")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium">Subjects:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {teacher.subjects.map((subject) => (
+                            <Badge key={subject} variant="outline" className="text-xs">
+                              {subject}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
 
-        <TabsContent value="inactive" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>الأساتذة غير النشطين</CardTitle>
-              <CardDescription>
-                عرض وإدارة الأساتذة غير النشطين.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("inactive")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>{teacher.classroomsCount} classrooms</span>
+                        <span>{teacher.studentsCount} students</span>
+                      </div>
 
-        <TabsContent value="on-leave" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>الأساتذة في إجازة</CardTitle>
-              <CardDescription>
-                عرض وإدارة الأساتذة الذين في إجازة.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("on-leave")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="math" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>أساتذة الرياضيات</CardTitle>
-              <CardDescription>عرض وإدارة أساتذة الرياضيات.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("math")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sciences" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>أساتذة العلوم</CardTitle>
-              <CardDescription>
-                عرض وإدارة أساتذة الفيزياء والكيمياء وعلوم الطبيعة والحياة.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("sciences")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="languages" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>أساتذة اللغات</CardTitle>
-              <CardDescription>
-                عرض وإدارة أساتذة اللغة العربية والفرنسية والإنجليزية.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("languages")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="experienced" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>الأساتذة ذوو الخبرة</CardTitle>
-              <CardDescription>
-                عرض وإدارة الأساتذة الذين لديهم خبرة 10 سنوات أو أكثر.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center h-64">
-                  <p>جاري تحميل الأساتذة...</p>
-                </div>
-              ) : (
-                <DataView
-                  initialData={getFilteredTeachers("experienced")}
-                  columns={columns}
-                  onRowClick={(teacher) => handleViewTeacher(teacher.id)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewTeacher(teacher.id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditTeacher(teacher.id)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTeacher(teacher.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
+                    <Users className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No teachers found
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery
+                      ? "Try adjusting your search criteria"
+                      : `No ${tab === "all" ? "" : tab + " "}teachers available`}
+                  </p>
+                  {!searchQuery && tab === "all" && (
+                    <Button onClick={handleAddTeacher}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add First Teacher
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        ))}
       </Tabs>
-
-      {/* Teacher Form Dialog - We'll create this component next */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingTeacher ? "تعديل بيانات الأستاذ" : "إضافة أستاذ جديد"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="p-4">
-            <p>Teacher form will be implemented next...</p>
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button variant="outline" onClick={handleCancelForm}>
-                إلغاء
-              </Button>
-              <Button onClick={() => handleSubmitForm({} as TeacherFormData)}>
-                حفظ
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

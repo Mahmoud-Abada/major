@@ -38,6 +38,7 @@ interface ClassroomCardProps {
   onArchive?: (id: string) => void;
   onUnarchive?: (id: string) => void;
   onFavorite?: (id: string) => void;
+  onLinkToGroups?: (id: string) => void;
   showActions?: boolean;
   className?: string;
   viewMode?: "grid" | "list";
@@ -52,6 +53,7 @@ export function ClassroomCard({
   onArchive,
   onUnarchive,
   onFavorite,
+  onLinkToGroups,
   showActions = true,
   className,
   viewMode = "grid",
@@ -239,6 +241,16 @@ export function ClassroomCard({
                             : "Add to favorites"}
                         </DropdownMenuItem>
                       )}
+                      {onLinkToGroups && (
+                        <DropdownMenuItem
+                          onClick={(e) =>
+                            handleActionClick(e, () => onLinkToGroups(classroom.id))
+                          }
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Link to Groups
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       {!classroom.isArchived && onArchive && (
                         <DropdownMenuItem
@@ -376,6 +388,16 @@ export function ClassroomCard({
                       {isFavorite
                         ? "Remove from favorites"
                         : "Add to favorites"}
+                    </DropdownMenuItem>
+                  )}
+                  {onLinkToGroups && (
+                    <DropdownMenuItem
+                      onClick={(e) =>
+                        handleActionClick(e, () => onLinkToGroups(classroom.id))
+                      }
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Link to Groups
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />

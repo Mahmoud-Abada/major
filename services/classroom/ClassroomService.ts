@@ -16,7 +16,7 @@ export class ClassroomService extends BaseApiService {
   constructor() {
     super(
       process.env.NEXT_PUBLIC_CLASSROOM_API_URL ||
-        "http://127.0.0.1:3001/classroom",
+      "http://127.0.0.1:3001/classroom",
     );
   }
 

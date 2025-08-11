@@ -11,7 +11,49 @@ import type {
   PaginatedResponse,
   UpdateClassroomParams,
 } from "@/store/types/api";
+import { getAccessToken, isTokenExpired } from "@/utils/tokenManager";
+import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 import { baseApi } from "./baseApi";
+
+// Create separate base queries for different services
+const usersBaseQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_USERS_API_URL || "http://localhost:3000/api/users",
+  timeout: 30000,
+  prepareHeaders: (headers, { getState }) => {
+    const token = getAccessToken();
+    const state = getState() as RootState;
+    const stateToken = state.auth?.token;
+    const finalToken = token || stateToken;
+
+    if (finalToken && !isTokenExpired()) {
+      headers.set("authorization", `Bearer ${finalToken}`);
+    }
+
+    headers.set("content-type", "application/json");
+    headers.set("accept", "application/json");
+    return headers;
+  },
+});
+
+const classroomBaseQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_CLASSROOM_API_URL || "http://127.0.0.1:3001/classroom",
+  timeout: 30000,
+  prepareHeaders: (headers, { getState }) => {
+    const token = getAccessToken();
+    const state = getState() as RootState;
+    const stateToken = state.auth?.token;
+    const finalToken = token || stateToken;
+
+    if (finalToken && !isTokenExpired()) {
+      headers.set("authorization", `Bearer ${finalToken}`);
+    }
+
+    headers.set("content-type", "application/json");
+    headers.set("accept", "application/json");
+    return headers;
+  },
+});
 
 export const classroomApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -20,11 +62,32 @@ export const classroomApi = baseApi.injectEndpoints({
       PaginatedResponse<Classroom>,
       GetClassroomsParams
     >({
-      query: (params) => ({
-        url: "http://127.0.0.1:5000/classroom/get-classrooms",
-        method: "POST",
-        body: params,
-      }),
+      queryFn: async (params, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/get-classrooms",
+              method: "POST",
+              body: params,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       providesTags: (result) =>
         result?.data
           ? [
@@ -39,15 +102,36 @@ export const classroomApi = baseApi.injectEndpoints({
 
     // Get single classroom by ID
     getClassroom: builder.query<ApiResponse<Classroom>, string>({
-      query: (classroomId) => ({
-        url: "http://127.0.0.1:5000/classroom/get-classrooms",
-        method: "POST",
-        body: {
-          classroomId,
-          pagination: { numItems: 1 },
-          fetchBy: { userType: "teacher", userId: "current" }, // Will be replaced with actual user context
-        },
-      }),
+      queryFn: async (classroomId, { getState }) => {
+        try {
+          const result = await usersBaseQuery(
+            {
+              url: "/classroom/get-classrooms",
+              method: "POST",
+              body: {
+                classroomId,
+                pagination: { numItems: 1 },
+                fetchBy: { userType: "teacher", userId: "current" },
+              },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       providesTags: (result, error, classroomId) => [
         { type: "Classroom", id: classroomId },
       ],
@@ -58,11 +142,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<Classroom[]>,
       CreateClassroomParams
     >({
-      query: (params) => ({
-        url: "/create-classroom",
-        method: "POST",
-        body: params.classrooms,
-      }),
+      queryFn: async (params, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/create-classroom",
+              method: "POST",
+              body: params.classrooms,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: [{ type: "Classroom", id: "LIST" }],
     }),
 
@@ -71,11 +176,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<Classroom>,
       UpdateClassroomParams
     >({
-      query: (params) => ({
-        url: "/update-classroom",
-        method: "POST",
-        body: params,
-      }),
+      queryFn: async (params, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/update-classroom",
+              method: "POST",
+              body: params,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, { classroomId }) => [
         { type: "Classroom", id: classroomId },
         { type: "Classroom", id: "LIST" },
@@ -84,11 +210,32 @@ export const classroomApi = baseApi.injectEndpoints({
 
     // Delete classroom
     deleteClassroom: builder.mutation<ApiResponse<void>, string>({
-      query: (classroomId) => ({
-        url: "/delete-classroom",
-        method: "DELETE",
-        body: { classroomId },
-      }),
+      queryFn: async (classroomId, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/delete-classroom",
+              method: "DELETE",
+              body: { classroomId },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, classroomId) => [
         { type: "Classroom", id: classroomId },
         { type: "Classroom", id: "LIST" },
@@ -100,11 +247,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<void>,
       AddStudentToClassroomParams[]
     >({
-      query: (assignments) => ({
-        url: "/add-classroom-student",
-        method: "POST",
-        body: assignments,
-      }),
+      queryFn: async (assignments, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/add-classroom-student",
+              method: "POST",
+              body: assignments,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, assignments) => [
         ...assignments.map(({ classroom }) => ({
           type: "Classroom" as const,
@@ -119,11 +287,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<void>,
       { classroomId: string; studentId: string }
     >({
-      query: ({ classroomId, studentId }) => ({
-        url: "/remove-classroom-student",
-        method: "POST",
-        body: { classroom: classroomId, student: studentId },
-      }),
+      queryFn: async ({ classroomId, studentId }, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/remove-classroom-student",
+              method: "POST",
+              body: { classroom: classroomId, student: studentId },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, { classroomId }) => [
         { type: "Classroom", id: classroomId },
         { type: "Classroom", id: "LIST" },
@@ -135,14 +324,35 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<void>,
       { classroomId: string; isArchived: boolean }
     >({
-      query: ({ classroomId, isArchived }) => ({
-        url: "/update-classroom",
-        method: "POST",
-        body: {
-          classroomId,
-          classroomData: { isArchived },
-        },
-      }),
+      queryFn: async ({ classroomId, isArchived }, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/update-classroom",
+              method: "POST",
+              body: {
+                classroomId,
+                classroomData: { isArchived },
+              },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, { classroomId }) => [
         { type: "Classroom", id: classroomId },
         { type: "Classroom", id: "LIST" },
@@ -165,11 +375,32 @@ export const classroomApi = baseApi.injectEndpoints({
       }>,
       string
     >({
-      query: (classroomId) => ({
-        url: "/get-classroom-stats",
-        method: "POST",
-        body: { classroomId },
-      }),
+      queryFn: async (classroomId, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/get-classroom-stats",
+              method: "POST",
+              body: { classroomId },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       providesTags: (result, error, classroomId) => [
         { type: "Classroom", id: `${classroomId}_STATS` },
       ],
@@ -181,11 +412,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<any[]>,
       { groups: any[] }
     >({
-      query: ({ groups }) => ({
-        url: "/create-group",
-        method: "POST",
-        body: groups,
-      }),
+      queryFn: async ({ groups }, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/create-group",
+              method: "POST",
+              body: groups,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: [{ type: "Group", id: "LIST" }],
     }),
 
@@ -194,11 +446,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<any>,
       { groupId: string; groupData: any }
     >({
-      query: (params) => ({
-        url: "/update-group",
-        method: "POST",
-        body: params,
-      }),
+      queryFn: async (params, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/update-group",
+              method: "POST",
+              body: params,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, { groupId }) => [
         { type: "Group", id: groupId },
         { type: "Group", id: "LIST" },
@@ -207,11 +480,32 @@ export const classroomApi = baseApi.injectEndpoints({
 
     // Delete group
     deleteGroup: builder.mutation<ApiResponse<void>, string>({
-      query: (groupId) => ({
-        url: "/delete-group",
-        method: "DELETE",
-        body: { groupId },
-      }),
+      queryFn: async (groupId, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/delete-group",
+              method: "DELETE",
+              body: { groupId },
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, groupId) => [
         { type: "Group", id: groupId },
         { type: "Group", id: "LIST" },
@@ -223,11 +517,32 @@ export const classroomApi = baseApi.injectEndpoints({
       ApiResponse<void>,
       Array<{ student: string; group: string }>
     >({
-      query: (assignments) => ({
-        url: "/add-group-student",
-        method: "POST",
-        body: assignments,
-      }),
+      queryFn: async (assignments, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/add-group-student",
+              method: "POST",
+              body: assignments,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, assignments) => [
         ...assignments.map(({ group }) => ({
           type: "Group" as const,
@@ -240,13 +555,34 @@ export const classroomApi = baseApi.injectEndpoints({
     // Add group to classroom
     addGroupToClassroom: builder.mutation<
       ApiResponse<void>,
-      Array<{ classroom: string; group: string }>
+      Array<{ classroom: string; group: string; coefficient?: number }>
     >({
-      query: (assignments) => ({
-        url: "/add-group-classroom",
-        method: "POST",
-        body: assignments,
-      }),
+      queryFn: async (assignments, { getState }) => {
+        try {
+          const result = await classroomBaseQuery(
+            {
+              url: "/add-group-classroom",
+              method: "POST",
+              body: assignments,
+            },
+            { getState } as any,
+            {}
+          );
+
+          if (result.error) {
+            return { error: result.error };
+          }
+
+          return { data: result.data };
+        } catch (error) {
+          return {
+            error: {
+              status: "FETCH_ERROR",
+              error: String(error),
+            },
+          };
+        }
+      },
       invalidatesTags: (result, error, assignments) => [
         ...assignments.map(({ classroom, group }) => [
           { type: "Classroom" as const, id: classroom },

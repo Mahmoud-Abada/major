@@ -12,9 +12,9 @@ import type {
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
 
-// Base query with authentication
-const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000",
+// Custom base query that can handle different base URLs
+const createBaseQuery = (baseUrl?: string) => fetchBaseQuery({
+  baseUrl: baseUrl || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000",
   timeout: 30000, // 30 second timeout
   prepareHeaders: (headers, { getState }) => {
     // Get token from secure storage
@@ -49,6 +49,9 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+// Base query with authentication
+const baseQuery = createBaseQuery();
+
 // Enhanced base query with token refresh and comprehensive retry logic
 const baseQueryWithRetry: BaseQueryFn<
   string | FetchArgs,
@@ -59,7 +62,28 @@ const baseQueryWithRetry: BaseQueryFn<
   const baseDelay = 1000; // 1 second
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    let result = await baseQuery(args, api, extraOptions);
+    // Determine which base query to use based on the URL
+    let queryToUse = baseQuery;
+
+    if (typeof args === 'object' && 'url' in args && typeof args.url === 'string') {
+      // If the URL is a full URL (starts with http), use a custom base query
+      if (args.url.startsWith('http')) {
+        // Extract the base URL from the full URL
+        const url = new URL(args.url);
+        const baseUrl = `${url.protocol}//${url.host}`;
+
+        // Create a custom base query for this specific base URL
+        queryToUse = createBaseQuery(baseUrl);
+
+        // Update the args to use relative path
+        args = {
+          ...args,
+          url: url.pathname + url.search
+        };
+      }
+    }
+
+    let result = await queryToUse(args, api, extraOptions);
 
     // If successful, return result
     if (!result.error) {
@@ -73,18 +97,8 @@ const baseQueryWithRetry: BaseQueryFn<
       // Try to refresh token on first 401 error
       if (attempt === 0) {
         try {
-          // Attempt token refresh
-          const refreshResult = await api.dispatch(
-            baseApi.endpoints.refreshToken.initiate()
-          );
-
-          if ('data' in refreshResult && refreshResult.data) {
-            // Token refreshed successfully, retry the original request
-            result = await baseQuery(args, api, extraOptions);
-            if (!result.error) {
-              return result;
-            }
-          }
+          // Skip token refresh for now since we don't have the endpoint
+          console.log("Token refresh not implemented yet");
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
         }

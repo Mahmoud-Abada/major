@@ -23,7 +23,7 @@ export class ClassroomService {
 
   constructor(options: ServiceOptions = {}) {
     this.classroomBaseUrl = process.env.NEXT_PUBLIC_CLASSROOM_API_URL || "http://127.0.0.1:3001/classroom";
-    this.usersBaseUrl = process.env.NEXT_PUBLIC_USERS_API_URL || "http://127.0.0.1:5000";
+    this.usersBaseUrl = process.env.NEXT_PUBLIC_USERS_API_URL || "http://localhost:3000/api/users";
     this.options = { showToasts: true, ...options };
   }
 

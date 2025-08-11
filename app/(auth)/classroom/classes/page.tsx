@@ -1,39 +1,46 @@
 "use client";
 
 import { ClassroomCard } from "@/components/classroom/ClassroomCard";
+import LinkGroupsToClassroomsDialog from "@/components/dialogs/LinkGroupsToClassroomsDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
 import { useAuthContext } from "@/contexts/AuthContext";
-import {
-  useClassroomManager,
-  useClassroomOperations,
-} from "@/hooks/useClassroom";
+import { useDeleteClassroomMutation, useGetClassroomsQuery, useUpdateClassroomMutation } from "@/store/api/classroomApi";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Grid3X3, List, Plus, RefreshCw, Search } from "lucide-react";
+import { BookOpen, Grid3X3, List, Plus, RefreshCw, Search, Users } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ClassesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeTab, setActiveTab] = useState("all");
-  const { toast } = useToast();
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [selectedClassroomsForLinking, setSelectedClassroomsForLinking] = useState<string[]>([]);
   const { user } = useAuthContext();
 
-  // Fetch classrooms using the API with current user
-  const { classrooms, loading, error, refresh } = useClassroomManager({
-    status: activeTab === "archived" ? "archived" : "active",
-    pagination: { numItems: 50 },
-    fetchBy: { userType: user?.userType || "teacher", userId: user?.id || "current_user" },
+  // Fetch classrooms using RTK Query
+  const {
+    data: classroomsResponse,
+    isLoading,
+    error: apiError,
+    refetch
+  } = useGetClassroomsQuery({
+    status: activeTab === "archived" ? "archived" : "notArchived",
+    pagination: { numItems: 50, cursor: null },
+    groupPagination: { numItems: 50, cursor: null },
+    fetchBy: { userType: user?.userType || "teacher", userId: user?.id },
   });
 
-  const {
-    deleteClassroom,
-    archiveClassroom,
-    unarchiveClassroom,
-  } = useClassroomOperations();
+  const [deleteClassroomMutation] = useDeleteClassroomMutation();
+  const [updateClassroomMutation] = useUpdateClassroomMutation();
+
+  // Extract classrooms from response
+  const classrooms = classroomsResponse?.data || [];
+  const loading = isLoading;
+  const error = apiError ? 'Failed to load classrooms' : null;
 
   // Filter classrooms based on search and active tab
   const filteredClassrooms = classrooms.filter((classroom) => {
@@ -95,44 +102,30 @@ export default function ClassesPage() {
     if (!confirm("Are you sure you want to delete this classroom?")) return;
 
     try {
-      await deleteClassroom(id);
-      toast({
-        title: "Success",
-        description: "Classroom deleted successfully",
-      });
-      refresh();
+      await deleteClassroomMutation(id).unwrap();
+      toast.success("Classroom deleted successfully");
+      refetch();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete classroom",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete classroom");
     }
   };
 
   const handleArchiveClassroom = async (id: string) => {
     try {
       const classroom = classrooms.find((c) => c.id === id);
-      if (classroom?.isArchived) {
-        await unarchiveClassroom(id);
-        toast({
-          title: "Success",
-          description: "Classroom unarchived successfully",
-        });
-      } else {
-        await archiveClassroom(id);
-        toast({
-          title: "Success",
-          description: "Classroom archived successfully",
-        });
-      }
-      refresh();
+      const isArchived = !classroom?.isArchived;
+
+      await updateClassroomMutation({
+        classroomId: id,
+        classroomData: { isArchived }
+      }).unwrap();
+
+      toast.success(
+        isArchived ? "Classroom archived successfully" : "Classroom unarchived successfully"
+      );
+      refetch();
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update classroom",
-        variant: "destructive",
-      });
+      toast.error("Failed to update classroom");
     }
   };
 
@@ -184,13 +177,24 @@ export default function ClassesPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={refresh}
+            onClick={() => refetch()}
             disabled={loading}
           >
             <RefreshCw
               className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
             />
             Refresh
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSelectedClassroomsForLinking([]);
+              setShowLinkDialog(true);
+            }}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Link to Groups
           </Button>
 
           <Button
@@ -271,7 +275,7 @@ export default function ClassesPage() {
               <Card className="border-destructive mb-6">
                 <CardContent className="pt-6">
                   <p className="text-destructive">{error}</p>
-                  <Button variant="outline" onClick={refresh} className="mt-2">
+                  <Button variant="outline" onClick={() => refetch()} className="mt-2">
                     Try Again
                   </Button>
                 </CardContent>
@@ -303,6 +307,10 @@ export default function ClassesPage() {
                       onDelete={handleDeleteClassroom}
                       onArchive={handleArchiveClassroom}
                       onUnarchive={handleArchiveClassroom}
+                      onLinkToGroups={(classroomId) => {
+                        setSelectedClassroomsForLinking([classroomId]);
+                        setShowLinkDialog(true);
+                      }}
                     />
                   </motion.div>
                 ))}
@@ -362,6 +370,17 @@ export default function ClassesPage() {
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Link Groups to Classrooms Dialog */}
+      <LinkGroupsToClassroomsDialog
+        open={showLinkDialog}
+        onOpenChange={setShowLinkDialog}
+        preSelectedClassrooms={selectedClassroomsForLinking}
+        onSuccess={() => {
+          refetch();
+          setSelectedClassroomsForLinking([]);
+        }}
+      />
     </div>
   );
 }

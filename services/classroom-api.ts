@@ -154,10 +154,14 @@ export interface ApiError {
 
 // Request parameter types
 export interface GetClassroomsParams {
-  status?: "active" | "archived";
-  pagination: { numItems: number; cursor?: string };
+  status?: "archived" | "all" | "notArchived";
+  pagination?: { numItems: number; cursor: string | null };
+  groupPagination?: { numItems: number; cursor: string | null };
   classroomId?: string;
-  fetchBy: { userType: string; userId: string };
+  fetchBy?: {
+    userType: "school" | "teacher" | "student";
+    userId?: string;
+  };
 }
 
 export interface CreateClassroomParams {
@@ -283,29 +287,12 @@ class ClassroomApiService {
   async getClassrooms(
     params: GetClassroomsParams,
   ): Promise<PaginatedResponse<Classroom>> {
-    // Use users service for get-classrooms as per API documentation
-    const usersServiceUrl = process.env.NEXT_PUBLIC_USERS_API_URL || "http://127.0.0.1:5000";
-    const token = this.getAuthToken();
-
-    const response = await fetch(`${usersServiceUrl}/classroom/get-classrooms`, {
+    const result = await this.request<PaginatedResponse<Classroom>>("/get-classrooms", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
       body: JSON.stringify(params),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ClassroomApiError(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-        response.status.toString(),
-        errorData,
-      );
-    }
-
-    return await response.json();
+    return result;
   }
 
   async addClassroomStudent(
@@ -389,7 +376,7 @@ class ClassroomApiService {
   }
 
   async addGroupClassroom(
-    assignments: Array<{ classroom: string; group: string }>,
+    assignments: Array<{ classroom: string; group: string; coefficient?: number }>,
   ): Promise<ApiResponse<void>> {
     const result = await this.request<ApiResponse<void>>("/add-group-classroom", {
       method: "POST",
@@ -400,6 +387,17 @@ class ClassroomApiService {
       "Groups Added to Classroom",
       `Successfully linked ${assignments.length} group${assignments.length > 1 ? 's' : ''} to classroom`
     );
+
+    return result;
+  }
+
+  async getGroups(
+    params: GetClassroomsParams,
+  ): Promise<PaginatedResponse<Group>> {
+    const result = await this.request<PaginatedResponse<Group>>("/get-groups", {
+      method: "POST",
+      body: JSON.stringify(params),
+    });
 
     return result;
   }
