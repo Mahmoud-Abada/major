@@ -2,6 +2,7 @@
  * RTK Query Base API Configuration
  * Provides base query configuration with authentication and error handling
  */
+import { customFetch } from "@/utils/customFetch";
 import { handleError } from "@/utils/errorHandling";
 import { clearAuthData, getAccessToken, isTokenExpired } from "@/utils/tokenManager";
 import type {
@@ -16,7 +17,16 @@ import type { RootState } from "../store";
 const createBaseQuery = (baseUrl?: string) => fetchBaseQuery({
   baseUrl: baseUrl || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000",
   timeout: 30000, // 30 second timeout
+  // Use custom fetch function to handle SSR and AbortController issues
+  fetchFn: customFetch,
   prepareHeaders: (headers, { getState }) => {
+    // Only access tokens and localStorage on client side
+    if (typeof window === 'undefined') {
+      headers.set("content-type", "application/json");
+      headers.set("accept", "application/json");
+      return headers;
+    }
+
     // Get token from secure storage
     const token = getAccessToken();
 
@@ -40,10 +50,8 @@ const createBaseQuery = (baseUrl?: string) => fetchBaseQuery({
     );
 
     // Add locale header if available
-    if (typeof window !== "undefined") {
-      const locale = document.documentElement.lang || "en";
-      headers.set("accept-language", locale);
-    }
+    const locale = document.documentElement.lang || "en";
+    headers.set("accept-language", locale);
 
     return headers;
   },
@@ -52,124 +60,60 @@ const createBaseQuery = (baseUrl?: string) => fetchBaseQuery({
 // Base query with authentication
 const baseQuery = createBaseQuery();
 
-// Enhanced base query with token refresh and comprehensive retry logic
+// Simple base query without extensive retry logic - cleaned up for fresh start
 const baseQueryWithRetry: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const maxRetries = 3;
-  const baseDelay = 1000; // 1 second
+  // Determine which base query to use based on the URL
+  let queryToUse = baseQuery;
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    // Determine which base query to use based on the URL
-    let queryToUse = baseQuery;
+  if (typeof args === 'object' && 'url' in args && typeof args.url === 'string') {
+    // If the URL is a full URL (starts with http), use a custom base query
+    if (args.url.startsWith('http')) {
+      // Extract the base URL from the full URL
+      const url = new URL(args.url);
+      const baseUrl = `${url.protocol}//${url.host}`;
 
-    if (typeof args === 'object' && 'url' in args && typeof args.url === 'string') {
-      // If the URL is a full URL (starts with http), use a custom base query
-      if (args.url.startsWith('http')) {
-        // Extract the base URL from the full URL
-        const url = new URL(args.url);
-        const baseUrl = `${url.protocol}//${url.host}`;
+      // Create a custom base query for this specific base URL
+      queryToUse = createBaseQuery(baseUrl);
 
-        // Create a custom base query for this specific base URL
-        queryToUse = createBaseQuery(baseUrl);
-
-        // Update the args to use relative path
-        args = {
-          ...args,
-          url: url.pathname + url.search
-        };
-      }
+      // Update the args to use relative path
+      args = {
+        ...args,
+        url: url.pathname + url.search
+      };
     }
+  }
 
-    let result = await queryToUse(args, api, extraOptions);
+  let result = await queryToUse(args, api, extraOptions);
 
-    // If successful, return result
-    if (!result.error) {
-      return result;
-    }
-
-    const error = result.error;
-
-    // Handle authentication errors with token refresh
-    if (error.status === 401) {
-      // Try to refresh token on first 401 error
-      if (attempt === 0) {
-        try {
-          // Skip token refresh for now since we don't have the endpoint
-          console.log("Token refresh not implemented yet");
-        } catch (refreshError) {
-          console.error("Token refresh failed:", refreshError);
-        }
-      }
-
-      // If token refresh failed or this is not the first attempt, clear auth and redirect
-      clearAuthData();
-
-      // Dispatch logout action to clear Redux state
-      api.dispatch({ type: 'auth/clearAuthState' });
-
-      // Redirect to login page
-      if (typeof window !== "undefined") {
-        const currentPath = window.location.pathname;
-        const loginUrl = new URL("/signin", window.location.origin);
-        loginUrl.searchParams.set("callbackUrl", currentPath);
-        loginUrl.searchParams.set("error", "session-expired");
-        window.location.href = loginUrl.toString();
-      }
-
-      // Log the error
-      handleError(error, "Authentication Error", undefined, false);
-
-      return result;
-    }
-
-    // Don't retry client errors (4xx except 401, 408, 429)
-    if (
-      typeof error.status === "number" &&
-      error.status >= 400 &&
-      error.status < 500 &&
-      error.status !== 408 &&
-      error.status !== 429
-    ) {
-      handleError(error, "Client Error", undefined, false);
-      return result;
-    }
-
-    // Retry for network errors, server errors (5xx), timeouts (408), and rate limits (429)
-    const shouldRetry =
-      error.status === "FETCH_ERROR" ||
-      error.status === "TIMEOUT_ERROR" ||
-      error.status === 408 ||
-      error.status === 429 ||
-      (typeof error.status === "number" && error.status >= 500);
-
-    if (shouldRetry && attempt < maxRetries) {
-      // Exponential backoff with jitter
-      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
-
-      console.log(
-        `API request failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${Math.round(delay)}ms...`,
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      continue;
-    }
-
-    // Log the final error
-    handleError(
-      error,
-      `API Request Failed after ${attempt + 1} attempts`,
-      undefined,
-      false,
-    );
-
+  // If successful, return result
+  if (!result.error) {
     return result;
   }
 
-  // This should never be reached, but TypeScript requires it
-  return await baseQuery(args, api, extraOptions);
+  const error = result.error;
+
+  // Handle authentication errors
+  if (error.status === 401) {
+    // Clear auth and redirect
+    clearAuthData();
+    api.dispatch({ type: 'auth/clearAuthState' });
+
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const loginUrl = new URL("/signin", window.location.origin);
+      loginUrl.searchParams.set("callbackUrl", currentPath);
+      loginUrl.searchParams.set("error", "session-expired");
+      window.location.href = loginUrl.toString();
+    }
+
+    handleError(error, "Authentication Error", undefined, false);
+  }
+
+  return result;
 };
 
 // Create the base API

@@ -1,341 +1,216 @@
-/**
- * Groups List Page
- * Main page for viewing and managing all groups with proper API integration
- */
-
 "use client";
 
 import { GroupCard } from "@/components/classroom/GroupCard";
-import { Badge } from "@/components/ui/badge";
+import DragDropAddStudentsToGroupDialog from "@/components/dialogs/DragDropAddStudentsToGroupDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useDeleteGroupMutation, useGetGroupsQuery, useUpdateGroupMutation } from "@/store/api/groupApi";
-import { Group } from "@/store/types/api";
-import {
-  Archive,
-  Grid3X3,
-  List,
-  MoreHorizontal,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-  Users,
-} from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-interface GroupFilters {
-  status?: "active" | "archived";
-  field?: string;
-  level?: string;
-  isSemestral?: boolean;
-}
-
-interface GroupsPageState {
-  selectedGroups: Set<string>;
-  view: "grid" | "list";
-  filters: GroupFilters;
-  searchQuery: string;
-  groups: Group[];
-  loading: boolean;
-  error: string | null;
-}
+import { AnimatePresence, motion } from "framer-motion";
+import { Grid3X3, List, Plus, RefreshCw, Search, UserPlus, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 export default function GroupsPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [updateGroupMutation] = useUpdateGroupMutation();
-  const [deleteGroupMutation] = useDeleteGroupMutation();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState("all");
+  const [showAddStudentsDialog, setShowAddStudentsDialog] = useState(false);
+  const [selectedGroupForStudents, setSelectedGroupForStudents] = useState<{ id: string, title: string } | null>(null);
 
-  const [state, setState] = useState<GroupsPageState>({
-    selectedGroups: new Set(),
-    view: "grid",
-    filters: {
-      status: "active",
-    },
-    searchQuery: "",
-    groups: [],
-    loading: false,
-    error: null,
-  });
+  // API state
+  const [allGroups, setAllGroups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Initialize state from URL params
-  useEffect(() => {
-    const status =
-      (searchParams.get("status") as "active" | "archived") || "active";
-    const view = (searchParams.get("view") as "grid" | "list") || "grid";
-    const search = searchParams.get("search") || "";
+  // Prevent duplicate API calls
+  const hasFetched = useRef(false);
+  const isCurrentlyFetching = useRef(false);
 
-    setState((prev) => ({
-      ...prev,
-      filters: { ...prev.filters, status },
-      view,
-      searchQuery: search,
-    }));
-  }, [searchParams]);
-
-  // Fetch groups using RTK Query
-  const {
-    data: groupsResponse,
-    isLoading,
-    error: apiError,
-    refetch
-  } = useGetGroupsQuery({
-    status: state.filters.status
-  });
-
-  // Update local state when API data changes
-  useEffect(() => {
-    if (groupsResponse?.data) {
-      setState((prev) => ({
-        ...prev,
-        groups: groupsResponse.data,
-        loading: false,
-        error: null
-      }));
-    }
-  }, [groupsResponse]);
-
-  // Update loading and error states
-  useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      loading: isLoading,
-      error: apiError ? 'Failed to load groups' : null
-    }));
-  }, [isLoading, apiError]);
-
-  // Handle search input with debouncing
-  const handleSearchChange = useCallback((value: string) => {
-    setState((prev) => ({ ...prev, searchQuery: value }));
-  }, []);
-
-  // Handle filter changes
-  const handleFilterChange = (key: keyof GroupFilters, value: any) => {
-    setState((prev) => ({
-      ...prev,
-      filters: { ...prev.filters, [key]: value },
-    }));
-
-    // Update URL
-    const params = new URLSearchParams(searchParams);
-    if (value && value !== "all") {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    router.push(`?${params.toString()}`);
-  };
-
-  // Handle view change
-  const handleViewChange = (view: "grid" | "list") => {
-    setState((prev) => ({ ...prev, view }));
-
-    const params = new URLSearchParams(searchParams);
-    params.set("view", view);
-    router.push(`?${params.toString()}`);
-  };
-
-  // Handle group selection
-  const handleGroupSelect = (groupId: string, selected: boolean) => {
-    setState((prev) => {
-      const newSelected = new Set(prev.selectedGroups);
-      if (selected) {
-        newSelected.add(groupId);
-      } else {
-        newSelected.delete(groupId);
-      }
-      return { ...prev, selectedGroups: newSelected };
-    });
-  };
-
-  // Handle select all
-  const handleSelectAll = (selected: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      selectedGroups: selected
-        ? new Set(filteredGroups.map((g) => g.id))
-        : new Set(),
-    }));
-  };
-
-  // Handle bulk actions
-  const handleBulkAction = async (action: "archive" | "delete") => {
-    if (state.selectedGroups.size === 0) return;
-
-    const actionText = action === "archive" ? "archive" : "delete";
-    const confirmMessage = `Are you sure you want to ${actionText} ${state.selectedGroups.size} group${state.selectedGroups.size > 1 ? 's' : ''}? ${action === "delete" ? "This action cannot be undone." : ""}`;
-
-    if (!confirm(confirmMessage)) {
+  // Fetch groups once on mount
+  const fetchGroups = async (force: boolean = false) => {
+    // Prevent duplicate calls
+    if (!force && (hasFetched.current || isCurrentlyFetching.current)) {
       return;
     }
 
+    isCurrentlyFetching.current = true;
+    setLoading(true);
+    setError(null);
+
     try {
-      const promises = Array.from(state.selectedGroups).map((id) => {
-        if (action === "archive") {
-          return updateGroupMutation({ groupId: id, groupData: { isArchived: true } });
-        } else {
-          return deleteGroupMutation(id);
-        }
+      const token = sessionStorage.getItem("access_token");
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const requestBody = {
+        status: "all",
+        pagination: { numItems: 1, cursor: null },
+        groupPagination: { numItems: 100, cursor: null },
+      };
+
+      const response = await fetch("http://127.0.0.1:3001/classroom/get-classrooms", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestBody),
       });
 
-      await Promise.all(promises);
-
-      // Success notifications will be handled by the service
-      setState((prev) => ({ ...prev, selectedGroups: new Set() }));
-    } catch (error: any) {
-      // Error notifications will be handled by the error handling utility
-      console.error(`Failed to ${action} groups:`, error);
-    }
-  };
-
-  // Handle group actions
-  const handleGroupView = (id: string) => {
-    router.push(`/classroom/groups/${id}`);
-  };
-
-  const handleGroupEdit = (id: string) => {
-    router.push(`/classroom/groups/${id}/edit`);
-  };
-
-  const handleGroupDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
-      return;
-    }
-
-    try {
-      await deleteGroupMutation(id).unwrap();
-
-      // Remove from local state
-      setState((prev) => ({
-        ...prev,
-        groups: prev.groups.filter((g) => g.id !== id),
-      }));
-
-      // Refetch to ensure consistency
-      refetch();
-    } catch (error: any) {
-      console.error("Failed to delete group:", error);
-    }
-  };
-
-  const handleGroupArchive = async (id: string) => {
-    if (!confirm("Are you sure you want to archive this group?")) {
-      return;
-    }
-
-    try {
-      await updateGroupMutation({ groupId: id, groupData: { isArchived: true } }).unwrap();
-
-      // Update local state
-      setState((prev) => ({
-        ...prev,
-        groups: prev.groups.map((g) =>
-          g.id === id ? { ...g, isArchived: true } : g
-        ),
-      }));
-
-      // Refetch to ensure consistency
-      refetch();
-    } catch (error: any) {
-      console.error("Failed to archive group:", error);
-    }
-  };
-
-  const handleGroupUnarchive = async (id: string) => {
-    try {
-      await updateGroupMutation({ groupId: id, groupData: { isArchived: false } }).unwrap();
-
-      // Update local state
-      setState((prev) => ({
-        ...prev,
-        groups: prev.groups.map((g) =>
-          g.id === id ? { ...g, isArchived: false } : g
-        ),
-      }));
-
-      // Refetch to ensure consistency
-      refetch();
-    } catch (error: any) {
-      console.error("Failed to unarchive group:", error);
-    }
-  };
-
-  // Filter groups based on search and filters
-  const filteredGroups = useMemo(() => {
-    return state.groups.filter((group) => {
-      // Status filter
-      if (state.filters.status === "active" && group.isArchived)
-        return false;
-      if (state.filters.status === "archived" && !group.isArchived)
-        return false;
-
-      // Field filter
-      if (state.filters.field && group.field !== state.filters.field)
-        return false;
-
-      // Level filter
-      if (state.filters.level && group.level !== state.filters.level)
-        return false;
-
-      // Semestral filter
-      if (state.filters.isSemestral !== undefined && group.isSemestral !== state.filters.isSemestral)
-        return false;
-
-      // Search filter
-      if (state.searchQuery) {
-        const query = state.searchQuery.toLowerCase();
-        return (
-          group.title.toLowerCase().includes(query) ||
-          group.field.toLowerCase().includes(query) ||
-          group.level.toLowerCase().includes(query) ||
-          group.schoolName?.toLowerCase().includes(query) ||
-          group.description?.toLowerCase().includes(query)
-        );
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      return true;
-    });
-  }, [state.groups, state.filters, state.searchQuery]);
+      const data = await response.json();
+      const groupsData = data.payload?.groups || [];
+
+      setAllGroups(groupsData);
+      setError(null);
+      hasFetched.current = true;
+
+      // Only show toast on manual refresh
+      if (force) {
+        toast.success(`Refreshed ${groupsData.length} groups`);
+      }
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(errorMessage);
+      setAllGroups([]);
+      toast.error("Failed to load groups");
+    } finally {
+      setLoading(false);
+      isCurrentlyFetching.current = false;
+    }
+  };
+
+  // Load groups once on mount
+  useEffect(() => {
+    fetchGroups();
+  }, []); // Empty dependency array to prevent re-runs
+
+  const refetch = () => {
+    hasFetched.current = false; // Reset the flag
+    fetchGroups(true);
+  };
+
+  // Group actions
+  const handleViewGroup = (id: string) => {
+    window.location.href = `/classroom/groups/${id}`;
+  };
+
+  const handleEditGroup = (id: string) => {
+    window.location.href = `/classroom/groups/${id}/edit`;
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this group?")) return;
+
+    console.log("Delete group:", id);
+    toast.info("Delete functionality will be implemented later");
+  };
+
+  const handleArchiveGroup = async (id: string) => {
+    console.log("Archive group:", id);
+    toast.info("Archive functionality will be implemented later");
+  };
+
+  // Filter groups based on active tab and search
+  const filteredGroups = allGroups.filter((group) => {
+    // Tab filtering
+    let matchesTab = true;
+    switch (activeTab) {
+      case "all":
+        matchesTab = true;
+        break;
+      case "active":
+        matchesTab = !group.isArchived;
+        break;
+      case "archived":
+        matchesTab = group.isArchived;
+        break;
+      case "sciences":
+        matchesTab = [
+          "Mathematics",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Computer Science",
+        ].includes(group.field || group.major);
+        break;
+      case "languages":
+        matchesTab = [
+          "Arabic",
+          "French",
+          "English",
+          "Languages",
+          "Literature",
+        ].includes(group.field || group.major);
+        break;
+      case "high-school":
+        matchesTab = group.level === "High School";
+        break;
+      case "university":
+        matchesTab = group.level === "University";
+        break;
+    }
+
+    // Search filtering
+    const matchesSearch = searchQuery === "" ||
+      group.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (group.field || group.major || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      group.level.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesTab && matchesSearch;
+  });
+
+  const getTabCount = (tab: string) => {
+    switch (tab) {
+      case "all":
+        return allGroups.length;
+      case "active":
+        return allGroups.filter((g) => !g.isArchived).length;
+      case "archived":
+        return allGroups.filter((g) => g.isArchived).length;
+      case "sciences":
+        return allGroups.filter((g) =>
+          [
+            "Mathematics",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Computer Science",
+          ].includes(g.field || g.major),
+        ).length;
+      case "languages":
+        return allGroups.filter((g) =>
+          ["Arabic", "French", "English", "Languages", "Literature"].includes(
+            g.field || g.major,
+          ),
+        ).length;
+      case "high-school":
+        return allGroups.filter((g) => g.level === "High School").length;
+      case "university":
+        return allGroups.filter((g) => g.level === "University").length;
+      default:
+        return 0;
+    }
+  };
 
   // Calculate stats
-  const stats = useMemo(() => {
-    const activeGroups = state.groups.filter((g) => !g.isArchived);
-    const archivedGroups = state.groups.filter((g) => g.isArchived);
-    const totalMembers = state.groups.reduce(
-      (sum, g) => sum + (g.memberCount || 0),
-      0,
-    );
-    const semestralGroups = state.groups.filter((g) => g.isSemestral);
-
-    return {
-      total: state.groups.length,
-      active: activeGroups.length,
-      archived: archivedGroups.length,
-      totalMembers,
-      semestral: semestralGroups.length,
-    };
-  }, [state.groups]);
+  const stats = {
+    total: allGroups.length,
+    active: allGroups.filter((g) => !g.isArchived).length,
+    archived: allGroups.filter((g) => g.isArchived).length,
+    totalMembers: allGroups.reduce((sum, g) => sum + (g.memberCount || 0), 0),
+    semestral: allGroups.filter((g) => g.isSemestral).length,
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -344,10 +219,38 @@ export default function GroupsPage() {
             Manage your study groups and collaborate with students
           </p>
         </div>
-        <Button onClick={() => router.push("/classroom/groups/create")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Group
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+            disabled={loading}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSelectedGroupForStudents(null);
+              setShowAddStudentsDialog(true);
+            }}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Students
+          </Button>
+
+          <Button
+            onClick={() => (window.location.href = "/classroom/groups/create")}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Group
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -402,281 +305,177 @@ export default function GroupsPage() {
         </Card>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-2 flex-1">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search groups..."
-              value={state.searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 w-full sm:w-64"
-            />
-          </div>
-
-          {/* Filters */}
-          <Select
-            value={state.filters.field || "all"}
-            onValueChange={(value) =>
-              handleFilterChange("field", value === "all" ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Field" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Fields</SelectItem>
-              <SelectItem value="Mathematics">Mathematics</SelectItem>
-              <SelectItem value="Physics">Physics</SelectItem>
-              <SelectItem value="Chemistry">Chemistry</SelectItem>
-              <SelectItem value="Biology">Biology</SelectItem>
-              <SelectItem value="Computer Science">Computer Science</SelectItem>
-              <SelectItem value="Languages">Languages</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={state.filters.level || "all"}
-            onValueChange={(value) =>
-              handleFilterChange("level", value === "all" ? undefined : value)
-            }
-          >
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="Elementary">Elementary</SelectItem>
-              <SelectItem value="Middle School">Middle School</SelectItem>
-              <SelectItem value="High School">High School</SelectItem>
-              <SelectItem value="University">University</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={
-              state.filters.isSemestral === undefined
-                ? "all"
-                : state.filters.isSemestral
-                  ? "semestral"
-                  : "regular"
-            }
-            onValueChange={(value) =>
-              handleFilterChange(
-                "isSemestral",
-                value === "all" ? undefined : value === "semestral"
-              )
-            }
-          >
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="semestral">Semestral</SelectItem>
-              <SelectItem value="regular">Regular</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* Search and View Controls */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search groups..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Bulk Actions */}
-          {state.selectedGroups.size > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <MoreHorizontal className="h-4 w-4 mr-2" />
-                  Actions ({state.selectedGroups.size})
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleBulkAction("archive")}>
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive Selected
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleBulkAction("delete")}
-                  className="text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Selected
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          {/* View Toggle */}
-          <div className="flex items-center border rounded-md">
-            <Button
-              variant={state.view === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => handleViewChange("grid")}
-              className="rounded-r-none"
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={state.view === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => handleViewChange("list")}
-              className="rounded-l-none"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Refresh */}
           <Button
-            variant="outline"
+            variant={viewMode === "grid" ? "default" : "outline"}
             size="sm"
-            onClick={() => refetch()}
-            disabled={state.loading}
+            onClick={() => setViewMode("grid")}
           >
-            <RefreshCw
-              className={`h-4 w-4 ${state.loading ? "animate-spin" : ""}`}
-            />
+            <Grid3X3 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Status Tabs */}
-      <Tabs
-        value={state.filters.status || "active"}
-        onValueChange={(value) =>
-          handleFilterChange("status", value as "active" | "archived")
-        }
-      >
-        <TabsList>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="all">All ({getTabCount("all")})</TabsTrigger>
           <TabsTrigger value="active">
-            Active
-            <Badge variant="secondary" className="ml-2">
-              {stats.active}
-            </Badge>
+            Active ({getTabCount("active")})
           </TabsTrigger>
           <TabsTrigger value="archived">
-            Archived
-            <Badge variant="secondary" className="ml-2">
-              {stats.archived}
-            </Badge>
+            Archived ({getTabCount("archived")})
+          </TabsTrigger>
+          <TabsTrigger value="sciences">
+            Sciences ({getTabCount("sciences")})
+          </TabsTrigger>
+          <TabsTrigger value="languages">
+            Languages ({getTabCount("languages")})
+          </TabsTrigger>
+          <TabsTrigger value="high-school">
+            High School ({getTabCount("high-school")})
+          </TabsTrigger>
+          <TabsTrigger value="university">
+            University ({getTabCount("university")})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active" className="mt-6">
-          {/* Select All */}
-          {filteredGroups.length > 0 && (
-            <div className="flex items-center gap-2 mb-4">
-              <Checkbox
-                checked={
-                  state.selectedGroups.size === filteredGroups.length
-                }
-                onCheckedChange={handleSelectAll}
-              />
-              <span className="text-sm text-muted-foreground">
-                Select all ({filteredGroups.length})
-              </span>
-            </div>
-          )}
+        {/* Tab Contents */}
+        {[
+          "all",
+          "active",
+          "archived",
+          "sciences",
+          "languages",
+          "high-school",
+          "university",
+        ].map((tab) => (
+          <TabsContent key={tab} value={tab} className="mt-6">
+            {error && (
+              <Card className="border-destructive mb-6">
+                <CardContent className="pt-6">
+                  <p className="text-destructive">{error}</p>
+                  <Button variant="outline" onClick={refetch} className="mt-2">
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Groups Grid/List */}
-          {state.loading ? (
-            <div className="text-center py-8">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <p>Loading groups...</p>
-            </div>
-          ) : filteredGroups.length > 0 ? (
+            {/* Groups Grid/List */}
             <div
-              className={`grid gap-4 ${state.view === "grid"
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                : "grid-cols-1"
-                }`}
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  : "space-y-4"
+              }
             >
-              {filteredGroups.map((group) => (
-                <div key={group.id} className="relative">
-                  <Checkbox
-                    className="absolute top-2 left-2 z-10"
-                    checked={state.selectedGroups.has(group.id)}
-                    onCheckedChange={(checked) =>
-                      handleGroupSelect(group.id, checked as boolean)
-                    }
-                  />
-                  <GroupCard
-                    group={group}
-                    onView={handleGroupView}
-                    onEdit={handleGroupEdit}
-                    onDelete={handleGroupDelete}
-                    onArchive={handleGroupArchive}
-                    onUnarchive={handleGroupUnarchive}
-                    viewMode={state.view}
-                    className="ml-8"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <div className="text-muted-foreground mb-4">
-                {state.searchQuery
-                  ? "No groups found matching your search"
-                  : "No active groups"}
-              </div>
-              <Button
-                onClick={() => router.push("/classroom/groups/create")}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Group
-              </Button>
-            </div>
-          )}
-        </TabsContent>
+              <AnimatePresence>
+                {filteredGroups.map((group) => (
+                  <motion.div
+                    key={group._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <GroupCard
+                      group={group}
+                      viewMode={viewMode}
+                      onAddStudents={(groupId, groupTitle) => {
+                        setSelectedGroupForStudents({ id: groupId, title: groupTitle });
+                        setShowAddStudentsDialog(true);
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
 
-        <TabsContent value="archived" className="mt-6">
-          {/* Similar content for archived groups */}
-          {filteredGroups.length > 0 ? (
-            <div
-              className={`grid gap-4 ${state.view === "grid"
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                : "grid-cols-1"
-                }`}
-            >
-              {filteredGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onView={handleGroupView}
-                  onEdit={handleGroupEdit}
-                  onDelete={handleGroupDelete}
-                  onUnarchive={handleGroupUnarchive}
-                  viewMode={state.view}
-                />
-              ))}
+              {/* Loading skeletons */}
+              {loading && (
+                <>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <Card className="overflow-hidden">
+                        <div className="h-48 bg-muted" />
+                        <CardHeader className="pb-2">
+                          <div className="h-5 bg-muted rounded mb-2" />
+                          <div className="h-4 bg-muted rounded w-2/3" />
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="h-4 bg-muted rounded" />
+                          <div className="h-4 bg-muted rounded" />
+                          <div className="h-4 bg-muted rounded w-3/4" />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <Archive className="h-12 w-12 mx-auto mb-4" />
-              No archived groups
-            </div>
-          )}
-        </TabsContent>
+
+            {/* Empty State */}
+            {!loading && filteredGroups.length === 0 && (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
+                    <Users className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    No groups found
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery
+                      ? "Try adjusting your search criteria"
+                      : `No ${tab === "all" ? "" : tab + " "}groups available`}
+                  </p>
+                  {!searchQuery && tab === "all" && (
+                    <Button
+                      onClick={() =>
+                        (window.location.href = "/classroom/groups/create")
+                      }
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Group
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        ))}
       </Tabs>
 
-      {/* Error State */}
-      {state.error && (
-        <div className="text-center py-8">
-          <div className="text-destructive mb-2">{state.error}</div>
-          <Button
-            variant="outline"
-            onClick={() => {
-              // Retry loading groups
-              setState((prev) => ({ ...prev, error: null }));
-            }}
-          >
-            Try Again
-          </Button>
-        </div>
-      )}
+      {/* Enhanced Drag & Drop Add Students to Group Dialog */}
+      <DragDropAddStudentsToGroupDialog
+        open={showAddStudentsDialog}
+        onOpenChange={setShowAddStudentsDialog}
+        groupId={selectedGroupForStudents?.id}
+        groupTitle={selectedGroupForStudents?.title}
+        onSuccess={() => {
+          refetch();
+          setSelectedGroupForStudents(null);
+        }}
+      />
     </div>
   );
 }

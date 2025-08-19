@@ -1,54 +1,140 @@
 "use client";
 
 import { ClassroomCard } from "@/components/classroom/ClassroomCard";
-import LinkGroupsToClassroomsDialog from "@/components/dialogs/LinkGroupsToClassroomsDialog";
+import DragDropAddStudentsToClassroomDialog from "@/components/dialogs/DragDropAddStudentsToClassroomDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { useDeleteClassroomMutation, useGetClassroomsQuery, useUpdateClassroomMutation } from "@/store/api/classroomApi";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Grid3X3, List, Plus, RefreshCw, Search, Users } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, Grid3X3, List, Plus, RefreshCw, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export default function ClassesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeTab, setActiveTab] = useState("all");
+  // Link Entity Dialog state
   const [showLinkDialog, setShowLinkDialog] = useState(false);
-  const [selectedClassroomsForLinking, setSelectedClassroomsForLinking] = useState<string[]>([]);
-  const { user } = useAuthContext();
+  const [linkEntityInfo, setLinkEntityInfo] = useState<{
+    id: string;
+    type: 'classroom';
+    title: string;
+    subtitle?: string;
+    details?: any;
+  } | null>(null);
+  const [linkType, setLinkType] = useState<'groups' | 'students'>('groups');
 
-  // Fetch classrooms using RTK Query
-  const {
-    data: classroomsResponse,
-    isLoading,
-    error: apiError,
-    refetch
-  } = useGetClassroomsQuery({
-    status: activeTab === "archived" ? "archived" : "notArchived",
-    pagination: { numItems: 50, cursor: null },
-    groupPagination: { numItems: 50, cursor: null },
-    fetchBy: { userType: user?.userType || "teacher", userId: user?.id },
-  });
+  // Legacy dialog state (to be removed)
+  const [showAddStudentsDialog, setShowAddStudentsDialog] = useState(false);
+  const [selectedClassroomForStudents, setSelectedClassroomForStudents] = useState<{ id: string, title: string } | null>(null);
 
-  const [deleteClassroomMutation] = useDeleteClassroomMutation();
-  const [updateClassroomMutation] = useUpdateClassroomMutation();
+  // API state
+  const [allClassrooms, setAllClassrooms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Extract classrooms from response
-  const classrooms = classroomsResponse?.data || [];
-  const loading = isLoading;
-  const error = apiError ? 'Failed to load classrooms' : null;
+  // Prevent duplicate API calls
+  const hasFetched = useRef(false);
+  const isCurrentlyFetching = useRef(false);
 
-  // Filter classrooms based on search and active tab
-  const filteredClassrooms = classrooms.filter((classroom) => {
-    const matchesSearch =
-      classroom.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      classroom.field.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      classroom.level.toLowerCase().includes(searchQuery.toLowerCase());
+  // Fetch classrooms once on mount
+  const fetchClassrooms = async (force: boolean = false) => {
+    // Prevent duplicate calls
+    if (!force && (hasFetched.current || isCurrentlyFetching.current)) {
+      return;
+    }
 
+    isCurrentlyFetching.current = true;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = sessionStorage.getItem("access_token");
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const requestBody = {
+        status: "all",
+        pagination: { numItems: 100, cursor: null },
+        groupPagination: { numItems: 1, cursor: null },
+      };
+
+      const response = await fetch("http://127.0.0.1:3001/classroom/get-classrooms", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const classroomsData = data.payload?.classrooms || [];
+
+      setAllClassrooms(classroomsData);
+      setError(null);
+      hasFetched.current = true;
+
+      // Only show toast on manual refresh
+      if (force) {
+        toast.success(`Refreshed ${classroomsData.length} classrooms`);
+      }
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setError(errorMessage);
+      setAllClassrooms([]);
+      toast.error("Failed to load classrooms");
+    } finally {
+      setLoading(false);
+      isCurrentlyFetching.current = false;
+    }
+  };
+
+  // Load classrooms once on mount
+  useEffect(() => {
+    fetchClassrooms();
+  }, []); // Empty dependency array to prevent re-runs
+
+  const refetch = () => {
+    hasFetched.current = false; // Reset the flag
+    fetchClassrooms(true);
+  };
+
+
+
+  // Classroom actions
+  const handleViewClassroom = (id: string) => {
+    window.location.href = `/classroom/classes/${id}`;
+  };
+
+  const handleEditClassroom = (id: string) => {
+    window.location.href = `/classroom/classes/${id}/edit`;
+  };
+
+  const handleDeleteClassroom = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this classroom?")) return;
+
+    console.log("Delete classroom:", id);
+    toast.info("Delete functionality will be implemented later");
+  };
+
+  const handleArchiveClassroom = async (id: string) => {
+    console.log("Archive classroom:", id);
+    toast.info("Archive functionality will be implemented later");
+  };
+
+  // Filter classrooms based on active tab and search
+  const filteredClassrooms = allClassrooms.filter((classroom) => {
+    // Tab filtering
     let matchesTab = true;
     switch (activeTab) {
       case "all":
@@ -86,59 +172,25 @@ export default function ClassesPage() {
         break;
     }
 
-    return matchesSearch && matchesTab;
+    // Search filtering
+    const matchesSearch = searchQuery === "" ||
+      classroom.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      classroom.field.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      classroom.level.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesTab && matchesSearch;
   });
-
-  // Classroom actions
-  const handleViewClassroom = (id: string) => {
-    window.location.href = `/classroom/classes/${id}`;
-  };
-
-  const handleEditClassroom = (id: string) => {
-    window.location.href = `/classroom/classes/${id}/edit`;
-  };
-
-  const handleDeleteClassroom = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this classroom?")) return;
-
-    try {
-      await deleteClassroomMutation(id).unwrap();
-      toast.success("Classroom deleted successfully");
-      refetch();
-    } catch (error) {
-      toast.error("Failed to delete classroom");
-    }
-  };
-
-  const handleArchiveClassroom = async (id: string) => {
-    try {
-      const classroom = classrooms.find((c) => c.id === id);
-      const isArchived = !classroom?.isArchived;
-
-      await updateClassroomMutation({
-        classroomId: id,
-        classroomData: { isArchived }
-      }).unwrap();
-
-      toast.success(
-        isArchived ? "Classroom archived successfully" : "Classroom unarchived successfully"
-      );
-      refetch();
-    } catch (error) {
-      toast.error("Failed to update classroom");
-    }
-  };
 
   const getTabCount = (tab: string) => {
     switch (tab) {
       case "all":
-        return classrooms.length;
+        return allClassrooms.length;
       case "active":
-        return classrooms.filter((c) => !c.isArchived).length;
+        return allClassrooms.filter((c) => !c.isArchived).length;
       case "archived":
-        return classrooms.filter((c) => c.isArchived).length;
+        return allClassrooms.filter((c) => c.isArchived).length;
       case "sciences":
-        return classrooms.filter((c) =>
+        return allClassrooms.filter((c) =>
           [
             "Mathematics",
             "Physics",
@@ -148,15 +200,15 @@ export default function ClassesPage() {
           ].includes(c.field),
         ).length;
       case "languages":
-        return classrooms.filter((c) =>
+        return allClassrooms.filter((c) =>
           ["Arabic", "French", "English", "Languages", "Literature"].includes(
             c.field,
           ),
         ).length;
       case "high-school":
-        return classrooms.filter((c) => c.level === "High School").length;
+        return allClassrooms.filter((c) => c.level === "High School").length;
       case "university":
-        return classrooms.filter((c) => c.level === "University").length;
+        return allClassrooms.filter((c) => c.level === "University").length;
       default:
         return 0;
     }
@@ -177,7 +229,7 @@ export default function ClassesPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
+            onClick={refetch}
             disabled={loading}
           >
             <RefreshCw
@@ -186,16 +238,7 @@ export default function ClassesPage() {
             Refresh
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSelectedClassroomsForLinking([]);
-              setShowLinkDialog(true);
-            }}
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Link to Groups
-          </Button>
+
 
           <Button
             onClick={() => (window.location.href = "/classroom/classrooms/create")}
@@ -275,7 +318,7 @@ export default function ClassesPage() {
               <Card className="border-destructive mb-6">
                 <CardContent className="pt-6">
                   <p className="text-destructive">{error}</p>
-                  <Button variant="outline" onClick={() => refetch()} className="mt-2">
+                  <Button variant="outline" onClick={refetch} className="mt-2">
                     Try Again
                   </Button>
                 </CardContent>
@@ -293,7 +336,7 @@ export default function ClassesPage() {
               <AnimatePresence>
                 {filteredClassrooms.map((classroom) => (
                   <motion.div
-                    key={classroom.id}
+                    key={classroom._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
@@ -302,14 +345,13 @@ export default function ClassesPage() {
                     <ClassroomCard
                       classroom={classroom}
                       viewMode={viewMode}
-                      onView={handleViewClassroom}
-                      onEdit={handleEditClassroom}
-                      onDelete={handleDeleteClassroom}
-                      onArchive={handleArchiveClassroom}
-                      onUnarchive={handleArchiveClassroom}
                       onLinkToGroups={(classroomId) => {
                         setSelectedClassroomsForLinking([classroomId]);
                         setShowLinkDialog(true);
+                      }}
+                      onAddStudents={(classroomId, classroomTitle) => {
+                        setSelectedClassroomForStudents({ id: classroomId, title: classroomTitle });
+                        setShowAddStudentsDialog(true);
                       }}
                     />
                   </motion.div>
@@ -371,14 +413,26 @@ export default function ClassesPage() {
         ))}
       </Tabs>
 
-      {/* Link Groups to Classrooms Dialog */}
-      <LinkGroupsToClassroomsDialog
+      {/* Enhanced Link Groups to Classrooms Dialog */}
+      <EnhancedLinkGroupsToClassroomsDialog
         open={showLinkDialog}
         onOpenChange={setShowLinkDialog}
         preSelectedClassrooms={selectedClassroomsForLinking}
         onSuccess={() => {
           refetch();
           setSelectedClassroomsForLinking([]);
+        }}
+      />
+
+      {/* Enhanced Drag & Drop Add Students to Classroom Dialog */}
+      <DragDropAddStudentsToClassroomDialog
+        open={showAddStudentsDialog}
+        onOpenChange={setShowAddStudentsDialog}
+        classroomId={selectedClassroomForStudents?.id}
+        classroomTitle={selectedClassroomForStudents?.title}
+        onSuccess={() => {
+          refetch();
+          setSelectedClassroomForStudents(null);
         }}
       />
     </div>

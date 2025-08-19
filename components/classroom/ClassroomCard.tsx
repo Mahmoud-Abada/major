@@ -13,8 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Progress } from "@/components/ui/progress";
-import { Classroom } from "@/types/classroom";
 import { motion } from "framer-motion";
 import {
   Archive,
@@ -23,22 +21,62 @@ import {
   DollarSign,
   Edit,
   Eye,
+  Link,
   MapPin,
   MoreHorizontal,
   Star,
   Trash2,
+  UserPlus,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
+// Type based on your actual Convex document structure
 interface ClassroomCardProps {
-  classroom: Classroom;
-  onView?: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onArchive?: (id: string) => void;
-  onUnarchive?: (id: string) => void;
-  onFavorite?: (id: string) => void;
+  classroom: {
+    _id: string;
+    title: string;
+    field: string;
+    level: string;
+    description?: string;
+    teacher?: string | {
+      name?: string;
+      username?: string;
+      profilePicture?: string;
+      last?: string;
+    };
+    owner: string;
+    price: number;
+    mode: string;
+    maxStudents: number;
+    isArchived: boolean;
+    isGrouped: boolean;
+    color: string;
+    frontPicture: string;
+    backPicture: string;
+    location?: {
+      commune: string;
+      wilaya: string;
+      fullLocation: string;
+      coordinates: { lat: number; long: number };
+    };
+    schedule?: Array<{
+      day: string;
+      startTime: string;
+      endTime: string;
+      isOnline: boolean;
+      link: string;
+    }>;
+    majors: string[];
+    school?: string | null;
+    perDuration?: number;
+    perSemester?: number | null;
+    perSessions?: number | null;
+    _creationTime: number;
+  };
   onLinkToGroups?: (id: string) => void;
+  onAddStudents?: (id: string, title: string) => void;
   showActions?: boolean;
   className?: string;
   viewMode?: "grid" | "list";
@@ -47,22 +85,17 @@ interface ClassroomCardProps {
 
 export function ClassroomCard({
   classroom,
-  onView,
-  onEdit,
-  onDelete,
-  onArchive,
-  onUnarchive,
-  onFavorite,
   onLinkToGroups,
+  onAddStudents,
   showActions = true,
   className,
   viewMode = "grid",
   isFavorite = false,
 }: ClassroomCardProps) {
+  const router = useRouter();
+
   const handleCardClick = () => {
-    if (onView) {
-      onView(classroom.id);
-    }
+    router.push(`/classroom/classrooms/${classroom._id}`);
   };
 
   const handleActionClick = (e: React.MouseEvent, action: () => void) => {
@@ -70,22 +103,40 @@ export function ClassroomCard({
     action();
   };
 
-  // Calculate occupancy percentage
-  const currentStudents = classroom.currentStudents || 0;
-  const maxStudents = classroom.maxStudents || 0;
-  const occupancyPercentage =
-    maxStudents > 0 ? (currentStudents / maxStudents) * 100 : 0;
-
-  const getOccupancyColor = (percentage: number) => {
-    if (percentage >= 90) return "text-red-600";
-    if (percentage >= 75) return "text-yellow-600";
-    return "text-green-600";
+  const handleView = () => {
+    router.push(`/classroom/classrooms/${classroom._id}`);
   };
 
-  const getOccupancyBgColor = (percentage: number) => {
-    if (percentage >= 90) return "bg-red-100";
-    if (percentage >= 75) return "bg-yellow-100";
-    return "bg-green-100";
+  const handleEdit = () => {
+    toast.info("Edit functionality not implemented yet");
+  };
+
+  const handleDelete = () => {
+    toast.info("Delete functionality not implemented yet");
+  };
+
+  const handleArchive = () => {
+    toast.info("Archive functionality not implemented yet");
+  };
+
+  const handleFavorite = () => {
+    toast.info("Favorite functionality not implemented yet");
+  };
+
+  // Helper function to get teacher display name
+  const getTeacherName = () => {
+    if (!classroom.teacher) return "Teacher not assigned";
+
+    if (typeof classroom.teacher === "string") {
+      return classroom.teacher;
+    }
+
+    // Handle teacher object
+    if (typeof classroom.teacher === "object") {
+      return classroom.teacher.name || classroom.teacher.username || "Teacher not assigned";
+    }
+
+    return "Teacher not assigned";
   };
 
   // Animation variants
@@ -151,10 +202,15 @@ export function ClassroomCard({
                     {classroom.isArchived && (
                       <Badge variant="destructive">Archived</Badge>
                     )}
+                    {classroom.isGrouped && (
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        Grouped
+                      </Badge>
+                    )}
                   </div>
 
                   <p className="text-sm text-muted-foreground mb-2">
-                    {classroom.teacherName || "Teacher not assigned"}
+                    {getTeacherName()}
                   </p>
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
@@ -166,30 +222,26 @@ export function ClassroomCard({
                     <div className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
                       <span className="truncate">
-                        {classroom.location.commune},{" "}
-                        {classroom.location.wilaya}
+                        {classroom.location?.commune || "Location not set"}
                       </span>
                     </div>
 
-                    {maxStudents > 0 && (
+                    {classroom.maxStudents > 0 && (
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        <span
-                          className={getOccupancyColor(occupancyPercentage)}
-                        >
-                          {currentStudents}/{maxStudents}
-                        </span>
+                        <span>Max: {classroom.maxStudents} students</span>
                       </div>
                     )}
 
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
-                      <span>{classroom.schedule.length} sessions/week</span>
+                      <span>{classroom.schedule?.length || 0} sessions/week</span>
                     </div>
 
                     <div className="flex items-center gap-1 font-medium">
                       <DollarSign className="h-4 w-4" />
-                      <span>{classroom.price.toLocaleString()} DA</span>
+                      <span>{classroom.price?.toLocaleString() || 0} DA</span>
+                      <span className="text-xs">/{classroom.mode}</span>
                     </div>
                   </div>
                 </div>
@@ -201,9 +253,7 @@ export function ClassroomCard({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={(e) =>
-                      handleActionClick(e, () => onView?.(classroom.id))
-                    }
+                    onClick={(e) => handleActionClick(e, handleView)}
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View
@@ -219,75 +269,43 @@ export function ClassroomCard({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {onEdit && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onEdit(classroom.id))
-                          }
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                      )}
-                      {onFavorite && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onFavorite(classroom.id))
-                          }
-                        >
-                          <Star className="h-4 w-4 mr-2" />
-                          {isFavorite
-                            ? "Remove from favorites"
-                            : "Add to favorites"}
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleEdit)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleFavorite)}>
+                        <Star className="h-4 w-4 mr-2" />
+                        {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                      </DropdownMenuItem>
                       {onLinkToGroups && (
                         <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onLinkToGroups(classroom.id))
-                          }
+                          onClick={(e) => handleActionClick(e, () => onLinkToGroups(classroom._id))}
                         >
-                          <Users className="h-4 w-4 mr-2" />
+                          <Link className="h-4 w-4 mr-2" />
                           Link to Groups
                         </DropdownMenuItem>
                       )}
+                      {onAddStudents && (
+                        <DropdownMenuItem
+                          onClick={(e) => handleActionClick(e, () => onAddStudents(classroom._id, classroom.title))}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Add Students
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
-                      {!classroom.isArchived && onArchive && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onArchive(classroom.id))
-                          }
-                        >
-                          <Archive className="h-4 w-4 mr-2" />
-                          Archive
-                        </DropdownMenuItem>
-                      )}
-                      {classroom.isArchived && onUnarchive && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () =>
-                              onUnarchive(classroom.id),
-                            )
-                          }
-                        >
-                          <Archive className="h-4 w-4 mr-2" />
-                          Unarchive
-                        </DropdownMenuItem>
-                      )}
-                      {onDelete && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={(e) =>
-                              handleActionClick(e, () => onDelete(classroom.id))
-                            }
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </>
-                      )}
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleArchive)}>
+                        <Archive className="h-4 w-4 mr-2" />
+                        {classroom.isArchived ? "Unarchive" : "Archive"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={(e) => handleActionClick(e, handleDelete)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -332,11 +350,13 @@ export function ClassroomCard({
             {classroom.isArchived && (
               <Badge variant="destructive">Archived</Badge>
             )}
+            {classroom.isGrouped && (
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                Grouped
+              </Badge>
+            )}
             {isFavorite && (
-              <Badge
-                variant="secondary"
-                className="bg-yellow-100 text-yellow-800"
-              >
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                 <Star className="h-3 w-3 mr-1 fill-current" />
                 Favorite
               </Badge>
@@ -358,98 +378,58 @@ export function ClassroomCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {onView && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onView(classroom.id))
-                      }
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </DropdownMenuItem>
-                  )}
-                  {onEdit && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onEdit(classroom.id))
-                      }
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                  )}
-                  {onFavorite && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onFavorite(classroom.id))
-                      }
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      {isFavorite
-                        ? "Remove from favorites"
-                        : "Add to favorites"}
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleView)}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleEdit)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleFavorite)}>
+                    <Star className="h-4 w-4 mr-2" />
+                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  </DropdownMenuItem>
                   {onLinkToGroups && (
                     <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onLinkToGroups(classroom.id))
-                      }
+                      onClick={(e) => handleActionClick(e, () => onLinkToGroups(classroom._id))}
                     >
-                      <Users className="h-4 w-4 mr-2" />
+                      <Link className="h-4 w-4 mr-2" />
                       Link to Groups
                     </DropdownMenuItem>
                   )}
+                  {onAddStudents && (
+                    <DropdownMenuItem
+                      onClick={(e) => handleActionClick(e, () => onAddStudents(classroom._id, classroom.title))}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add Students
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
-                  {!classroom.isArchived && onArchive && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onArchive(classroom.id))
-                      }
-                    >
-                      <Archive className="h-4 w-4 mr-2" />
-                      Archive
-                    </DropdownMenuItem>
-                  )}
-                  {classroom.isArchived && onUnarchive && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onUnarchive(classroom.id))
-                      }
-                    >
-                      <Archive className="h-4 w-4 mr-2" />
-                      Unarchive
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={(e) =>
-                          handleActionClick(e, () => onDelete(classroom.id))
-                        }
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleArchive)}>
+                    <Archive className="h-4 w-4 mr-2" />
+                    {classroom.isArchived ? "Unarchive" : "Archive"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={(e) => handleActionClick(e, handleDelete)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           )}
 
-          {/* Occupancy indicator */}
-          {maxStudents > 0 && (
-            <div className="absolute bottom-2 right-2">
-              <div
-                className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${getOccupancyBgColor(occupancyPercentage)} ${getOccupancyColor(occupancyPercentage)}`}
-              >
-                {occupancyPercentage.toFixed(0)}% full
-              </div>
+          {/* Price indicator */}
+          <div className="absolute bottom-2 right-2">
+            <div className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-black/20 text-white">
+              {classroom.price?.toLocaleString() || 0} DA
             </div>
-          )}
+          </div>
         </div>
 
         <CardHeader className="pb-2">
@@ -459,7 +439,7 @@ export function ClassroomCard({
                 {classroom.title}
               </h3>
               <p className="text-sm text-muted-foreground truncate">
-                {classroom.teacherName || "Teacher not assigned"}
+                {getTeacherName()}
               </p>
             </div>
             <div
@@ -480,23 +460,15 @@ export function ClassroomCard({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">
-              {classroom.location.commune}, {classroom.location.wilaya}
+              {classroom.location?.commune || "Location not set"}
             </span>
           </div>
 
-          {/* Student Capacity with Progress */}
-          {maxStudents > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>Students</span>
-                </div>
-                <span className={getOccupancyColor(occupancyPercentage)}>
-                  {currentStudents}/{maxStudents}
-                </span>
-              </div>
-              <Progress value={occupancyPercentage} className="h-2" />
+          {/* Student Capacity */}
+          {classroom.maxStudents > 0 && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4 flex-shrink-0" />
+              <span>Max: {classroom.maxStudents} students</span>
             </div>
           )}
 
@@ -504,8 +476,8 @@ export function ClassroomCard({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4 flex-shrink-0" />
             <span>
-              {classroom.schedule.length} session
-              {classroom.schedule.length !== 1 ? "s" : ""}/week
+              {classroom.schedule?.length || 0} session
+              {(classroom.schedule?.length || 0) !== 1 ? "s" : ""}/week
             </span>
           </div>
 
@@ -513,10 +485,10 @@ export function ClassroomCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium">
               <DollarSign className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-              <span>{classroom.price.toLocaleString()} DA</span>
+              <span>{classroom.price?.toLocaleString() || 0} DA</span>
             </div>
             <span className="text-xs text-muted-foreground">
-              /{classroom.mode}
+              /{classroom.mode || "monthly"}
             </span>
           </div>
 
@@ -530,30 +502,22 @@ export function ClassroomCard({
           {/* Action Buttons (Mobile) */}
           {showActions && (
             <div className="flex gap-2 pt-2 md:hidden">
-              {onView && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={(e) =>
-                    handleActionClick(e, () => onView(classroom.id))
-                  }
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-              )}
-              {onEdit && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e) =>
-                    handleActionClick(e, () => onEdit(classroom.id))
-                  }
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={(e) => handleActionClick(e, handleView)}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => handleActionClick(e, handleEdit)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </CardContent>

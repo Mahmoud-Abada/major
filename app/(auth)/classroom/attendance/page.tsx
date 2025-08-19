@@ -19,12 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import {
-  useAttendanceManager,
-  useAttendanceOperations,
-  useAttendanceStatistics,
-} from "@/hooks/useAttendance";
+import { toast } from "@/hooks/use-toast";
+import { classroomApi, type Attendance } from "@/services/classroom-api";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
@@ -41,7 +37,7 @@ import {
   Users,
   UserX,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const ATTENDANCE_STATUS = [
   {
@@ -76,39 +72,114 @@ export default function AttendancePage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [selectedClassroom, setSelectedClassroom] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [dateRange, setDateRange] = useState<{ start: Date; end: Date }>({
-    start: new Date(new Date().setDate(new Date().getDate() - 30)),
-    end: new Date(),
+
+  // State management
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [attendanceError, setAttendanceError] = useState<string | null>(null);
+  const [classrooms, setClassrooms] = useState<any[]>([]);
+
+  // Calculate statistics
+  const stats = {
+    totalSessions: attendance.length,
+    presentCount: attendance.filter(a => a.status === "present").length,
+    absentCount: attendance.filter(a => a.status === "absent").length,
+    lateCount: attendance.filter(a => a.status === "late").length,
+    excusedCount: attendance.filter(a => a.status === "excused").length,
+    attendanceRate: attendance.length > 0
+      ? ((attendance.filter(a => a.status === "present" || a.status === "late" || a.status === "excused").length / attendance.length) * 100)
+      : 0,
+    punctualityRate: attendance.length > 0
+      ? ((attendance.filter(a => a.status === "present").length / attendance.length) * 100)
+      : 0,
+    recentTrend: "stable" as "improving" | "declining" | "stable",
+    byStudent: {} as Record<string, { present: number; absent: number; late: number; excused: number; rate: number }>,
+    byDate: {} as Record<string, { present: number; absent: number; late: number; excused: number }>
+  };
+
+  // Calculate by student stats
+  attendance.forEach(record => {
+    const studentKey = record.studentName || record.student;
+    if (!stats.byStudent[studentKey]) {
+      stats.byStudent[studentKey] = { present: 0, absent: 0, late: 0, excused: 0, rate: 0 };
+    }
+    stats.byStudent[studentKey][record.status]++;
   });
 
-  const { toast } = useToast();
-
-  // Attendance management
-  const {
-    attendance,
-    loading: attendanceLoading,
-    error: attendanceError,
-    refresh,
-    updateParams,
-  } = useAttendanceManager({
-    classroomId: selectedClassroom || undefined,
-    dateRange: {
-      start: dateRange.start.getTime(),
-      end: dateRange.end.getTime(),
-    },
+  // Calculate rates for each student
+  Object.keys(stats.byStudent).forEach(student => {
+    const studentData = stats.byStudent[student];
+    const total = studentData.present + studentData.absent + studentData.late + studentData.excused;
+    studentData.rate = total > 0 ? ((studentData.present + studentData.late + studentData.excused) / total) * 100 : 0;
   });
 
-  const {
-    addAttendance,
-    updateAttendance,
-    markPresent,
-    markAbsent,
-    markLate,
-    markExcused,
-    loading: operationsLoading,
-  } = useAttendanceOperations();
+  // API functions
+  const fetchAttendance = useCallback(async () => {
+    if (!selectedClassroom || selectedClassroom === "all-classrooms") return;
 
-  const stats = useAttendanceStatistics(attendance);
+    setAttendanceLoading(true);
+    setAttendanceError(null);
+
+    try {
+      const response = await classroomApi.getClassroomAttendance({
+        classroomId: selectedClassroom,
+        pagination: { numItems: 100, cursor: null },
+      });
+
+      // Transform backend data to frontend format
+      const transformedData: Attendance[] = response.data?.attendances?.map((item: any) => ({
+        id: item._id || Math.random().toString(),
+        student: item.attendance?.student || '',
+        studentName: item.relation?.student?.name || `Student ${item.attendance?.student}`,
+        classroom: selectedClassroom,
+        event: item.attendance?.event,
+        date: item.attendance?.presentTime || Date.now(),
+        status: item.attendance?.isPresent ? 'present' : 'absent',
+        notes: item.attendance?.note || item.attendance?.absenceReason,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      })) || [];
+
+      setAttendance(transformedData);
+    } catch (error: any) {
+      setAttendanceError(error.message || "Failed to fetch attendance");
+      toast({
+        title: "Error",
+        description: "Failed to fetch attendance data",
+        variant: "destructive",
+      });
+    } finally {
+      setAttendanceLoading(false);
+    }
+  }, [selectedClassroom]);
+
+  const fetchClassrooms = useCallback(async () => {
+    try {
+      const response = await classroomApi.getClassrooms({
+        status: "notArchived",
+        pagination: { numItems: 100, cursor: null },
+      });
+      setClassrooms(response.data);
+    } catch (error: any) {
+      console.error("Failed to fetch classrooms:", error);
+    }
+  }, []);
+
+  const refresh = useCallback(() => {
+    fetchAttendance();
+  }, [fetchAttendance]);
+
+  // Load classrooms on mount
+  useEffect(() => {
+    fetchClassrooms();
+  }, [fetchClassrooms]);
+
+  // Load attendance when classroom or date changes
+  useEffect(() => {
+    if (selectedClassroom) {
+      fetchAttendance();
+    }
+  }, [fetchAttendance]);
 
   // Filter attendance based on search and filters
   const filteredAttendance = attendance.filter((record) => {
@@ -116,21 +187,10 @@ export default function AttendancePage() {
       record.studentName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.student.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = !selectedStatus || record.status === selectedStatus;
+    const matchesStatus = !selectedStatus || selectedStatus === "all-status" || record.status === selectedStatus;
 
     return matchesSearch && matchesStatus;
   });
-
-  // Update params when filters change
-  useEffect(() => {
-    updateParams({
-      classroomId: selectedClassroom || undefined,
-      dateRange: {
-        start: dateRange.start.getTime(),
-        end: dateRange.end.getTime(),
-      },
-    });
-  }, [selectedClassroom, dateRange, updateParams]);
 
   // Attendance actions
   const handleStatusChange = async (
@@ -138,32 +198,36 @@ export default function AttendancePage() {
     newStatus: string,
   ) => {
     try {
-      switch (newStatus) {
-        case "present":
-          await markPresent(attendanceId);
-          break;
-        case "absent":
-          await markAbsent(attendanceId);
-          break;
-        case "late":
-          await markLate(attendanceId);
-          break;
-        case "excused":
-          await markExcused(attendanceId);
-          break;
-        default:
-          return;
+      // Find the attendance record to get the eventId
+      const attendanceRecord = attendance.find(a => a.id === attendanceId);
+      if (!attendanceRecord?.event) {
+        toast({
+          title: "Error",
+          description: "Cannot update attendance: missing event information",
+          variant: "destructive",
+        });
+        return;
       }
+
+      await classroomApi.updateStudentAttendance({
+        attendanceId,
+        attendanceData: {
+          absenceReason: newStatus === 'absent' ? 'Status changed to absent' : '',
+          attachements: [],
+        },
+        eventId: attendanceRecord.event,
+      });
 
       toast({
         title: "Success",
         description: "Attendance updated successfully",
       });
+
       refresh();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update attendance",
+        description: error.message || "Failed to update attendance",
         variant: "destructive",
       });
     }
@@ -177,8 +241,8 @@ export default function AttendancePage() {
 
   const clearFilters = () => {
     setSearchQuery("");
-    setSelectedStatus("");
-    setSelectedClassroom("");
+    setSelectedStatus("all-status");
+    setSelectedClassroom("all-classrooms");
   };
 
   const formatDate = (timestamp: number) => {
@@ -253,13 +317,12 @@ export default function AttendancePage() {
                       <Minus className="h-3 w-3 text-gray-600" />
                     )}
                     <span
-                      className={`text-xs font-medium ${
-                        stats.recentTrend === "improving"
-                          ? "text-green-600"
-                          : stats.recentTrend === "declining"
-                            ? "text-red-600"
-                            : "text-gray-600"
-                      }`}
+                      className={`text-xs font-medium ${stats.recentTrend === "improving"
+                        ? "text-green-600"
+                        : stats.recentTrend === "declining"
+                          ? "text-red-600"
+                          : "text-gray-600"
+                        }`}
                     >
                       {stats.recentTrend === "improving"
                         ? "Improving"
@@ -370,7 +433,7 @@ export default function AttendancePage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all-status">All Status</SelectItem>
                 {ATTENDANCE_STATUS.map((status) => (
                   <SelectItem key={status.value} value={status.value}>
                     {status.label}
@@ -384,11 +447,15 @@ export default function AttendancePage() {
               onValueChange={setSelectedClassroom}
             >
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Classrooms" />
+                <SelectValue placeholder="Select Classroom" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Classrooms</SelectItem>
-                {/* Add classroom options here */}
+                <SelectItem value="all-classrooms">All Classrooms</SelectItem>
+                {classrooms?.map((classroom) => (
+                  <SelectItem key={classroom.id} value={classroom.id}>
+                    {classroom.title}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -404,7 +471,6 @@ export default function AttendancePage() {
                   mode="single"
                   selected={selectedDate}
                   onSelect={(date) => date && setSelectedDate(date)}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>
@@ -480,48 +546,59 @@ export default function AttendancePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {filteredAttendance
-                  .sort((a, b) => b.date - a.date)
-                  .slice(0, 10)
-                  .map((record) => {
-                    const statusInfo = getStatusInfo(record.status);
-                    const Icon = statusInfo.icon;
+                {filteredAttendance.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      {selectedClassroom
+                        ? "No attendance records found for the selected filters"
+                        : "Please select a classroom to view attendance records"
+                      }
+                    </p>
+                  </div>
+                ) : (
+                  filteredAttendance
+                    .sort((a, b) => b.date - a.date)
+                    .slice(0, 10)
+                    .map((record) => {
+                      const statusInfo = getStatusInfo(record.status);
+                      const Icon = statusInfo.icon;
 
-                    return (
-                      <div
-                        key={record.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`p-2 rounded-full ${statusInfo.color.replace("text-", "bg-").replace("-800", "-50")}`}
-                          >
-                            <Icon
-                              className={`h-4 w-4 ${statusInfo.color.replace("bg-", "text-").replace("-100", "-600")}`}
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium">
-                              {record.studentName ||
-                                `Student ${record.student}`}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatDate(record.date)} at{" "}
-                              {formatTime(record.date)}
-                            </p>
-                            {record.notes && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {record.notes}
+                      return (
+                        <div
+                          key={record.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`p-2 rounded-full ${statusInfo.color.replace("text-", "bg-").replace("-800", "-50")}`}
+                            >
+                              <Icon
+                                className={`h-4 w-4 ${statusInfo.color.replace("bg-", "text-").replace("-100", "-600")}`}
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium">
+                                {record.studentName ||
+                                  `Student ${record.student}`}
                               </p>
-                            )}
+                              <p className="text-sm text-muted-foreground">
+                                {formatDate(record.date)} at{" "}
+                                {formatTime(record.date)}
+                              </p>
+                              {record.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {record.notes}
+                                </p>
+                              )}
+                            </div>
                           </div>
+                          <Badge className={statusInfo.color}>
+                            {statusInfo.label}
+                          </Badge>
                         </div>
-                        <Badge className={statusInfo.color}>
-                          {statusInfo.label}
-                        </Badge>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                )}
               </div>
             </CardContent>
           </Card>
@@ -556,50 +633,57 @@ export default function AttendancePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(stats.byStudent)
-                  .sort(([, a], [, b]) => b.rate - a.rate)
-                  .slice(0, 10)
-                  .map(([student, data]) => (
-                    <div
-                      key={student}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-2 h-2 rounded-full bg-blue-500" />
-                        <div>
-                          <p className="font-medium">{student}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {data.present +
-                              data.late +
-                              data.excused +
-                              data.absent}{" "}
-                            total sessions
-                          </p>
+                {Object.entries(stats.byStudent).length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      No attendance data available for analytics
+                    </p>
+                  </div>
+                ) : (
+                  Object.entries(stats.byStudent)
+                    .sort(([, a], [, b]) => b.rate - a.rate)
+                    .slice(0, 10)
+                    .map(([student, data]) => (
+                      <div
+                        key={student}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          <div>
+                            <p className="font-medium">{student}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {data.present +
+                                data.late +
+                                data.excused +
+                                data.absent}{" "}
+                              total sessions
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p
-                          className={`font-bold ${
-                            data.rate >= 90
+                        <div className="text-right">
+                          <p
+                            className={`font-bold ${data.rate >= 90
                               ? "text-green-600"
                               : data.rate >= 75
                                 ? "text-yellow-600"
                                 : "text-red-600"
-                          }`}
-                        >
-                          {data.rate.toFixed(1)}%
-                        </p>
-                        <div className="flex gap-1 text-xs text-muted-foreground">
-                          <span className="text-green-600">
-                            {data.present}P
-                          </span>
-                          <span className="text-yellow-600">{data.late}L</span>
-                          <span className="text-red-600">{data.absent}A</span>
-                          <span className="text-blue-600">{data.excused}E</span>
+                              }`}
+                          >
+                            {data.rate.toFixed(1)}%
+                          </p>
+                          <div className="flex gap-1 text-xs text-muted-foreground">
+                            <span className="text-green-600">
+                              {data.present}P
+                            </span>
+                            <span className="text-yellow-600">{data.late}L</span>
+                            <span className="text-red-600">{data.absent}A</span>
+                            <span className="text-blue-600">{data.excused}E</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                )}
               </div>
             </CardContent>
           </Card>

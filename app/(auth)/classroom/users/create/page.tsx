@@ -22,7 +22,7 @@ export default function CreateClassroomUserPage() {
 
         try {
             // Here we'll use the same registration API as the signup forms
-            const response = await fetch("/api/auth/register", {
+            const response = await fetch("http://localhost:3000/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

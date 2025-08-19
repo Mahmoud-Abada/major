@@ -10,6 +10,7 @@ import type {
   Group,
   UpdateGroupParams,
 } from "@/store/types/api";
+import { customFetch } from "@/utils/customFetch";
 import { getAccessToken, isTokenExpired } from "@/utils/tokenManager";
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store";
@@ -19,7 +20,16 @@ import { baseApi } from "./baseApi";
 const classroomBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_CLASSROOM_API_URL || "http://127.0.0.1:3001/classroom",
   timeout: 30000,
+  // Use custom fetch function to handle SSR and AbortController issues
+  fetchFn: customFetch,
   prepareHeaders: (headers, { getState }) => {
+    // Only access tokens on client side
+    if (typeof window === 'undefined') {
+      headers.set("content-type", "application/json");
+      headers.set("accept", "application/json");
+      return headers;
+    }
+
     const token = getAccessToken();
     const state = getState() as RootState;
     const stateToken = state.auth?.token;
@@ -37,64 +47,7 @@ const classroomBaseQuery = fetchBaseQuery({
 
 export const groupApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Get all groups
-    getGroups: builder.query<
-      { data: Group[]; pagination?: { hasMore: boolean; cursor?: string } },
-      {
-        status?: "archived" | "all" | "notArchived";
-        pagination?: { numItems: number; cursor: string | null };
-        fetchBy?: {
-          userType: "school" | "teacher" | "student";
-          userId?: string;
-        };
-      }
-    >({
-      queryFn: async (params, { getState }) => {
-        try {
-          // Use the getClassrooms endpoint with groupPagination to get groups
-          const result = await classroomBaseQuery(
-            {
-              url: "/get-classrooms",
-              method: "POST",
-              body: {
-                ...params,
-                groupPagination: params.pagination,
-                pagination: { numItems: 0, cursor: null }, // Don't fetch classrooms, only groups
-              },
-            },
-            { getState } as any,
-            {}
-          );
-
-          if (result.error) {
-            return { error: result.error };
-          }
-
-          // Extract groups from the response
-          const response = result.data as any;
-          return {
-            data: {
-              data: response.groups || [],
-              pagination: response.groupPagination
-            }
-          };
-        } catch (error) {
-          return {
-            error: {
-              status: "FETCH_ERROR",
-              error: String(error),
-            },
-          };
-        }
-      },
-      providesTags: (result) =>
-        result?.data
-          ? [
-            ...result.data.map(({ id }) => ({ type: "Group" as const, id })),
-            { type: "Group", id: "LIST" },
-          ]
-          : [{ type: "Group", id: "LIST" }],
-    }),
+    // Get all groups - REMOVED FOR FRESH START
 
     // Get single group by ID
     getGroup: builder.query<ApiResponse<Group>, string>({
@@ -147,7 +100,45 @@ export const groupApi = baseApi.injectEndpoints({
             return { error: result.error };
           }
 
-          return { data: result.data };
+          // Handle the array response from backend
+          const responseArray = result.data as Array<{
+            status: "success" | "error";
+            message: string;
+            payload?: string;
+          }>;
+
+          // Check if all operations were successful
+          const hasErrors = responseArray.some(item => item.status === "error");
+
+          if (hasErrors) {
+            const errorMessages = responseArray
+              .filter(item => item.status === "error")
+              .map(item => item.message)
+              .join(", ");
+
+            return {
+              error: {
+                status: "CUSTOM_ERROR",
+                data: {
+                  message: `Group creation failed: ${errorMessages}`,
+                  code: "GROUP_CREATION_ERROR",
+                },
+              },
+            };
+          }
+
+          // All successful - return success response
+          const successMessages = responseArray
+            .filter(item => item.status === "success")
+            .map(item => item.message);
+
+          return {
+            data: {
+              data: [], // We don't get the full group objects back, just IDs
+              success: true,
+              message: successMessages.join(", "),
+            },
+          };
         } catch (error) {
           return {
             error: {
@@ -458,11 +449,11 @@ export const groupApi = baseApi.injectEndpoints({
       ],
     }),
   }),
+  overrideExisting: true,
 });
 
-// Export hooks
+// Export hooks - REMOVED GET GROUPS HOOKS FOR FRESH START
 export const {
-  useGetGroupsQuery,
   useGetGroupQuery,
   useCreateGroupsMutation,
   useUpdateGroupMutation,

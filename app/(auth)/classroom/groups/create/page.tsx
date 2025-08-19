@@ -22,7 +22,7 @@ export default function CreateGroupPage() {
     try {
       const result = await groupApi.createGroups([groupData]);
 
-      if (result && result.success && result.data && result.data.length > 0) {
+      if (result && result.success) {
         toast.success(result.message || "Group created successfully", {
           duration: 4000,
         });

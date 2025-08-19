@@ -18,10 +18,9 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useAddGroupToClassroomMutation, useGetClassroomsQuery } from "@/store/api/classroomApi";
-import { useGetGroupsQuery } from "@/store/api/groupApi";
+import { useAddGroupToClassroomMutation } from "@/store/api/classroomApi";
 import { BookOpen, Link, Search, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface LinkGroupsToClassroomsDialogProps {
@@ -46,29 +45,99 @@ export default function LinkGroupsToClassroomsDialog({
     const [groupSearch, setGroupSearch] = useState("");
     const [isLinking, setIsLinking] = useState(false);
 
-    // Fetch classrooms and groups
-    const {
-        data: classroomsResponse,
-        isLoading: classroomsLoading,
-    } = useGetClassroomsQuery({
-        status: "notArchived",
-        pagination: { numItems: 100, cursor: null },
-        fetchBy: { userType: user?.userType || "teacher", userId: user?.id },
-    });
-
-    const {
-        data: groupsResponse,
-        isLoading: groupsLoading,
-    } = useGetGroupsQuery({
-        status: "notArchived",
-        pagination: { numItems: 100, cursor: null },
-        fetchBy: { userType: user?.userType || "teacher", userId: user?.id },
-    });
+    // State for fetched data
+    const [classrooms, setClassrooms] = useState<any[]>([]);
+    const [groups, setGroups] = useState<any[]>([]);
+    const [classroomsLoading, setClassroomsLoading] = useState(false);
+    const [groupsLoading, setGroupsLoading] = useState(false);
 
     const [addGroupToClassroom] = useAddGroupToClassroomMutation();
 
-    const classrooms = classroomsResponse?.data || [];
-    const groups = groupsResponse?.data || [];
+    // Fetch classrooms using direct fetch (same as pages)
+    const fetchClassrooms = async () => {
+        setClassroomsLoading(true);
+
+        try {
+            const token = sessionStorage.getItem("access_token");
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            const requestBody = {
+                status: "notArchived",
+                pagination: { numItems: 100, cursor: null },
+                groupPagination: { numItems: 1, cursor: null },
+            };
+
+            const response = await fetch("http://127.0.0.1:3001/classroom/get-classrooms", {
+                method: "POST",
+                headers,
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setClassrooms(data.payload?.classrooms || []);
+        } catch (error) {
+            setClassrooms([]);
+        } finally {
+            setClassroomsLoading(false);
+        }
+    };
+
+    // Fetch groups using direct fetch (same as pages)
+    const fetchGroups = async () => {
+        setGroupsLoading(true);
+
+        try {
+            const token = sessionStorage.getItem("access_token");
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            const requestBody = {
+                status: "notArchived",
+                pagination: { numItems: 1, cursor: null },
+                groupPagination: { numItems: 100, cursor: null },
+            };
+
+            const response = await fetch("http://127.0.0.1:3001/classroom/get-classrooms", {
+                method: "POST",
+                headers,
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setGroups(data.payload?.groups || []);
+        } catch (error) {
+            setGroups([]);
+        } finally {
+            setGroupsLoading(false);
+        }
+    };
+
+    // Fetch data when dialog opens
+    useEffect(() => {
+        if (open && typeof window !== 'undefined') {
+            fetchClassrooms();
+            fetchGroups();
+        }
+    }, [open]);
 
     // Filter classrooms and groups based on search
     const filteredClassrooms = useMemo(() => {
@@ -82,7 +151,7 @@ export default function LinkGroupsToClassroomsDialog({
     const filteredGroups = useMemo(() => {
         return groups.filter((group) =>
             group.title.toLowerCase().includes(groupSearch.toLowerCase()) ||
-            group.field?.toLowerCase().includes(groupSearch.toLowerCase()) ||
+            (group.major || group.field || "").toLowerCase().includes(groupSearch.toLowerCase()) ||
             group.level.toLowerCase().includes(groupSearch.toLowerCase())
         );
     }, [groups, groupSearch]);
@@ -113,30 +182,67 @@ export default function LinkGroupsToClassroomsDialog({
 
         try {
             // Create all combinations of classroom-group pairs
-            const assignments = selectedClassrooms.flatMap(classroom =>
-                selectedGroups.map(group => ({
-                    classroom,
-                    group,
+            const groupClassrooms = selectedClassrooms.flatMap(classroomId =>
+                selectedGroups.map(groupId => ({
+                    classroomId,
+                    groupId,
                 }))
             );
 
-            await addGroupToClassroom(assignments).unwrap();
+            const token = sessionStorage.getItem("access_token");
+            const headers: Record<string, string> = {
+                "Content-Type": "application/json",
+            };
 
-            toast.success(
-                `Successfully linked ${selectedGroups.length} group${selectedGroups.length > 1 ? 's' : ''} to ${selectedClassrooms.length} classroom${selectedClassrooms.length > 1 ? 's' : ''}`
-            );
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
 
-            // Reset selections
-            setSelectedClassrooms([]);
-            setSelectedGroups([]);
-            setClassroomSearch("");
-            setGroupSearch("");
+            const response = await fetch("http://127.0.0.1:3001/classroom/group-add-classroom", {
+                method: "POST",
+                headers,
+                body: JSON.stringify(groupClassrooms),
+            });
 
-            onSuccess?.();
-            onOpenChange(false);
-        } catch (error) {
-            toast.error("Failed to link groups to classrooms");
-            console.error("Link error:", error);
+            if (!response.ok) {
+                let errorData;
+                try {
+                    const text = await response.text();
+                    errorData = JSON.parse(text);
+                } catch {
+                    errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+                }
+                throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            let result;
+            try {
+                const text = await response.text();
+                result = JSON.parse(text);
+            } catch (error) {
+                throw new Error("Server returned invalid JSON response");
+            }
+
+            if (result.status === "success") {
+                toast.success(`Successfully linked ${selectedGroups.length} group${selectedGroups.length > 1 ? 's' : ''} to ${selectedClassrooms.length} classroom${selectedClassrooms.length > 1 ? 's' : ''}`);
+
+                // Reset selections
+                setSelectedClassrooms([]);
+                setSelectedGroups([]);
+                setClassroomSearch("");
+                setGroupSearch("");
+
+                // Call success callback and close dialog
+                onSuccess?.();
+                onOpenChange(false);
+            } else {
+                throw new Error(result.message || "Failed to link groups to classrooms");
+            }
+
+        } catch (error: any) {
+            // Handle error response
+            const errorMessage = error?.message || "Failed to link groups to classrooms";
+            toast.error(errorMessage);
         } finally {
             setIsLinking(false);
         }
@@ -198,22 +304,45 @@ export default function LinkGroupsToClassroomsDialog({
                                 <div className="space-y-2">
                                     {filteredClassrooms.map((classroom) => (
                                         <div
-                                            key={classroom.id}
-                                            className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted cursor-pointer"
-                                            onClick={() => handleClassroomToggle(classroom.id)}
+                                            key={classroom._id}
+                                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted cursor-pointer border border-transparent hover:border-border transition-all"
+                                            onClick={() => handleClassroomToggle(classroom._id)}
                                         >
                                             <Checkbox
-                                                checked={selectedClassrooms.includes(classroom.id)}
-                                                onChange={() => handleClassroomToggle(classroom.id)}
+                                                checked={selectedClassrooms.includes(classroom._id)}
+                                                onChange={() => handleClassroomToggle(classroom._id)}
                                             />
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                                {classroom.frontPicture ? (
+                                                    <img
+                                                        src={classroom.frontPicture}
+                                                        alt={classroom.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <BookOpen className="h-6 w-6 text-muted-foreground" />
+                                                    </div>
+                                                )}
+                                            </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-medium truncate">{classroom.title}</p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {classroom.field} • {classroom.level}
                                                 </p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {classroom.price?.toLocaleString()} DA
+                                                    </span>
+                                                    {classroom.location && (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            • {classroom.location.commune}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div
-                                                className="w-3 h-3 rounded-full flex-shrink-0"
+                                                className="w-4 h-4 rounded-full flex-shrink-0"
                                                 style={{ backgroundColor: classroom.color }}
                                             />
                                         </div>
@@ -257,27 +386,45 @@ export default function LinkGroupsToClassroomsDialog({
                                 <div className="space-y-2">
                                     {filteredGroups.map((group) => (
                                         <div
-                                            key={group.id}
-                                            className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted cursor-pointer"
-                                            onClick={() => handleGroupToggle(group.id)}
+                                            key={group._id}
+                                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted cursor-pointer border border-transparent hover:border-border transition-all"
+                                            onClick={() => handleGroupToggle(group._id)}
                                         >
                                             <Checkbox
-                                                checked={selectedGroups.includes(group.id)}
-                                                onChange={() => handleGroupToggle(group.id)}
+                                                checked={selectedGroups.includes(group._id)}
+                                                onChange={() => handleGroupToggle(group._id)}
                                             />
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                                {group.frontPicture ? (
+                                                    <img
+                                                        src={group.frontPicture}
+                                                        alt={group.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <Users className="h-6 w-6 text-muted-foreground" />
+                                                    </div>
+                                                )}
+                                            </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-medium truncate">{group.title}</p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {group.field || group.major} • {group.level}
+                                                    {group.major || group.field} • {group.level}
                                                 </p>
-                                                {group.memberCount && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {group.memberCount} members
-                                                    </p>
-                                                )}
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs text-muted-foreground">
+                                                        Max: {group.maxStudents} students
+                                                    </span>
+                                                    {group.isSemestral && (
+                                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                                            Semestral
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div
-                                                className="w-3 h-3 rounded-full flex-shrink-0"
+                                                className="w-4 h-4 rounded-full flex-shrink-0"
                                                 style={{ backgroundColor: group.color }}
                                             />
                                         </div>

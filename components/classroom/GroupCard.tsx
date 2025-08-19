@@ -13,27 +13,45 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Group } from "@/store/types/api";
 import { motion } from "framer-motion";
 import {
   Archive,
+  BookOpen,
   Calendar,
+  Clock,
+  DollarSign,
   Edit,
   Eye,
   MoreHorizontal,
   Star,
   Trash2,
-  Users
+  UserPlus,
+  Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
+// Type based on your actual Convex document structure
 interface GroupCardProps {
-  group: Group;
-  onView?: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onArchive?: (id: string) => void;
-  onUnarchive?: (id: string) => void;
-  onFavorite?: (id: string) => void;
+  group: {
+    _id: string;
+    title: string;
+    major: string;
+    level: string;
+    description: string;
+    owner: string;
+    fee?: number;
+    maxStudents: number;
+    isArchived: boolean;
+    isSemestral: boolean;
+    color: string;
+    frontPicture: string;
+    backPicture: string;
+    startDate: number;
+    endDate: number;
+    _creationTime: number;
+  };
+  onAddStudents?: (id: string, title: string) => void;
   showActions?: boolean;
   className?: string;
   viewMode?: "grid" | "list";
@@ -42,26 +60,55 @@ interface GroupCardProps {
 
 export function GroupCard({
   group,
-  onView,
-  onEdit,
-  onDelete,
-  onArchive,
-  onUnarchive,
-  onFavorite,
+  onAddStudents,
   showActions = true,
   className,
   viewMode = "grid",
   isFavorite = false,
 }: GroupCardProps) {
+  const router = useRouter();
+
   const handleCardClick = () => {
-    if (onView) {
-      onView(group.id);
-    }
+    router.push(`/classroom/groups/${group._id}`);
   };
 
   const handleActionClick = (e: React.MouseEvent, action: () => void) => {
     e.stopPropagation();
     action();
+  };
+
+  const handleView = () => {
+    router.push(`/classroom/groups/${group._id}`);
+  };
+
+  const handleEdit = () => {
+    toast.info("Edit functionality not implemented yet");
+  };
+
+  const handleDelete = () => {
+    toast.info("Delete functionality not implemented yet");
+  };
+
+  const handleArchive = () => {
+    toast.info("Archive functionality not implemented yet");
+  };
+
+  const handleFavorite = () => {
+    toast.info("Favorite functionality not implemented yet");
+  };
+
+  // Format dates
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString();
+  };
+
+  const getDuration = () => {
+    const start = new Date(group.startDate);
+    const end = new Date(group.endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffWeeks = Math.ceil(diffDays / 7);
+    return `${diffWeeks} weeks`;
   };
 
   // Animation variants
@@ -80,12 +127,6 @@ export function GroupCard({
 
   const imageVariants = {
     hover: { scale: 1.05 },
-  };
-
-  // Format dates
-  const formatDate = (timestamp?: number) => {
-    if (!timestamp) return null;
-    return new Date(timestamp).toLocaleDateString();
   };
 
   if (viewMode === "list") {
@@ -112,7 +153,7 @@ export function GroupCard({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Users className="h-8 w-8 text-muted-foreground" />
+                      <BookOpen className="h-8 w-8 text-muted-foreground" />
                     </div>
                   )}
                 </div>
@@ -133,35 +174,38 @@ export function GroupCard({
                     {group.isArchived && (
                       <Badge variant="destructive">Archived</Badge>
                     )}
+                    {group.isSemestral && (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        Semestral
+                      </Badge>
+                    )}
                   </div>
-
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {group.schoolName || "School not assigned"}
-                  </p>
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1">
-                      <Badge variant="secondary">{group.field}</Badge>
+                      <Badge variant="secondary">{group.major}</Badge>
                       <Badge variant="outline">{group.level}</Badge>
                     </div>
 
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      <span>{group.memberCount || 0} members</span>
+                      <span>Max: {group.maxStudents} students</span>
                     </div>
 
-                    {group.isSemestral && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>Semestral</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(group.startDate)} - {formatDate(group.endDate)}</span>
+                    </div>
 
-                    {group.startDate && group.endDate && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <span>
-                          {formatDate(group.startDate)} - {formatDate(group.endDate)}
-                        </span>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{getDuration()}</span>
+                    </div>
+
+                    {group.fee && (
+                      <div className="flex items-center gap-1 font-medium">
+                        <DollarSign className="h-4 w-4" />
+                        <span>{group.fee.toLocaleString()} DA</span>
                       </div>
                     )}
                   </div>
@@ -174,9 +218,7 @@ export function GroupCard({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={(e) =>
-                      handleActionClick(e, () => onView?.(group.id))
-                    }
+                    onClick={(e) => handleActionClick(e, handleView)}
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View
@@ -192,63 +234,35 @@ export function GroupCard({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {onEdit && (
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleEdit)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleFavorite)}>
+                        <Star className="h-4 w-4 mr-2" />
+                        {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                      </DropdownMenuItem>
+                      {onAddStudents && (
                         <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onEdit(group.id))
-                          }
+                          onClick={(e) => handleActionClick(e, () => onAddStudents(group._id, group.title))}
                         >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                      )}
-                      {onFavorite && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onFavorite(group.id))
-                          }
-                        >
-                          <Star className="h-4 w-4 mr-2" />
-                          {isFavorite
-                            ? "Remove from favorites"
-                            : "Add to favorites"}
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Add Students
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
-                      {!group.isArchived && onArchive && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onArchive(group.id))
-                          }
-                        >
-                          <Archive className="h-4 w-4 mr-2" />
-                          Archive
-                        </DropdownMenuItem>
-                      )}
-                      {group.isArchived && onUnarchive && (
-                        <DropdownMenuItem
-                          onClick={(e) =>
-                            handleActionClick(e, () => onUnarchive(group.id))
-                          }
-                        >
-                          <Archive className="h-4 w-4 mr-2" />
-                          Unarchive
-                        </DropdownMenuItem>
-                      )}
-                      {onDelete && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={(e) =>
-                              handleActionClick(e, () => onDelete(group.id))
-                            }
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </>
-                      )}
+                      <DropdownMenuItem onClick={(e) => handleActionClick(e, handleArchive)}>
+                        <Archive className="h-4 w-4 mr-2" />
+                        {group.isArchived ? "Unarchive" : "Archive"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={(e) => handleActionClick(e, handleDelete)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -284,7 +298,7 @@ export function GroupCard({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Users className="h-12 w-12 text-muted-foreground" />
+              <BookOpen className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
 
@@ -293,19 +307,15 @@ export function GroupCard({
             {group.isArchived && (
               <Badge variant="destructive">Archived</Badge>
             )}
-            {isFavorite && (
-              <Badge
-                variant="secondary"
-                className="bg-yellow-100 text-yellow-800"
-              >
-                <Star className="h-3 w-3 mr-1 fill-current" />
-                Favorite
-              </Badge>
-            )}
             {group.isSemestral && (
               <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                <Calendar className="h-3 w-3 mr-1" />
                 Semestral
+              </Badge>
+            )}
+            {isFavorite && (
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                <Star className="h-3 w-3 mr-1 fill-current" />
+                Favorite
               </Badge>
             )}
           </div>
@@ -325,84 +335,52 @@ export function GroupCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {onView && (
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleView)}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleEdit)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleFavorite)}>
+                    <Star className="h-4 w-4 mr-2" />
+                    {isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  </DropdownMenuItem>
+                  {onAddStudents && (
                     <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onView(group.id))
-                      }
+                      onClick={(e) => handleActionClick(e, () => onAddStudents(group._id, group.title))}
                     >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </DropdownMenuItem>
-                  )}
-                  {onEdit && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onEdit(group.id))
-                      }
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                  )}
-                  {onFavorite && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onFavorite(group.id))
-                      }
-                    >
-                      <Star className="h-4 w-4 mr-2" />
-                      {isFavorite
-                        ? "Remove from favorites"
-                        : "Add to favorites"}
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add Students
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  {!group.isArchived && onArchive && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onArchive(group.id))
-                      }
-                    >
-                      <Archive className="h-4 w-4 mr-2" />
-                      Archive
-                    </DropdownMenuItem>
-                  )}
-                  {group.isArchived && onUnarchive && (
-                    <DropdownMenuItem
-                      onClick={(e) =>
-                        handleActionClick(e, () => onUnarchive(group.id))
-                      }
-                    >
-                      <Archive className="h-4 w-4 mr-2" />
-                      Unarchive
-                    </DropdownMenuItem>
-                  )}
-                  {onDelete && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={(e) =>
-                          handleActionClick(e, () => onDelete(group.id))
-                        }
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  <DropdownMenuItem onClick={(e) => handleActionClick(e, handleArchive)}>
+                    <Archive className="h-4 w-4 mr-2" />
+                    {group.isArchived ? "Unarchive" : "Archive"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={(e) => handleActionClick(e, handleDelete)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           )}
 
-          {/* Member count indicator */}
-          <div className="absolute bottom-2 right-2">
-            <div className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-black/20 text-white">
-              {group.memberCount || 0} members
+          {/* Fee indicator */}
+          {group.fee && (
+            <div className="absolute bottom-2 right-2">
+              <div className="px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-black/20 text-white">
+                {group.fee.toLocaleString()} DA
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <CardHeader className="pb-2">
@@ -412,7 +390,7 @@ export function GroupCard({
                 {group.title}
               </h3>
               <p className="text-sm text-muted-foreground truncate">
-                {group.schoolName || "School not assigned"}
+                {formatDate(group.startDate)} - {formatDate(group.endDate)}
               </p>
             </div>
             <div
@@ -423,25 +401,32 @@ export function GroupCard({
           </div>
 
           <div className="flex gap-2 flex-wrap mt-2">
-            <Badge variant="secondary">{group.field}</Badge>
+            <Badge variant="secondary">{group.major}</Badge>
             <Badge variant="outline">{group.level}</Badge>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-3">
-          {/* Member Count */}
+          {/* Duration */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4 flex-shrink-0" />
-            <span>{group.memberCount || 0} members</span>
+            <Clock className="h-4 w-4 flex-shrink-0" />
+            <span>{getDuration()}</span>
           </div>
 
-          {/* Semestral Info */}
-          {group.isSemestral && group.startDate && group.endDate && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">
-                {formatDate(group.startDate)} - {formatDate(group.endDate)}
-              </span>
+          {/* Student Capacity */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-4 w-4 flex-shrink-0" />
+            <span>Max: {group.maxStudents} students</span>
+          </div>
+
+          {/* Fee */}
+          {group.fee && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <DollarSign className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <span>{group.fee.toLocaleString()} DA</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Total fee</span>
             </div>
           )}
 
@@ -455,30 +440,22 @@ export function GroupCard({
           {/* Action Buttons (Mobile) */}
           {showActions && (
             <div className="flex gap-2 pt-2 md:hidden">
-              {onView && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={(e) =>
-                    handleActionClick(e, () => onView(group.id))
-                  }
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-              )}
-              {onEdit && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e) =>
-                    handleActionClick(e, () => onEdit(group.id))
-                  }
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={(e) => handleActionClick(e, handleView)}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => handleActionClick(e, handleEdit)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </CardContent>
@@ -508,14 +485,16 @@ export function GroupCardSkeleton() {
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="h-4 w-4 bg-muted rounded animate-pulse" />
-          <div className="h-4 bg-muted rounded w-20 animate-pulse" />
+          <div className="h-4 bg-muted rounded flex-1 animate-pulse" />
         </div>
         <div className="flex items-center gap-2">
           <div className="h-4 w-4 bg-muted rounded animate-pulse" />
-          <div className="h-4 bg-muted rounded flex-1 animate-pulse" />
+          <div className="h-4 bg-muted rounded w-24 animate-pulse" />
         </div>
-        <div className="h-4 bg-muted rounded animate-pulse" />
-        <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+          <div className="h-4 bg-muted rounded w-20 animate-pulse" />
+        </div>
       </CardContent>
     </Card>
   );

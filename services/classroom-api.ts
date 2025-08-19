@@ -241,17 +241,46 @@ class ClassroomApiService {
   async createClassrooms(
     params: CreateClassroomParams,
   ): Promise<ApiResponse<Classroom[]>> {
-    const result = await this.request<ApiResponse<Classroom[]>>("/create-classroom", {
+    const result = await this.request<Array<{
+      status: "success" | "error";
+      message: string;
+      payload?: string;
+    }>>("/create-classroom", {
       method: "POST",
       body: JSON.stringify(params.classrooms),
     });
 
+    // Handle the array response from backend
+    const hasErrors = result.some(item => item.status === "error");
+
+    if (hasErrors) {
+      const errorMessages = result
+        .filter(item => item.status === "error")
+        .map(item => item.message)
+        .join(", ");
+
+      throw new ClassroomApiError(
+        `Classroom creation failed: ${errorMessages}`,
+        "CLASSROOM_CREATION_ERROR",
+        result
+      );
+    }
+
+    // All successful
+    const successMessages = result
+      .filter(item => item.status === "success")
+      .map(item => item.message);
+
     showSuccessNotification(
       "Classrooms Created",
-      `Successfully created ${params.classrooms.length} classroom${params.classrooms.length > 1 ? 's' : ''}`
+      successMessages.join(", ")
     );
 
-    return result;
+    return {
+      data: [], // We don't get the full classroom objects back, just IDs
+      success: true,
+      message: successMessages.join(", "),
+    };
   }
 
   async updateClassroom(
@@ -315,17 +344,46 @@ class ClassroomApiService {
   async createGroups(
     groups: Omit<Group, "id" | "createdAt" | "updatedAt">[],
   ): Promise<ApiResponse<Group[]>> {
-    const result = await this.request<ApiResponse<Group[]>>("/create-group", {
+    const result = await this.request<Array<{
+      status: "success" | "error";
+      message: string;
+      payload?: string;
+    }>>("/create-group", {
       method: "POST",
       body: JSON.stringify(groups),
     });
 
+    // Handle the array response from backend
+    const hasErrors = result.some(item => item.status === "error");
+
+    if (hasErrors) {
+      const errorMessages = result
+        .filter(item => item.status === "error")
+        .map(item => item.message)
+        .join(", ");
+
+      throw new ClassroomApiError(
+        `Group creation failed: ${errorMessages}`,
+        "GROUP_CREATION_ERROR",
+        result
+      );
+    }
+
+    // All successful
+    const successMessages = result
+      .filter(item => item.status === "success")
+      .map(item => item.message);
+
     showSuccessNotification(
       "Groups Created",
-      `Successfully created ${groups.length} group${groups.length > 1 ? 's' : ''}`
+      successMessages.join(", ")
     );
 
-    return result;
+    return {
+      data: [], // We don't get the full group objects back, just IDs
+      success: true,
+      message: successMessages.join(", "),
+    };
   }
 
   async updateGroup(params: {
@@ -482,18 +540,34 @@ class ClassroomApiService {
 
   // Attendance Management Methods
   async addStudentAttendance(
-    attendance: Omit<Attendance, "id" | "createdAt" | "updatedAt">,
-  ): Promise<ApiResponse<Attendance>> {
+    studentsAttendance: Array<{
+      student: string;
+      isPresent: boolean;
+      presentTime?: number;
+      absenceReason?: string;
+      note?: string;
+    }>,
+    classroomId: string,
+    eventId: string,
+  ): Promise<ApiResponse<any>> {
     return this.request("/attendance/add-student-attendance", {
       method: "POST",
-      body: JSON.stringify(attendance),
+      body: JSON.stringify({
+        studentsAttendance,
+        classroomId,
+        eventId,
+      }),
     });
   }
 
   async updateStudentAttendance(params: {
     attendanceId: string;
-    attendanceData: Partial<Attendance>;
-  }): Promise<ApiResponse<Attendance>> {
+    attendanceData: {
+      absenceReason: string;
+      attachements: Array<string>;
+    };
+    eventId: string;
+  }): Promise<ApiResponse<any>> {
     return this.request("/attendance/update-student-attendance", {
       method: "POST",
       body: JSON.stringify(params),
@@ -501,28 +575,39 @@ class ClassroomApiService {
   }
 
   async getStudentAttendance(params: {
-    studentId: string;
-    dateRange?: { start: number; end: number };
-  }): Promise<ApiResponse<Attendance[]>> {
+    eventId: string;
+    pagination?: {
+      numItems: number;
+      cursor: string | null;
+    };
+  }): Promise<ApiResponse<any>> {
     return this.request("/attendance/get-attendance-student", {
       method: "POST",
       body: JSON.stringify(params),
     });
   }
 
-  async getEventAttendance(
-    eventId: string,
-  ): Promise<ApiResponse<Attendance[]>> {
+  async getEventAttendance(params: {
+    eventId: string;
+    classroomId: string;
+    pagination?: {
+      numItems: number;
+      cursor: string | null;
+    };
+  }): Promise<ApiResponse<any>> {
     return this.request("/attendance/get-attendance-event", {
       method: "POST",
-      body: JSON.stringify({ eventId }),
+      body: JSON.stringify(params),
     });
   }
 
   async getClassroomAttendance(params: {
     classroomId: string;
-    date?: number;
-  }): Promise<ApiResponse<Attendance[]>> {
+    pagination?: {
+      numItems: number;
+      cursor: string | null;
+    };
+  }): Promise<ApiResponse<any>> {
     return this.request("/attendance/get-attendance-classroom", {
       method: "POST",
       body: JSON.stringify(params),
